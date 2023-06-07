@@ -3,9 +3,9 @@
 ## Główne założenia (wymagania?) funkcjonalne projektu
 
 Założeniem projektu jest stworzenie komunikatora w formie aplikacji mobilnej na Androida i iOS
-(nazwa kodowa "Kommunicator") wraz z backendem w języku Kotlin przy wykorzystaniu technologii
-Kotlin Multiplatform. Jednym z celów jest współdzielenie między platformami jak największej ilości
-kodu, a co najmniej wydzielenie i współdzielenie warstwy z logiką biznesową.
+(nazwa kodowa "Kommunicator") przy wykorzystaniu technologii Kotlin Multiplatform wraz z backendem
+w języku Kotlin. Jednym z celów jest współdzielenie między platformami mobilnymi jak największej 
+ilości kodu, a co najmniej wydzielenie i współdzielenie warstwy z logiką biznesową.
 
 Podstawowe funkcjonalności komunikatora:
 
@@ -27,6 +27,7 @@ Potrzebne nam będą:
 
 - Android Studio (w momencie tworzenia AS Flamingo)
 - plugin do AS https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile
+- macOS, bo bez niego nie zbudujemy apki na iOS
 
 Tworzymy nowy pusty projekt aplikacji (do wyboru jest jeszcze biblioteka).
 
@@ -36,7 +37,11 @@ i "io.github.mklkj.kommunicator).
 Niestety nazwa aplikacji nie ma odzwierciedlenia na iOS i musimy wykonać dodatkowo to
 https://stackoverflow.com/a/239006/6695449.
 
+Dodatkowo z jakiegoś powodu na moim komputerze jest problem z rozpoznawaniem przez AS skryptów .kts.
+Rozwiązaniem jest użycie innego JDK niż Embedded JDK (np. Corretto JDK).
+
 ## Materiały
 
 - biblioteki KMM - https://github.com/terrakok/kmm-awesome
+- biblioteki KMP od IceRock - https://moko.icerock.dev/
 - tutorial tworzenia konsolowej aplikacji czatu - https://ktor.io/docs/creating-web-socket-chat.html
