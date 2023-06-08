@@ -2,10 +2,11 @@
 
 ## Główne założenia (wymagania?) funkcjonalne projektu
 
-Założeniem projektu jest stworzenie komunikatora w formie aplikacji mobilnej na Androida i iOS
-(nazwa kodowa "Kommunicator") przy wykorzystaniu technologii Kotlin Multiplatform wraz z backendem
-w języku Kotlin. Jednym z celów jest współdzielenie między platformami mobilnymi jak największej 
-ilości kodu, a co najmniej wydzielenie i współdzielenie warstwy z logiką biznesową.
+Założeniem projektu (nazwa kodowa "Kommunicator") jest stworzenie komunikatora w formie aplikacji
+mobilnej na Androida i iOS przy wykorzystaniu technologii Kotlin Multiplatform. Aplikacja będzie
+wykorzystywać REST API udostępniane przez cześć serwerową wykonaną we frameworku Ktor.
+Dane wszystkich użytkowników z wiadomościami przechowywane będą w bazie danych PostgreSQL.
+Sposobem na zabezpieczenie komunikacji między klientem a serwerem oprócz SSL będzie JWT.
 
 Podstawowe funkcjonalności komunikatora:
 
@@ -13,13 +14,8 @@ Podstawowe funkcjonalności komunikatora:
 - dodawanie kontaktów
 - wysyłanie i odbieranie wiadomości tekstowych
 - statusy (odczytana wiadomość, pisanie)
-- powiadomienia push
-
-Dodatkowe opcjonalne funkcjonalności:
-
-- grupy
 - historia wiadomości dostępna offline
-- udostępnianie plików, obrazów
+- powiadomienia push
 
 ## Postawienie projektu (2023-06-06)
 
@@ -45,3 +41,4 @@ Rozwiązaniem jest użycie innego JDK niż Embedded JDK (np. Corretto JDK).
 - biblioteki KMM - https://github.com/terrakok/kmm-awesome
 - biblioteki KMP od IceRock - https://moko.icerock.dev/
 - tutorial tworzenia konsolowej aplikacji czatu - https://ktor.io/docs/creating-web-socket-chat.html
+- JWT do autoryzacji - https://ktor.io/docs/jwt.html
