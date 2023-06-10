@@ -43,3 +43,4 @@ Rozwiązaniem jest użycie innego JDK niż Embedded JDK (np. Corretto JDK).
 - biblioteki KMP od IceRock - https://moko.icerock.dev/
 - tutorial tworzenia konsolowej aplikacji czatu - https://ktor.io/docs/creating-web-socket-chat.html
 - JWT do autoryzacji - https://ktor.io/docs/jwt.html
+- moze jakaś integracja z ChatGPT? - https://github.com/yml-org/ychat
