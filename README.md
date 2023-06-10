@@ -38,7 +38,8 @@ Rozwiązaniem jest użycie innego JDK niż Embedded JDK (np. Corretto JDK).
 
 ## Materiały
 
-- biblioteki KMM - https://github.com/terrakok/kmm-awesome
+- biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
+- biblioteki KMM 2 - https://github.com/AAkira/Kotlin-Multiplatform-Libraries
 - biblioteki KMP od IceRock - https://moko.icerock.dev/
 - tutorial tworzenia konsolowej aplikacji czatu - https://ktor.io/docs/creating-web-socket-chat.html
 - JWT do autoryzacji - https://ktor.io/docs/jwt.html
