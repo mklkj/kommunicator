@@ -5,16 +5,19 @@ plugins {
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
+    applyDefaultHierarchyTemplate()
 
-    android {
+    androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
+        kotlin {
+            jvmToolchain(17)
+        }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -41,7 +44,7 @@ kotlin {
 
 android {
     namespace = "io.github.mklkj.kommunicator"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         minSdk = 24
     }
