@@ -36,6 +36,16 @@ https://stackoverflow.com/a/239006/6695449.
 Dodatkowo z jakiegoś powodu na moim komputerze jest problem z rozpoznawaniem przez AS skryptów .kts.
 Rozwiązaniem jest użycie innego JDK niż Embedded JDK (np. Corretto JDK).
 
+## Aktualizacja bibliotek (2023-11-14)
+
+Trochę mnie tu nie było... aktualizujemy zależności i upewniamy się, że wszystko działa. Oprócz
+podbicia wersji kotlina i AGP podbiłem też wersję javy tak jako target, tak i source compatibility.
+
+W międzyczasie zainstalowałem plugin https://touchlab.co/xcodekotlin.
+
+W międzyczasie pojawiła się możliwość pisania UI aplikacji na iOS w Compose UI oraz generator
+projektu (https://kmp.jetbrains.com/). Przerabiam ten projekt według tego, co wypluje ten generator.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

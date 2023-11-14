@@ -1,11 +1,12 @@
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
 }
 
-@OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    applyDefaultHierarchyTemplate()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     androidTarget {
         compilations.all {
@@ -18,15 +19,7 @@ kotlin {
         }
     }
 
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "shared"
-        }
-    }
+    jvm()
 
     sourceSets {
         val commonMain by getting {
@@ -43,9 +36,9 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.mklkj.kommunicator"
-    compileSdk = 34
+    namespace = "io.github.mklkj.kommunicator.shared"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
-        minSdk = 24
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
