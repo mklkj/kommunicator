@@ -17,34 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.di.injectViewModel
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-
-private val chats = listOf(
-    Chat(
-        isUnread = false,
-        lastMessage = "himenaeos",
-        lastMessageAuthor = "ridens",
-        name = "Edmond Hobbs",
-        avatarUrl = "https://placehold.co/64x64/orange/white.jpg",
-        lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
-    ),
-    Chat(
-        isUnread = false,
-        lastMessage = "aenean",
-        lastMessageAuthor = "aptent",
-        name = "Alexander Benton",
-        avatarUrl = "https://placehold.co/64x64/green/black.png",
-        lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
-    ),
-)
 
 @Composable
-fun ChatsScreen() {
+fun ChatsScreen(viewModel: ChatsViewModel = injectViewModel()) {
     LazyColumn(Modifier.fillMaxSize()) {
-        items(chats) { chat ->
+        items(viewModel.chats) { chat ->
             ChatItem(
                 item = chat,
                 onClick = { println(it.name) }

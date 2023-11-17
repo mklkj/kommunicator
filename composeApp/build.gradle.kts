@@ -29,11 +29,14 @@ kotlin {
 
     sourceSets {
         val ktorVersion = libs.versions.ktor.get()
+        val koin = "3.5.0"
         androidMain.dependencies {
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation("io.ktor:ktor-client-android:$ktorVersion")
+            implementation("io.insert-koin:koin-android:$koin")
+            implementation("io.insert-koin:koin-androidx-compose:$koin")
         }
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:$ktorVersion")
@@ -51,6 +54,12 @@ kotlin {
             implementation("io.ktor:ktor-client-core:$ktorVersion")
             implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
             implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+            api("dev.icerock.moko:mvvm-compose:0.16.1")
+            api("dev.icerock.moko:mvvm-flow-compose:0.16.1")
+
+            implementation("io.insert-koin:koin-core:$koin")
+            implementation("io.insert-koin:koin-compose:1.1.0")
         }
     }
 }

@@ -60,6 +60,10 @@ Wracając do tworzenia layoutu, chcąc wyświetlić obrazek (awatar) czatu, uży
 Ta wymaga bezpośredniego zdefiniowania odpowiedniego silnika HTTP dla biblioteki `Ktor` dla każdego
 z targetów, co zrobiłem, a co przyda się przy tworzeniu części sieciowej.
 
+Następnie zacząłem prace nad architekturą — chciałem dodać view model, by tam trzymać stan listy
+chatów, jak i pobierać je z API. Użyłem więc view modeli od mokko oraz koin do DI. 
+Czy jest idealnie? Nie jest. Ale jako tako na razie działa.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
