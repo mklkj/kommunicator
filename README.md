@@ -45,6 +45,7 @@ W międzyczasie zainstalowałem plugin https://touchlab.co/xcodekotlin.
 
 W międzyczasie pojawiła się możliwość pisania UI aplikacji na iOS w Compose UI oraz generator
 projektu (https://kmp.jetbrains.com/). Przerabiam ten projekt według tego, co wypluje ten generator.
+Ten wizard wygenerował też moduł z backendem (<3) więc chętnie tego użyję.
 
 ## Materiały
 
