@@ -47,7 +47,7 @@ W międzyczasie pojawiła się możliwość pisania UI aplikacji na iOS w Compos
 projektu (https://kmp.jetbrains.com/). Przerabiam ten projekt według tego, co wypluje ten generator.
 Ten wizard wygenerował też moduł z backendem (<3) więc chętnie tego użyję.
 
-## Zbudowanie mock-upu listy czatów (2023-11-17)
+## Zbudowanie mock-upu listy czatów, view modele i DI (2023-11-17)
 
 Zacząłem tworzyć ekran z listą czatów (ChatsScreen). Na te potrzeby utworzyłem model `Chat`,
 umieszczając go we współdzielonym między apką a serwerem module `shared`.
@@ -63,6 +63,11 @@ z targetów, co zrobiłem, a co przyda się przy tworzeniu części sieciowej.
 Następnie zacząłem prace nad architekturą — chciałem dodać view model, by tam trzymać stan listy
 chatów, jak i pobierać je z API. Użyłem więc view modeli od mokko oraz koin do DI. 
 Czy jest idealnie? Nie jest. Ale jako tako na razie działa.
+
+Idąc za ciosem zacząłem kombinować z konfiguracją sieci. Przeniosłem mockowe dane z common do server
+i zwracam je teraz z endpointu `/chats`. Apka przy użyciu Ktorfita z Ktorem pod spodem i odpowiednim
+silnikiem na Androidzie i iOS pobiera listę czatów z adresu 0.0.0.0. Tak na Androidzie tak i na iOS
+wymagane było połączenie https i musiałem to obejść, by móc developać apkę na localhoście.
 
 ## Materiały
 

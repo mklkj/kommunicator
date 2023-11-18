@@ -5,8 +5,11 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.ktorfit)
 }
 
+val koin_ksp_version = "1.3.0"
 kotlin {
     androidTarget {
         compilations.all {
@@ -51,9 +54,14 @@ kotlin {
             implementation("media.kamel:kamel-image:0.8.3")
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.ktorfit)
+            project.dependencies.ksp(libs.ktorfit.ksp)
             implementation("io.ktor:ktor-client-core:$ktorVersion")
             implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
             implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+            implementation(project.dependencies.platform("io.insert-koin:koin-annotations-bom:$koin_ksp_version"))
+            implementation("io.insert-koin:koin-annotations:$koin_ksp_version")
 
             api("dev.icerock.moko:mvvm-compose:0.16.1")
             api("dev.icerock.moko:mvvm-flow-compose:0.16.1")
@@ -62,6 +70,10 @@ kotlin {
             implementation("io.insert-koin:koin-compose:1.1.0")
         }
     }
+}
+
+dependencies {
+    add("kspAndroid", "io.insert-koin:koin-ksp-compiler:$koin_ksp_version")
 }
 
 android {

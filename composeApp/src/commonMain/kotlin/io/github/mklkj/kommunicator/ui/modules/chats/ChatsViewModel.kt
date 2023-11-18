@@ -1,29 +1,33 @@
 package io.github.mklkj.kommunicator.ui.modules.chats
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 
-class ChatsViewModel : BaseViewModel() {
+@KoinViewModel
+class ChatsViewModel(
+    private val messagesRepository: MessagesRepository,
+) : BaseViewModel() {
 
-    val chats = listOf(
-        Chat(
-            isUnread = false,
-            lastMessage = "himenaeos",
-            lastMessageAuthor = "ridens",
-            name = "Edmond Hobbs",
-            avatarUrl = "https://placehold.co/64x64/orange/white.jpg",
-            lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
-        ),
-        Chat(
-            isUnread = false,
-            lastMessage = "aenean",
-            lastMessageAuthor = "aptent",
-            name = "Alexander Benton",
-            avatarUrl = "https://placehold.co/64x64/green/black.png",
-            lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
-        ),
-    )
+    var chats by mutableStateOf<List<Chat>>(emptyList())
+        private set
+
+    init {
+        loadData()
+    }
+
+    private fun loadData() {
+        viewModelScope.launch {
+            runCatching { messagesRepository.getChats() }
+                .onFailure { it.printStackTrace() }
+                .onSuccess {
+                    chats = it
+                }
+        }
+    }
 }
