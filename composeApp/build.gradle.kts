@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.ktorfit)
 }
 
-val koin_ksp_version = "1.3.0"
 kotlin {
     androidTarget {
         compilations.all {
@@ -31,18 +30,16 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = libs.versions.ktor.get()
-        val koin = "3.5.0"
         androidMain.dependencies {
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
-            implementation("io.ktor:ktor-client-android:$ktorVersion")
-            implementation("io.insert-koin:koin-android:$koin")
-            implementation("io.insert-koin:koin-androidx-compose:$koin")
+            implementation(libs.ktor.client.android)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
         iosMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(projects.shared)
@@ -51,29 +48,37 @@ kotlin {
             implementation(compose.material3)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
-            implementation("media.kamel:kamel-image:0.8.3")
+
+            implementation(libs.kamel.image)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktorfit)
-            project.dependencies.ksp(libs.ktorfit.ksp)
-            implementation("io.ktor:ktor-client-core:$ktorVersion")
-            implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.json)
 
-            implementation(project.dependencies.platform("io.insert-koin:koin-annotations-bom:$koin_ksp_version"))
-            implementation("io.insert-koin:koin-annotations:$koin_ksp_version")
+            api(libs.mvvm.compose)
+            api(libs.mvvm.flow.compose)
 
-            api("dev.icerock.moko:mvvm-compose:0.16.1")
-            api("dev.icerock.moko:mvvm-flow-compose:0.16.1")
-
-            implementation("io.insert-koin:koin-core:$koin")
-            implementation("io.insert-koin:koin-compose:1.1.0")
+            implementation(project.dependencies.platform(libs.koin.annotations.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.annotations)
         }
     }
 }
 
 dependencies {
-    add("kspAndroid", "io.insert-koin:koin-ksp-compiler:$koin_ksp_version")
+    listOf(
+        libs.ktorfit.ksp,
+        libs.koin.ksp,
+    ).forEach {
+        add("kspAndroid", it)
+
+        add("kspIosX64", it)
+        add("kspIosArm64", it)
+        add("kspIosSimulatorArm64", it)
+    }
 }
 
 android {

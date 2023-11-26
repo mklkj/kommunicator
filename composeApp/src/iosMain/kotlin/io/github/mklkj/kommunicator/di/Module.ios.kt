@@ -1,16 +1,19 @@
 package io.github.mklkj.kommunicator.di
 
 import androidx.compose.runtime.Composable
-import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
-import io.github.mklkj.kommunicator.ui.modules.chats.ChatsViewModel
-import org.koin.compose.koinInject
+import org.koin.compose.rememberKoinInject
+import org.koin.core.module.Module
 import org.koin.dsl.module
 
-actual val platformModule = module {
-    factory { ChatsViewModel(get()) }
-    single { MessagesRepository(get()) }
+actual val platformModule: Module = module {
+    includes(koinDefaultModule)
 }
 
 @Composable
-actual inline fun <reified T : BaseViewModel> injectViewModel(): T = koinInject() // todo!!!
+actual inline fun <reified T : BaseViewModel> injectViewModel(): T {
+    // todo: is this really the best option?
+    return rememberKoinInject()
+}
+
+expect val koinDefaultModule: Module

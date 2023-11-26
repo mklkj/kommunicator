@@ -69,6 +69,25 @@ i zwracam je teraz z endpointu `/chats`. Apka przy użyciu Ktorfita z Ktorem pod
 silnikiem na Androidzie i iOS pobiera listę czatów z adresu 0.0.0.0. Tak na Androidzie tak i na iOS
 wymagane było połączenie https i musiałem to obejść, by móc developać apkę na localhoście.
 
+## Kombinowanie z KSP do libki Koin, żeby nie pisać ręcznie kodu na żadnym targecie (2023-11-26)
+
+Bardzo nie podobało mi się to, że poprzednio android używał ksp do generowania kodu głównego modułu
+Koin, a w iOS musiałem ręcznie wpisywać, co jest factory, co jest single, etc
+(Hilt przyzwyczaił do dobrego). Z tego powodu poszperałem i ustawiłem Koina dla wszystkich
+interesujących nas targetów (czyli wszystkie iOSowe + Android). Brakującą implementację
+rozszerzenia `org.koin.androidx.viewmodel.dsl.viewModel` dopisałem na pałę w iosMain sources, tak
+by zamiast używać `koinViewModel` dostępnego tylko dla androida, użyć `rememberKoinInject()`
+(jako w zasadzie jedynego mi znanego sposobu na to).
+
+I to działa!
+
+Z jednym minusem — Intellij ma problemy z wykryciem wygenerowanego kodu dla iosX64Main w iosMain
+i przez `org.koin.ksp.generated.defaultModule` wyświetla się jakby go brakowało, chociaż tak
+naprawdę to jest i wszystko się normalnie kompiluje. Jako _obejście_ dodałem expect/actual
+w rozbiciu na `iosMain` vs iosX64Main itd., by nie oglądać tego errora :)
+Dodatkowo chwilowo jesteśmy uwiązani na wersji .13 ksp, ze względu na jakiś dziwny error przy
+budowaniu iOSa (dodałem komentarz nad wersją).
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
