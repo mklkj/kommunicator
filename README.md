@@ -82,11 +82,32 @@ by zamiast używać `koinViewModel` dostępnego tylko dla androida, użyć `reme
 I to działa!
 
 Z jednym minusem — Intellij ma problemy z wykryciem wygenerowanego kodu dla iosX64Main w iosMain
-i przez `org.koin.ksp.generated.defaultModule` wyświetla się jakby go brakowało, chociaż tak
+i przez `org.koin.ksp.generated.defaultModule` wyświetla się tak, jakby go brakowało, chociaż tak
 naprawdę to jest i wszystko się normalnie kompiluje. Jako _obejście_ dodałem expect/actual
 w rozbiciu na `iosMain` vs iosX64Main itd., by nie oglądać tego errora :)
+To chyba ten issue: https://github.com/google/ksp/issues/963
+
 Dodatkowo chwilowo jesteśmy uwiązani na wersji .13 ksp, ze względu na jakiś dziwny error przy
 budowaniu iOSa (dodałem komentarz nad wersją).
+
+### Część druga
+
+Chciałem skonfigurować wcześniej kwestie wielu środowisk (o czym mam nadzieję za chwilę), ale
+nie mogłem uruchomić XCode... Pobrałem wersję beta i lecimy dalej!
+
+Patrząc na ten artykuł https://tooploox.com/kotlin-multiplatform-handling-different-environments
+i używając tego pluginu https://github.com/yshrsmz/BuildKonfig ustawiłem dwa flavory: dev i prod,
+gdzie pierwszy to lokalne środowisko, a prod to mój przyszły (nie skonfigurowany jeszcze) backend
+na pich.ovh.
+W artykule opisane są osobne konfiguracje .xcconfig dla dev i prod, ale nie wiem po co, kiedy
+obie apki mogę przesetawiać przez gradle.properties.
+
+Z paroma przeszkodami, ale udało mi się to zrobić tak, żeby mi w miarę odpowiadało. Największym
+minusem jest potrzeba edycji śledzonego przez gita pliku gradle.properties, ale niech na razie tak
+zostanie.
+
+Ciekawostka: jeśli Xcode project configuration nie jest ustawione (bo akurat zmienialiśmy dostępne konfiguracje przez XCode)
+to build się zawiesza na tej części z gradlem i nic się nie dzieje przez wiele minut.
 
 ## Materiały
 

@@ -5,6 +5,6 @@ import io.github.mklkj.kommunicator.data.models.Chat
 
 interface MessagesService {
 
-    @GET("/chats")
+    @GET("chats")
     suspend fun getChats(): List<Chat>
 }

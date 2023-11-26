@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
@@ -7,6 +8,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktorfit)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -78,6 +80,34 @@ dependencies {
         add("kspIosX64", it)
         add("kspIosArm64", it)
         add("kspIosSimulatorArm64", it)
+    }
+}
+
+buildkonfig {
+    packageName = "io.github.mklkj.kommunicator"
+
+    defaultConfigs {
+        // non-flavored defaultConfigs must be provided.
+    }
+
+    val baseUrlKey = "baseUrl"
+    targetConfigs("dev") {
+        create("android") {
+            buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
+        }
+        create("iosArm64") {
+            buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
+        }
+        create("iosX64") {
+            buildConfigField(STRING, baseUrlKey, "http://0.0.0.0:8080/", const = true)
+        }
+        create("iosSimulatorArm64") {
+            buildConfigField(STRING, baseUrlKey, "http://0.0.0.0:8080/", const = true)
+        }
+    }
+
+    defaultConfigs("prod") {
+        buildConfigField(STRING, baseUrlKey, "https://kommunicator.pich.ovh/", const = true)
     }
 }
 
