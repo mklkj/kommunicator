@@ -1,7 +1,7 @@
 FROM openjdk:17-slim
 
-COPY server /
+COPY . /
 RUN ./gradlew :server:build
 
-EXPOSE 8000
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","./server/build/libs/server-all.jar"]
