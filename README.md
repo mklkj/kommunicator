@@ -109,6 +109,21 @@ zostanie.
 Ciekawostka: jeśli Xcode project configuration nie jest ustawione (bo akurat zmienialiśmy dostępne konfiguracje przez XCode)
 to build się zawiesza na tej części z gradlem i nic się nie dzieje przez wiele minut.
 
+## Deploy API (:server) na VPSa (2023-12-07)
+
+Żeby móc się gdziekolwiek pochwalić tym, co tu robię, potrzebna jest możliwość połączenia się z API
+nawet bez komputera pod ręką. Dlatego wykorzystałem te rzeczy, które już znam i opakowałem moduł
+:server w kontener Dockera, który następnie jest używany przez Docker Compose (to na przyszłość,
+żeby móc łatwo bazę danych razem deployować), a to z kolei jest deployowane na VPS w Oracle Cloud
+i wystawione pod moją domeną kommunicator.pich.ovh.
+
+Jakie były trudności? Ze względu na to, że moduł serwerowy, moduł współdzielony, jak i apka mobilna
+są połączone w jeden wielki projekt, a VPS w Oracle jest na ARM (VM.Standard.A1.Flex, czyli
+Arm processor from Ampere) i przez brak prebuildu kotlina na tę architekturę
+(kotlin-native-prebuilt-linux-aarch64 https://youtrack.jetbrains.com/issue/KT-36871/Support-Aarch64-Linux-as-a-host-for-the-Kotlin-Native)
+to musiałem hackować i wywalić na potrzeby zbudowania tego modułu, modułu composeApp oraz targetów
+iOSowych z modułu shared.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
