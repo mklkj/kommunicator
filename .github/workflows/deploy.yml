@@ -16,4 +16,4 @@ jobs:
                   ssh_host: ${{ secrets.ORACLE_CLOUD_SSH_HOST }}
                   ssh_private_key: ${{ secrets.ORACLE_CLOUD_SSH_PRIVATE_KEY }}
                   ssh_user: ${{ secrets.ORACLE_CLOUD_SSH_USER }}
-                  docker_compose_prefix: pich.ovh
+                  docker_compose_prefix: kommunicator
