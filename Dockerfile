@@ -2,6 +2,7 @@ FROM openjdk:17-slim
 
 COPY . /
 RUN sed -i -e '/composeApp/d' settings.gradle.kts
+RUN sed -i -e '/iosX64/d' -e '/iosArm64/d' -e '/iosSimulatorArm64/d' shared/build.gradle.kts
 RUN ./gradlew :server:build
 
 EXPOSE 8080
