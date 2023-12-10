@@ -68,6 +68,14 @@ kotlin {
             implementation(libs.koin.annotations)
         }
     }
+
+    targets.configureEach {
+        compilations.configureEach {
+            compilerOptions.configure {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
+    }
 }
 
 dependencies {
