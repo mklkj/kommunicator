@@ -66,6 +66,11 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.annotations)
+
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 
@@ -94,11 +99,11 @@ dependencies {
 buildkonfig {
     packageName = "io.github.mklkj.kommunicator"
 
+    val baseUrlKey = "baseUrl"
     defaultConfigs {
-        // non-flavored defaultConfigs must be provided.
+        buildConfigField(STRING, baseUrlKey, "http://0.0.0.0:8080/", const = true)
     }
 
-    val baseUrlKey = "baseUrl"
     targetConfigs("dev") {
         create("android") {
 //            buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
@@ -108,12 +113,8 @@ buildkonfig {
         create("iosArm64") {
             buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
         }
-        create("iosX64") {
-            buildConfigField(STRING, baseUrlKey, "http://0.0.0.0:8080/", const = true)
-        }
-        create("iosSimulatorArm64") {
-            buildConfigField(STRING, baseUrlKey, "http://0.0.0.0:8080/", const = true)
-        }
+        create("iosX64")
+        create("iosSimulatorArm64")
     }
 
     defaultConfigs("prod") {

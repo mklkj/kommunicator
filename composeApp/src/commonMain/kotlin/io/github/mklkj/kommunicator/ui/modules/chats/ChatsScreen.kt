@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -22,8 +24,10 @@ import io.github.mklkj.kommunicator.ui.widgets.AppImage
 
 @Composable
 fun ChatsScreen(viewModel: ChatsViewModel = injectViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+
     LazyColumn(Modifier.fillMaxSize()) {
-        items(viewModel.chats) { chat ->
+        items(uiState.chats) { chat ->
             ChatItem(
                 item = chat,
                 onClick = { println(it.name) }
