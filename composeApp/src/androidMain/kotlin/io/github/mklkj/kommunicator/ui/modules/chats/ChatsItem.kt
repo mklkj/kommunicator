@@ -3,10 +3,12 @@ package io.github.mklkj.kommunicator.ui.modules.chats
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.ui.modules.chats.ChatsScreen.ChatItem
 import io.github.mklkj.kommunicator.ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import java.util.UUID
 
 @Preview(showBackground = true)
 @Composable
@@ -15,6 +17,7 @@ private fun ChatsItemPreview() {
         ChatItem(
             onClick = {},
             item = Chat(
+                id = UUID.randomUUID().toString(),
                 avatarUrl = "https://search.yahoo.com/search?p=cu",
                 isUnread = false,
                 lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),

@@ -38,8 +38,6 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.ktor.client.android)
-            implementation(libs.koin.android)
-            implementation(libs.koin.androidx.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -51,6 +49,13 @@ kotlin {
             implementation(compose.material3)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.screenModel)
+            implementation(libs.voyager.tabNavigator)
+            implementation(libs.voyager.tabNavigator)
+            implementation(libs.voyager.transitions)
+            implementation(libs.voyager.koin)
 
             implementation(libs.kamel.image)
             implementation(libs.kotlinx.serialization.json)
@@ -107,9 +112,9 @@ buildkonfig {
 
     targetConfigs("dev") {
         create("android") {
-//            buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
+            buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
             // host loopback in android emulator
-            buildConfigField(STRING, baseUrlKey, "http://10.0.2.2:8080/", const = true)
+//            buildConfigField(STRING, baseUrlKey, "http://10.0.2.2:8080/", const = true)
         }
         create("iosArm64") {
             buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)

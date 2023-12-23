@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Chat(
+    val id: String,
     val avatarUrl: String,
     val isUnread: Boolean,
     val lastMessageTimestamp: LocalDateTime,

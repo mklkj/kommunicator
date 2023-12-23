@@ -1,5 +1,19 @@
 package io.github.mklkj.kommunicator.ui.base
 
-import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
-expect abstract class BaseViewModel() : ViewModel
+abstract class BaseViewModel : ScreenModel {
+
+    private val jobs = mutableMapOf<String, Job?>()
+
+    protected fun launch(tag: String, block: suspend CoroutineScope.() -> Unit) {
+        jobs[tag]?.cancel()
+        jobs[tag] = screenModelScope.launch {
+            block()
+        }
+    }
+}

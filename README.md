@@ -124,6 +124,27 @@ Arm processor from Ampere) i przez brak prebuildu kotlina na tę architekturę
 to musiałem hackować i wywalić na potrzeby zbudowania tego modułu, modułu composeApp oraz targetów
 iOSowych z modułu shared.
 
+## Aktualizacja zależności, przykładowy test, etc (2023-12-22)
+
+Zaktualizowałem parę zależności i dodałem przykładowy test w commonTest. Żeby uniknąć jakichś
+dziwnych errorów, że jednej wartości nie ma to dodałem dla BuildKonfigu domyślną wartość `baseUrl`.
+
+## Ekran konwersacji — nawigacja między ekranami (2023-12-23)
+
+https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-navigation-routing.html
+
+Podjąłem decyzję — do nawigacji użyłem PreCompose. Bo ma swoją implementację view modeli
+i integrację z Koinem. Nawet ma wbudowaną nawigację, która przypomina tę z Navigation Component
+od Google'a. Ale chwilę później zrezygnowałem z tego wyboru. Chyba właśnie przez ten ostatni punkt.
+Navigation Component dla Compose UI jest... siermiężny. Chciałem czegoś nowego.
+
+Dlatego swój wzrok skierowałem ku bibliotece Voyager — posiadającej podobne funkcje (a nawet
+więcej), ale zrealizowane trochę inaczej.
+
+Dlaczego nie Decompose albo Appyx? Decompose wymaga pisania sporej ilości boilerplate'u, którego
+wolałbym uniknąć. Do tego nie ma wbudowanej integracji czegoś, co by przypominało view modeli
+ani integracji z Koinem. Appyx również.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

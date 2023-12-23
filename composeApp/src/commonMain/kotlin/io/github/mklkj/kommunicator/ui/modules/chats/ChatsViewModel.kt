@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Factory
 
-@KoinViewModel
+@Factory
 class ChatsViewModel(
     private val messagesRepository: MessagesRepository,
 ) : BaseViewModel() {
@@ -22,7 +21,7 @@ class ChatsViewModel(
     }
 
     private fun loadData() {
-        viewModelScope.launch {
+        launch("chats_load") {
             runCatching { messagesRepository.getChats() }
                 .onFailure { it.printStackTrace() }
                 .onSuccess { chats ->

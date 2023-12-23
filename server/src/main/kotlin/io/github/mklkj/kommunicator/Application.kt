@@ -1,6 +1,8 @@
 package io.github.mklkj.kommunicator
 
 import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.data.models.ChatDetails
+import io.github.mklkj.kommunicator.data.models.Message
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -15,6 +17,7 @@ import io.ktor.server.routing.routing
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import java.util.UUID
 
 fun main() {
     embeddedServer(
@@ -44,6 +47,7 @@ fun Application.module() {
                         name = "Edmond Hobbs",
                         avatarUrl = "https://placehold.co/64x64/orange/white.jpg",
                         lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
+                        id = UUID.randomUUID().toString(),
                     ),
                     Chat(
                         isUnread = false,
@@ -52,7 +56,29 @@ fun Application.module() {
                         name = "Alexander Benton",
                         avatarUrl = "https://placehold.co/64x64/green/black.png",
                         lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
+                        id = UUID.randomUUID().toString(),
                     ),
+                )
+            )
+        }
+        get("/chat/{id}") {
+            call.respond(
+                ChatDetails(
+                    name = "Edmond Hobbs",
+                    messages = listOf(
+                        Message(
+                            id = UUID.randomUUID().toString(),
+                            content = "lorem ipsum dolor sit amet",
+                        ),
+                        Message(
+                            id = UUID.randomUUID().toString(),
+                            content = "arcu",
+                        ),
+                        Message(
+                            id = UUID.randomUUID().toString(),
+                            content = "fastidii",
+                        ),
+                    )
                 )
             )
         }
