@@ -145,6 +145,12 @@ Dlaczego nie Decompose albo Appyx? Decompose wymaga pisania sporej ilości boile
 wolałbym uniknąć. Do tego nie ma wbudowanej integracji czegoś, co by przypominało view modeli
 ani integracji z Koinem. Appyx również.
 
+## Ikonka apki, UUID (2023-12-25)
+
+1. Zrobiłem (ukradłem) ikonkę https://uxwing.com/chat-icon/.
+2. Zamiast nietypowanych stringów jako UUID machnąłem biblioteczkę od tego, która ma od razu
+wsparcie dla SQLDelight i Jetbrains Exposed.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

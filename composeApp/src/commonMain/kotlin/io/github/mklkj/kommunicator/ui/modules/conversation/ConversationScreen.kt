@@ -25,8 +25,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
+import kotlinx.uuid.UUID
 
-class ConversationScreen(private val chatId: String) : Screen {
+class ConversationScreen(private val chatId: UUID) : Screen {
 
     @Composable
     override fun Content() {

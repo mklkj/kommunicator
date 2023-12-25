@@ -17,7 +17,7 @@ import io.ktor.server.routing.routing
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.UUID
+import kotlinx.uuid.UUID
 
 fun main() {
     embeddedServer(
@@ -47,7 +47,7 @@ fun Application.module() {
                         name = "Edmond Hobbs",
                         avatarUrl = "https://placehold.co/64x64/orange/white.jpg",
                         lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
-                        id = UUID.randomUUID().toString(),
+                        id = UUID(),
                     ),
                     Chat(
                         isUnread = false,
@@ -56,7 +56,7 @@ fun Application.module() {
                         name = "Alexander Benton",
                         avatarUrl = "https://placehold.co/64x64/green/black.png",
                         lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
-                        id = UUID.randomUUID().toString(),
+                        id = UUID(),
                     ),
                 )
             )
@@ -67,15 +67,15 @@ fun Application.module() {
                     name = "Edmond Hobbs",
                     messages = listOf(
                         Message(
-                            id = UUID.randomUUID().toString(),
+                            id = UUID(),
                             content = "lorem ipsum dolor sit amet",
                         ),
                         Message(
-                            id = UUID.randomUUID().toString(),
+                            id = UUID(),
                             content = "arcu",
                         ),
                         Message(
-                            id = UUID.randomUUID().toString(),
+                            id = UUID(),
                             content = "fastidii",
                         ),
                     )

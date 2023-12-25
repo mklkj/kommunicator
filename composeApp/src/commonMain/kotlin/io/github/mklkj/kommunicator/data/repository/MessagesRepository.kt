@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.data.repository
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatDetails
+import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -14,7 +15,7 @@ class MessagesRepository(
         return messagesService.getChats()
     }
 
-    suspend fun getChatDetails(id: String): ChatDetails {
+    suspend fun getChatDetails(id: UUID): ChatDetails {
         return messagesService.getChat(id)
     }
 }

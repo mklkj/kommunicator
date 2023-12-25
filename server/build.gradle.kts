@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.json)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.uuid.core)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
 }

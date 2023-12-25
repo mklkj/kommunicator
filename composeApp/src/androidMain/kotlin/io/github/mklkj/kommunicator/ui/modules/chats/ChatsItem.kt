@@ -8,7 +8,7 @@ import io.github.mklkj.kommunicator.ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.UUID
+import kotlinx.uuid.UUID
 
 @Preview(showBackground = true)
 @Composable
@@ -17,7 +17,7 @@ private fun ChatsItemPreview() {
         ChatItem(
             onClick = {},
             item = Chat(
-                id = UUID.randomUUID().toString(),
+                id = UUID(),
                 avatarUrl = "https://search.yahoo.com/search?p=cu",
                 isUnread = false,
                 lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),

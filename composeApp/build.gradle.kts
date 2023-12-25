@@ -49,6 +49,7 @@ kotlin {
             implementation(compose.material3)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+            implementation(libs.kamel.image)
 
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screenModel)
@@ -57,16 +58,14 @@ kotlin {
             implementation(libs.voyager.transitions)
             implementation(libs.voyager.koin)
 
-            implementation(libs.kamel.image)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.uuid.core)
+
             implementation(libs.ktorfit)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.json)
-
-            api(libs.mvvm.compose)
-            api(libs.mvvm.flow.compose)
 
             implementation(project.dependencies.platform(libs.koin.annotations.bom))
             implementation(libs.koin.core)

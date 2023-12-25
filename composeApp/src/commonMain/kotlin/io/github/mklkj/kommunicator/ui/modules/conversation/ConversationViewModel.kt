@@ -5,6 +5,7 @@ import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -15,7 +16,7 @@ class ConversationViewModel(
     private val _state = MutableStateFlow(ConversationState())
     val state = _state.asStateFlow()
 
-    fun loadData(chatId: String) {
+    fun loadData(chatId: UUID) {
         launch("chat_load_$chatId") {
             runCatching { messagesRepository.getChatDetails(chatId) }
                 .onFailure { it.printStackTrace() }

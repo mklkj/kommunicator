@@ -27,6 +27,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.uuid.core)
             }
         }
         val commonTest by getting {
