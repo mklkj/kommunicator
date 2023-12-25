@@ -145,11 +145,14 @@ Dlaczego nie Decompose albo Appyx? Decompose wymaga pisania sporej ilości boile
 wolałbym uniknąć. Do tego nie ma wbudowanej integracji czegoś, co by przypominało view modeli
 ani integracji z Koinem. Appyx również.
 
-## Ikonka apki, UUID (2023-12-25)
+## Ikonka apki, UUID, JWT (2023-12-25)
 
 1. Zrobiłem (ukradłem) ikonkę https://uxwing.com/chat-icon/.
 2. Zamiast nietypowanych stringów jako UUID machnąłem biblioteczkę od tego, która ma od razu
 wsparcie dla SQLDelight i Jetbrains Exposed.
+3. Na podstawie https://codersee.com/secure-rest-api-with-ktor-jwt-access-tokens/ zrobiłem
+(skopiowałem) część serwerową rejestracji (na razie tylko in-memory), pobierania tokenu i szczegółów
+usera
 
 ## Materiały
 

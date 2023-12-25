@@ -8,9 +8,9 @@ import kotlinx.uuid.UUID
 
 interface MessagesService {
 
-    @GET("chats")
+    @GET("api/chats")
     suspend fun getChats(): List<Chat>
 
-    @GET("chat/{id}")
+    @GET("api/chats/{id}")
     suspend fun getChat(@Path("id") id: UUID): ChatDetails
 }
