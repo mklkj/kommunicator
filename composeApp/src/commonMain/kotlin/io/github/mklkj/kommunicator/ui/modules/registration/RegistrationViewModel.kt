@@ -31,6 +31,7 @@ class RegistrationViewModel(
         launch("register_user") {
             runCatching { userRepository.registerUser(username, password) }
                 .onFailure { error ->
+                    proceedError(error)
                     _state.update {
                         it.copy(
                             isLoading = false,

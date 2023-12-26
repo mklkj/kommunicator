@@ -19,7 +19,10 @@ class ConversationViewModel(
     fun loadData(chatId: UUID) {
         launch("chat_load_$chatId") {
             runCatching { messagesRepository.getChatDetails(chatId) }
-                .onFailure { it.printStackTrace() }
+                .onFailure {
+                    proceedError(it)
+                    it.printStackTrace()
+                }
                 .onSuccess { details ->
                     _state.update {
                         it.copy(details = details)

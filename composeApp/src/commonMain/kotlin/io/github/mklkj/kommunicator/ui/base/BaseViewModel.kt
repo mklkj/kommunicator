@@ -22,4 +22,9 @@ abstract class BaseViewModel : ScreenModel {
             block()
         }
     }
+
+    protected fun proceedError(exception: Throwable) {
+//        Firebase.crashlytics.recordException(exception)
+        exception.printStackTrace()
+    }
 }

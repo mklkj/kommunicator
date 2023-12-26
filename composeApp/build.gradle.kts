@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktorfit)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.gms)
+    alias(libs.plugins.crashlytics)
 }
 
 kotlin {
@@ -38,6 +40,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.ktor.client.android)
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.5.0"))
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -53,7 +56,6 @@ kotlin {
 
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screenModel)
-            implementation(libs.voyager.tabNavigator)
             implementation(libs.voyager.tabNavigator)
             implementation(libs.voyager.transitions)
             implementation(libs.voyager.koin)
@@ -72,13 +74,20 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.annotations)
 
+            implementation(libs.kermit)
+//            implementation(libs.kermit.crashlytics)
+//            implementation(libs.firebase.crashlytics)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
+        all {
+            languageSettings {
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
+            }
+        }
     }
-
     targets.configureEach {
         compilations.configureEach {
             compilerOptions.configure {

@@ -31,6 +31,7 @@ class LoginViewModel(
         launch("login_user") {
             runCatching { userRepository.loginUser(username, password) }
                 .onFailure { error ->
+                    proceedError(error)
                     _state.update {
                         it.copy(
                             isLoading = false,

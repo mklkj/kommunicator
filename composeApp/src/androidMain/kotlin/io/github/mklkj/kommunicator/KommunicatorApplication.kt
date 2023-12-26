@@ -1,9 +1,9 @@
 package io.github.mklkj.kommunicator
 
-import android.app.Application
 import io.github.mklkj.kommunicator.di.initKoin
+import android.app.Application as AndroidApplication
 
-class KommunicatorApplication : Application() {
+class KommunicatorApplication : AndroidApplication() {
 
     override fun onCreate() {
         super.onCreate()

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1007449430428",
+    "project_id": "kommunicator-380e5",
+    "storage_bucket": "kommunicator-380e5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007449430428:android:9b06056e2b81f2df9f9059",
+        "android_client_info": {
+          "package_name": "io.github.mklkj.kommunicator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqIeNtdUKY7qCVobM1XdycDXM6ObYU0Jo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

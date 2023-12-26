@@ -23,7 +23,10 @@ class ChatsViewModel(
     private fun loadData() {
         launch("chats_load") {
             runCatching { messagesRepository.getChats() }
-                .onFailure { it.printStackTrace() }
+                .onFailure {
+                    proceedError(it)
+                    it.printStackTrace()
+                }
                 .onSuccess { chats ->
                     _uiState.update {
                         it.copy(
