@@ -24,9 +24,9 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.json)
 
-    implementation(libs.java.jwt)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.java.jwt)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)

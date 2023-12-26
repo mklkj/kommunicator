@@ -10,7 +10,13 @@ abstract class BaseViewModel : ScreenModel {
 
     private val jobs = mutableMapOf<String, Job?>()
 
-    protected fun launch(tag: String, block: suspend CoroutineScope.() -> Unit) {
+    protected fun launch(
+        tag: String,
+        cancelExisting: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit,
+    ) {
+        cancelExisting // todo
+
         jobs[tag]?.cancel()
         jobs[tag] = screenModelScope.launch {
             block()

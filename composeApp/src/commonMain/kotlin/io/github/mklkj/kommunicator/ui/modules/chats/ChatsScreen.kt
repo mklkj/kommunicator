@@ -31,14 +31,14 @@ object ChatsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        ChatsScreenContainer(
+        ChatsScreenContent(
             viewModel = getScreenModel(),
             onClick = { navigator.push(ConversationScreen(it.id)) },
         )
     }
 
     @Composable
-    private fun ChatsScreenContainer(viewModel: ChatsViewModel, onClick: (Chat) -> Unit) {
+    private fun ChatsScreenContent(viewModel: ChatsViewModel, onClick: (Chat) -> Unit) {
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         LazyColumn(Modifier.fillMaxSize()) {
             items(uiState.chats) { chat ->

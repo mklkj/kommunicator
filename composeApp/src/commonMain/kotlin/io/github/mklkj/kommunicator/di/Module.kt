@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.di
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.github.mklkj.kommunicator.BuildKonfig
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
+import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import org.koin.core.context.startKoin
@@ -21,6 +22,7 @@ val commonModule = module {
             .build()
     }
     single { get<Ktorfit>().create<MessagesService>() }
+    single { get<Ktorfit>().create<UserService>() }
 }
 
 expect val platformModule: Module
