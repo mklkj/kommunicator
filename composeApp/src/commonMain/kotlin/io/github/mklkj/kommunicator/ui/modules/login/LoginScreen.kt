@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -14,8 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -43,12 +49,14 @@ class LoginScreen : Screen {
     }
 
     @Composable
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun LoginScreenContent(
         state: LoginState,
         onLoginClick: (username: String, password: String) -> Unit,
     ) {
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
+        val (first, second) = remember { FocusRequester.createRefs() }
 
         Column(
             Modifier
@@ -59,14 +67,22 @@ class LoginScreen : Screen {
                 label = { Text("Username") },
                 value = username,
                 onValueChange = { username = it },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(first)
+                    .focusProperties { next = second }
             )
             OutlinedTextField(
                 label = { Text("Password") },
                 value = password,
                 onValueChange = { password = it },
+                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(second)
             )
             if (!state.errorMessage.isNullOrBlank()) {
                 Text(
