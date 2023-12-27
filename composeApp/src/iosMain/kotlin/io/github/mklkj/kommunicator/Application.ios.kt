@@ -6,7 +6,7 @@ import cocoapods.FirebaseCore.FIRApp
 actual object ApplicationPlatform {
 
     actual fun initialize() {
-        setCrashlyticsUnhandledExceptionHook()
         FIRApp.initialize()
+        setCrashlyticsUnhandledExceptionHook()
     }
 }

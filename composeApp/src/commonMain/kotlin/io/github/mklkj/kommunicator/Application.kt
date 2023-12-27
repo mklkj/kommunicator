@@ -5,8 +5,8 @@ import co.touchlab.crashkios.crashlytics.enableCrashlytics
 object Application {
 
     fun initialize() {
-        ApplicationPlatform.initialize()
         enableCrashlytics()
+        ApplicationPlatform.initialize()
     }
 }
 

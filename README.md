@@ -157,6 +157,32 @@ usera
 trzeba jeszcze zrobić w okolicach obsługi różnych kodów HTTP z API, ale da się zarejestrować
 i potem zalogować takim kontem.
 
+## Firebase i Crashlytics (2023-12-26)
+
+Jako kolejny krok pomyślałem, że zrobię sobie logowanie ruchu sieciowego. A przy okazji chciałem też
+dodać jakąś bibliotekę do zarządzania logami (jakiegoś Timbera). Wybór stanął na Kemricie od
+Touchlab. Tam zauważyłem, że jest dostępna integracja z Crashlytics. Super. Przy okazji skonfiguruję
+Firebase'a — pomyślałem. O jakże byłem głupi...
+
+Żeby kompleksowo do tego podejść, chciałem od razu użyć biblioteki do obsługi całego Firebase'owego
+API. Oczywistym wyborem jest Firebase od gitlive. Tylko że tam trzeba osobno zainstalować
+i skonfigurować Firebase na poszczególnych platformach. Z Androidem poszło gładko — jedna zależność,
+jeden pliczek konfiguracyjny i wsio. Na iOS to trochę bardziej zagmatwane.
+
+W świecie iOS istnieją teraz w zasadzie dwa package managery — Cocoapods i Swift Package Manager.
+Z tym pierwszym KMM ma nawet działającą integrację poprzez gradle'a! Tylko że jej podpięcie znacznie
+wydłuża synchronizację projektu. Gdyby to działało od razu, to nawet bym się nie zastanawiał.
+Niestety nie działało. Choć `iosMain` widział klasy z paczki Firebase, to apka się nie kompilowała
+(linker nie mógł znaleźć frameworku). Kombinowałem z flagami `linkOnly`, ale wtedy, choć apka się
+budowała, to crashowała się zaraz przy starcie.
+
+Dlatego zacząłem kombinować z SPMem. Objawy były w zasadzie podobne, nic nie dzialało.
+Następnego dnia (2023-12-27) pomyślałem, że spróbuję jeszcze wygenerować inny projekt i porównać
+`.xcodeproj`. Moją uwagę zwrócił brak jednego bloku z kopiowaniem frameworków, biblioteką
+Crashlyics (czyli tą brakującą!) w sekcji z `Frameworks, Libraries and Embedded Content` oraz
+innymi flagami (`${inherited}` czy coś takiego) kompilatora. Przywróciłem flagi i przez Xcode
+dodałem brakujący framework. Zadziałało!!!
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
