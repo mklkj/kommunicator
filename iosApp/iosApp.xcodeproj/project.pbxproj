@@ -18,6 +18,7 @@
 		F4761EA22B3B6C4000B0DF0E /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = F4761EA12B3B6C4000B0DF0E /* FirebaseAppCheck */; };
 		F4761EA42B3B746A00B0DF0E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4761EA32B3B746A00B0DF0E /* GoogleService-Info.plist */; };
 		F4AA86B92B3B2ECF005F6080 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AA86B82B3B2ECF005F6080 /* AppDelegate.swift */; };
+		F4B9E3722B3C2D2C008F4E44 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F4B9E3712B3C2D2C008F4E44 /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 				F4761E9E2B3B6C4000B0DF0E /* FirebaseAnalyticsSwift in Frameworks */,
 				F4761EA02B3B6C4000B0DF0E /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				F4761E9A2B3B6C4000B0DF0E /* FirebaseAnalytics in Frameworks */,
+				F4B9E3722B3C2D2C008F4E44 /* FirebaseCrashlytics in Frameworks */,
 				F4761E9C2B3B6C4000B0DF0E /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				F4761EA22B3B6C4000B0DF0E /* FirebaseAppCheck in Frameworks */,
 			);
@@ -126,6 +128,7 @@
 				F4761E9D2B3B6C4000B0DF0E /* FirebaseAnalyticsSwift */,
 				F4761E9F2B3B6C4000B0DF0E /* FirebaseAnalyticsWithoutAdIdSupport */,
 				F4761EA12B3B6C4000B0DF0E /* FirebaseAppCheck */,
+				F4B9E3712B3C2D2C008F4E44 /* FirebaseCrashlytics */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Kommunicator.app */;
@@ -352,6 +355,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = (
+					"$(inherited)",
 					"-framework",
 					composeApp,
 					"-ObjC",
@@ -383,6 +387,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = (
+					"$(inherited)",
 					"-framework",
 					composeApp,
 					"-ObjC",
@@ -454,6 +459,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4761E982B3B6C4000B0DF0E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
+		};
+		F4B9E3712B3C2D2C008F4E44 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4761E982B3B6C4000B0DF0E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -100,3 +100,4 @@ ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version = "0.15.1" }
 gms = { id = "com.google.gms.google-services", version = "4.4.0" }
 crashlytics = { id = "com.google.firebase.crashlytics", version = "2.9.9"}
+crashlyticslink = { id = "co.touchlab.crashkios.crashlyticslink", version = "0.8.5" }

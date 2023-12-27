@@ -2,6 +2,7 @@ package io.github.mklkj.kommunicator.ui.base
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import co.touchlab.crashkios.crashlytics.CrashlyticsKotlin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -24,7 +25,6 @@ abstract class BaseViewModel : ScreenModel {
     }
 
     protected fun proceedError(exception: Throwable) {
-//        Firebase.crashlytics.recordException(exception)
-        exception.printStackTrace()
+        CrashlyticsKotlin.sendHandledException(exception)
     }
 }

@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.buildkonfig)
     alias(libs.plugins.gms)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.crashlyticslink)
 }
 
 kotlin {
@@ -30,6 +31,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            linkerOpts += "-ld64"
         }
     }
 
@@ -75,8 +77,8 @@ kotlin {
             implementation(libs.koin.annotations)
 
             implementation(libs.kermit)
-//            implementation(libs.kermit.crashlytics)
-//            implementation(libs.firebase.crashlytics)
+            implementation(libs.kermit.crashlytics)
+            implementation(libs.firebase.crashlytics)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
