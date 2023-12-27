@@ -39,7 +39,7 @@ object ChatsScreen : Screen {
 
     @Composable
     private fun ChatsScreenContent(viewModel: ChatsViewModel, onClick: (Chat) -> Unit) {
-        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val uiState by viewModel.state.collectAsStateWithLifecycle()
         LazyColumn(Modifier.fillMaxSize()) {
             items(uiState.chats) { chat ->
                 ChatItem(

@@ -16,7 +16,7 @@ fun App() {
     KoinContext {
         MaterialTheme {
             val viewModel = koinInject<AppViewModel>()
-            val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle()
+            val isLoggedIn by viewModel.state.collectAsStateWithLifecycle()
             val startScreen = when (isLoggedIn) {
                 true -> ChatsScreen
                 else -> WelcomeScreen

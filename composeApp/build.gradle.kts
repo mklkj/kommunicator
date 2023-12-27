@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.ExperimentalComposeLibrary
 
@@ -70,6 +71,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.json)
+            implementation(libs.ktor.client.logging)
 
             implementation(project.dependencies.platform(libs.koin.annotations.bom))
             implementation(libs.koin.core)
@@ -115,9 +117,11 @@ dependencies {
 buildkonfig {
     packageName = "io.github.mklkj.kommunicator"
 
-    val baseUrlKey = "baseUrl"
+    val baseUrlKey = "BASE_URL"
+    val isDebugKey = "IS_DEBUG"
     defaultConfigs {
         buildConfigField(STRING, baseUrlKey, "http://0.0.0.0:8080/", const = true)
+        buildConfigField(BOOLEAN, isDebugKey, "true", const = true)
     }
 
     targetConfigs("dev") {
@@ -135,6 +139,7 @@ buildkonfig {
 
     defaultConfigs("prod") {
         buildConfigField(STRING, baseUrlKey, "https://kommunicator.pich.ovh/", const = true)
+        buildConfigField(BOOLEAN, isDebugKey, "false", const = true)
     }
 }
 

@@ -183,6 +183,11 @@ Crashlyics (czyli tą brakującą!) w sekcji z `Frameworks, Libraries and Embedd
 innymi flagami (`${inherited}` czy coś takiego) kompilatora. Przywróciłem flagi i przez Xcode
 dodałem brakujący framework. Zadziałało!!!
 
+## Logging (2023-12-27)
+
+Podpiąłem Kermita pod view modele i ktora, żeby w debugu wszystko się ładnie na logcata/to coś w iOS
+logowało, a na produkcji by wszystko szło do crashlytics.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

@@ -2,22 +2,17 @@ package io.github.mklkj.kommunicator.ui.modules.login
 
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
 
 @Factory
 class LoginViewModel(
     private val userRepository: UserRepository,
-) : BaseViewModel() {
-
-    private val _state = MutableStateFlow(LoginState())
-    val state = _state.asStateFlow()
+) : BaseViewModel<LoginState>(LoginState()) {
 
     fun login(username: String, password: String) {
         val isNotValid = username.isBlank() || password.isBlank()
-        _state.update {
+        mutableState.update {
             it.copy(
                 isLoading = false,
                 errorMessage = when {
@@ -32,7 +27,7 @@ class LoginViewModel(
             runCatching { userRepository.loginUser(username, password) }
                 .onFailure { error ->
                     proceedError(error)
-                    _state.update {
+                    mutableState.update {
                         it.copy(
                             isLoading = false,
                             isLoggedIn = false,
@@ -41,7 +36,7 @@ class LoginViewModel(
                     }
                 }
                 .onSuccess {
-                    _state.update {
+                    mutableState.update {
                         it.copy(
                             isLoading = false,
                             isLoggedIn = true,
