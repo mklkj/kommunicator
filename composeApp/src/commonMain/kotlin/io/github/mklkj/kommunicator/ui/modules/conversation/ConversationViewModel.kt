@@ -14,14 +14,31 @@ class ConversationViewModel(
     fun loadData(chatId: UUID) {
         launch("chat_load_$chatId", cancelExisting = false) {
             runCatching { messagesRepository.getChatDetails(chatId) }
-                .onFailure {
-                    proceedError(it)
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message,
+                        )
+                    }
                 }
                 .onSuccess { details ->
                     mutableState.update {
-                        it.copy(details = details)
+                        it.copy(
+                            details = details,
+                            isLoading = false,
+                        )
                     }
                 }
+        }
+    }
+
+    fun sendMessage(chatId: UUID, content: String) {
+        launch("chat_send_message") {
+            mutableState.update { it.copy(isLoading = true) }
+            messagesRepository.sendMessage(chatId, content)
+            mutableState.update { it.copy(isLoading = false) }
         }
     }
 }

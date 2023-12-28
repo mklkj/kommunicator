@@ -18,4 +18,8 @@ class MessagesRepository(
     suspend fun getChatDetails(id: UUID): ChatDetails {
         return messagesService.getChat(id)
     }
+
+    suspend fun sendMessage(chatId: UUID, content: String) {
+        messagesService.sendMessage(chatId, content)
+    }
 }

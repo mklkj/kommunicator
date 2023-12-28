@@ -6,23 +6,32 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -55,7 +64,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     ) {
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        Column {
+        Column(Modifier.fillMaxSize()) {
             TopAppBar(
                 title = { Text(state.details?.name.orEmpty()) },
                 navigationIcon = {
@@ -69,12 +78,19 @@ class ConversationScreen(private val chatId: UUID) : Screen {
             )
             LazyColumn(
                 reverseLayout = true,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
                 items(state.details?.messages.orEmpty()) {
                     ChatMessage(it)
                 }
             }
+            ChatInput(
+                isLoading = state.isLoading,
+                onSendClick = { viewModel.sendMessage(chatId, it) },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 
@@ -113,5 +129,49 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     .padding(16.dp)
             )
         }
+    }
+
+    @Composable
+    private fun ChatInput(
+        isLoading: Boolean,
+        onSendClick: (String) -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        var message by remember { mutableStateOf("") }
+
+        TextField(
+            value = message,
+            onValueChange = { message = it },
+            maxLines = 3,
+            placeholder = { Text(text = "Type a message...") },
+            trailingIcon = {
+                Button(
+                    onClick = {
+                        onSendClick(message)
+                        message = ""
+                    },
+                    enabled = message.isNotBlank() && !isLoading,
+                    content = {
+                        if (isLoading) CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        ) else Icon(
+                            Icons.Default.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.rotate(-90.0F).size(20.dp),
+                        )
+                    },
+                    shape = RoundedCornerShape(30),
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+            },
+            modifier = modifier,
+            shape = RoundedCornerShape(
+                topEnd = 24.dp,
+                topStart = 24.dp,
+                bottomEnd = 0.dp,
+                bottomStart = 0.dp,
+            ),
+        )
     }
 }

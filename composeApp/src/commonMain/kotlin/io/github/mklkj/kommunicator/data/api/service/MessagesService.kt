@@ -1,6 +1,8 @@
 package io.github.mklkj.kommunicator.data.api.service
 
+import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatDetails
@@ -13,4 +15,7 @@ interface MessagesService {
 
     @GET("/api/chats/{id}")
     suspend fun getChat(@Path("id") id: UUID): ChatDetails
+
+    @POST("/api/chats/{chatId}/messages")
+    suspend fun sendMessage(@Path("chatId") chatId: UUID, @Body content: String)
 }

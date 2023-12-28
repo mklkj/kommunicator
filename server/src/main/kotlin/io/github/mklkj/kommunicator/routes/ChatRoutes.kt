@@ -3,10 +3,12 @@ package io.github.mklkj.kommunicator.routes
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.Message
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -112,5 +114,9 @@ fun Route.chatRoutes() {
                 )
             )
         )
+    }
+    post("/{id}/messages") {
+        // todo
+        call.respond(message = HttpStatusCode.Created)
     }
 }
