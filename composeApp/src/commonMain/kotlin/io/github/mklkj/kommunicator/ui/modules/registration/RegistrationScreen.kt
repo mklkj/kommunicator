@@ -6,10 +6,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,18 +40,35 @@ import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 class RegistrationScreen : Screen {
 
     @Composable
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun Content() {
         val viewModel = getScreenModel<RegistrationViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val navigator = LocalNavigator.currentOrThrow
 
         if (state.isRegistered) {
-            LocalNavigator.currentOrThrow.replaceAll(LoginScreen())
-        } else RegistrationScreenContent(
-            state = state,
-            onSignUp = { username, password ->
-                viewModel.signUp(username, password)
-            },
-        )
+            navigator.replaceAll(LoginScreen())
+        } else {
+            Column {
+                TopAppBar(
+                    title = { Text("Registration") },
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.pop() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                            )
+                        }
+                    },
+                )
+                RegistrationScreenContent(
+                    state = state,
+                    onSignUp = { username, password ->
+                        viewModel.signUp(username, password)
+                    },
+                )
+            }
+        }
     }
 
     @Composable
