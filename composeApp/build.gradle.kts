@@ -73,6 +73,8 @@ kotlin {
 
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines)
+            // https://github.com/cashapp/sqldelight/issues/4357#issuecomment-1839905700
+            implementation("co.touchlab:stately-common:2.0.5")
 
             implementation(libs.ktorfit)
             implementation(libs.ktor.client.core)

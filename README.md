@@ -188,6 +188,17 @@ dodałem brakujący framework. Zadziałało!!!
 Podpiąłem Kermita pod view modele i ktora, żeby w debugu wszystko się ładnie na logcata/to coś w iOS
 logowało, a na produkcji by wszystko szło do crashlytics.
 
+Później zacząłem kombinować z lokalną bazą danych SQDelight, żeby zapisywać w niej zalogowanego
+usera razem z JWT, ale nie skończyłem, bo jakiś dziwny problem z wylogowywaniem był. Miałem
+wrażenie, że Flow nie emituje listy userów po wylogowaniu, ale następnego dnia okazało się, że...
+
+## Baza danych, ... (2023-12-28)
+
+... okazało się, że baza danych działała dobrze, tylko ja to napisałem tak, że to nie miało prawa
+działać. Myślałem, że jak zmienię startowy ekran on runtime w App.kt, to się to ładnie
+przekomponuje, ale to tak nie działa. Dodałem `replaceAll` na WelcomeScreen przy wylogowywaniu
+i wszystko gra.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

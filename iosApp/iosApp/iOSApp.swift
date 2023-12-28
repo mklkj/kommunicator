@@ -7,7 +7,7 @@ struct iOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {
-        ModuleKt.doInitKoin()
+        Module_iosKt.doInitKoin()
     }
 
 	var body: some Scene {
