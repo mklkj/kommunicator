@@ -9,6 +9,7 @@ data class Chat(
     val id: UUID,
     val avatarUrl: String,
     val isUnread: Boolean,
+    val isActive: Boolean,
     val lastMessageTimestamp: LocalDateTime,
     val lastMessage: String,
     val lastMessageAuthor: String,

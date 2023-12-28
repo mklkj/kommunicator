@@ -23,7 +23,8 @@ private fun ChatsItemPreview() {
                 lastMessageTimestamp = Clock.System.now().toLocalDateTime(TimeZone.UTC),
                 lastMessage = "ullamcorper",
                 lastMessageAuthor = "facilis",
-                name = "Loyd Gibson"
+                name = "Loyd Gibson",
+                isActive = false,
             ),
         )
     }
