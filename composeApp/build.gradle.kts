@@ -74,6 +74,7 @@ kotlin {
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines)
             // https://github.com/cashapp/sqldelight/issues/4357#issuecomment-1839905700
+            //noinspection UseTomlInstead
             implementation("co.touchlab:stately-common:2.0.5")
 
             implementation(libs.ktorfit)
@@ -162,6 +163,16 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
+
+    signingConfigs {
+        create("signing") {
+            storeFile = file(extra["PRODUCTION_STORE_FILE"].toString())
+            storePassword = extra["PRODUCTION_PASSWORD"].toString()
+            keyAlias = extra["PRODUCTION_KEY_ALIAS"].toString()
+            keyPassword = extra["PRODUCTION_PASSWORD"].toString()
+        }
+    }
+
     buildFeatures {
         compose = true
     }
@@ -174,8 +185,12 @@ android {
         }
     }
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("signing")
+        }
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("signing")
         }
     }
     compileOptions {

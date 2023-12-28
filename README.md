@@ -192,6 +192,8 @@ Później zacząłem kombinować z lokalną bazą danych SQDelight, żeby zapisy
 usera razem z JWT, ale nie skończyłem, bo jakiś dziwny problem z wylogowywaniem był. Miałem
 wrażenie, że Flow nie emituje listy userów po wylogowaniu, ale następnego dnia okazało się, że...
 
+https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-ktor-sqldelight.html
+
 ## Baza danych, ... (2023-12-28)
 
 ... okazało się, że baza danych działała dobrze, tylko ja to napisałem tak, że to nie miało prawa
