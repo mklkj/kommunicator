@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.gms)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.crashlyticslink)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -43,10 +44,13 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.ktor.client.android)
+            implementation(libs.koin.android)
+            implementation(libs.sqldelight.android)
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.5.0"))
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.sqldelight.ios)
         }
         commonMain.dependencies {
             implementation(projects.shared)
@@ -67,6 +71,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.uuid.core)
 
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
+
             implementation(libs.ktorfit)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
@@ -85,11 +92,6 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
-        }
-        all {
-            languageSettings {
-                optIn("kotlinx.cinterop.ExperimentalForeignApi")
-            }
         }
     }
     targets.configureEach {
@@ -180,5 +182,13 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+    }
+}
+
+sqldelight {
+    databases {
+        create("AppDatabase") {
+            packageName.set("io.github.mklkj.kommunicator.data.db")
+        }
     }
 }

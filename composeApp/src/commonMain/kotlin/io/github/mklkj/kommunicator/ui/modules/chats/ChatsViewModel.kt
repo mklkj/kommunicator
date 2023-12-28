@@ -1,12 +1,14 @@
 package io.github.mklkj.kommunicator.ui.modules.chats
 
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
+import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
 
 @Factory
 class ChatsViewModel(
+    private val userRepository: UserRepository,
     private val messagesRepository: MessagesRepository,
 ) : BaseViewModel<ChatsState>(ChatsState()) {
 
@@ -28,6 +30,12 @@ class ChatsViewModel(
                         )
                     }
                 }
+        }
+    }
+
+    fun logout() {
+        launch("logout_user", cancelExisting = false) {
+            userRepository.logout()
         }
     }
 }

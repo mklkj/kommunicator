@@ -1,0 +1,19 @@
+CREATE TABLE Users (
+    id TEXT NOT NULL PRIMARY KEY,
+    email TEXT NOT NULL,
+    username TEXT NOT NULL,
+    token TEXT NOT NULL,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL
+);
+
+insertUser:
+INSERT INTO Users(id, email, username, token, firstName, lastName)
+VALUES(?, ?, ?, ?, ?, ?);
+
+removeAllUsers:
+DELETE FROM Users;
+
+selectAllUsers:
+SELECT Users.*
+FROM Users;

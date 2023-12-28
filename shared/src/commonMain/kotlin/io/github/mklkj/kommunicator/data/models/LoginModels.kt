@@ -1,6 +1,7 @@
 package io.github.mklkj.kommunicator.data.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.uuid.UUID
 
 @Serializable
 data class LoginRequest(
@@ -10,5 +11,6 @@ data class LoginRequest(
 
 @Serializable
 data class LoginResponse(
+    val id: UUID,
     val token: String,
 )

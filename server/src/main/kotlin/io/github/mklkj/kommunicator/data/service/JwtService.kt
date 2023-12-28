@@ -13,6 +13,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaInstant
+import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -32,10 +33,10 @@ class JwtService(
         .withIssuer(issuer)
         .build()
 
-    fun createJwtToken(loginRequest: LoginRequest): String? {
+    fun createJwtToken(loginRequest: LoginRequest): Pair<UUID, String>? {
         val foundUser: User? = userService.findByUsername(loginRequest.username)
         return if (foundUser != null && loginRequest.password == foundUser.password) {
-            JWT.create()
+            foundUser.id to JWT.create()
                 .withAudience(audience)
                 .withIssuer(issuer)
                 .withClaim("username", loginRequest.username)

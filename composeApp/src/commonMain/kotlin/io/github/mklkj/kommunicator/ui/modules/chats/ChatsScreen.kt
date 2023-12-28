@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
+import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
 
@@ -31,16 +33,31 @@ object ChatsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        ChatsScreenContent(
-            viewModel = getScreenModel(),
-            onClick = { navigator.push(ConversationScreen(it.id)) },
-        )
+        val viewModel = getScreenModel<ChatsViewModel>()
+
+        Column {
+            ChatsScreenContent(
+                viewModel = viewModel,
+                onClick = { navigator.push(ConversationScreen(it.id)) },
+                modifier = Modifier.weight(1f),
+            )
+            Button(onClick = {
+                viewModel.logout()
+                navigator.replaceAll(WelcomeScreen)
+            }) {
+                Text("Logout")
+            }
+        }
     }
 
     @Composable
-    private fun ChatsScreenContent(viewModel: ChatsViewModel, onClick: (Chat) -> Unit) {
+    private fun ChatsScreenContent(
+        viewModel: ChatsViewModel,
+        onClick: (Chat) -> Unit,
+        modifier: Modifier,
+    ) {
         val uiState by viewModel.state.collectAsStateWithLifecycle()
-        LazyColumn(Modifier.fillMaxSize()) {
+        LazyColumn(modifier.fillMaxSize()) {
             items(uiState.chats) { chat ->
                 ChatItem(
                     item = chat,

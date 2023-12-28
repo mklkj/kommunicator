@@ -1,9 +1,9 @@
 package io.github.mklkj.kommunicator.routes
 
-import io.github.mklkj.kommunicator.data.models.UserRequest
-import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserGender
+import io.github.mklkj.kommunicator.data.models.UserRequest
+import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -74,8 +74,13 @@ private fun UserRequest.toModel(): User =
     )
 
 private fun User.toResponse(): UserResponse = UserResponse(
-    id = this.id,
-    username = this.username,
+    id = id,
+    username = username,
+    email = email,
+    firstName = firstName,
+    lastName = lastName,
+    dateOfBirth = dateOfBirth,
+    gender = gender,
 )
 
 private fun extractPrincipalUsername(call: ApplicationCall): String? =

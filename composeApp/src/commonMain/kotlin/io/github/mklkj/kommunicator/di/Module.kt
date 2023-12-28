@@ -10,18 +10,23 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
-import org.koin.core.context.startKoin
-import org.koin.core.module.Module
+import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 val commonModule = module {
     single {
+        Json {
+            ignoreUnknownKeys = true
+            useAlternativeNames = false
+        }
+    }
+    single {
         Ktorfit.Builder()
             .baseUrl(BuildKonfig.BASE_URL.trimEnd('/'), checkUrl = false)
             .httpClient {
                 install(ContentNegotiation) {
-                    json()
+                    json(get())
                 }
                 install(Logging) {
                     sanitizeHeader { header ->
@@ -39,12 +44,4 @@ val commonModule = module {
     }
     single { get<Ktorfit>().create<MessagesService>() }
     single { get<Ktorfit>().create<UserService>() }
-}
-
-expect val platformModule: Module
-
-fun initKoin() {
-    startKoin {
-        modules(commonModule, platformModule)
-    }
 }

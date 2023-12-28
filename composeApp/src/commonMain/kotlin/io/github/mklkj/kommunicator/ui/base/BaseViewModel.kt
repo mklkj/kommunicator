@@ -2,7 +2,6 @@ package io.github.mklkj.kommunicator.ui.base
 
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import co.touchlab.crashkios.crashlytics.CrashlyticsKotlin
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +33,7 @@ abstract class BaseViewModel<S>(initialState: S) : StateScreenModel<S>(initialSt
     protected fun launch(
         tag: String,
         cancelExisting: Boolean = true,
-        flowObserver: Boolean = false,
+        isFlowObserver: Boolean = false,
         block: suspend CoroutineScope.() -> Unit
     ) {
         if (!cancelExisting && isJobRunning(tag)) {
@@ -43,14 +42,14 @@ abstract class BaseViewModel<S>(initialState: S) : StateScreenModel<S>(initialSt
 
         Logger.d("Job $tag initialized")
         childrenJobs[tag]?.second?.cancel()
-        if (!flowObserver) {
+        if (!isFlowObserver) {
             _isAnyJobActive.value = true
         }
-        childrenJobs[tag] = flowObserver to screenModelScope.launch(errorHandler) {
+        childrenJobs[tag] = isFlowObserver to screenModelScope.launch(errorHandler) {
             block()
         }
         childrenJobs[tag]?.second?.invokeOnCompletion {
-            if (!flowObserver) {
+            if (!isFlowObserver) {
                 _isAnyJobActive.value = isAnyJobPending()
             }
         }
