@@ -19,14 +19,21 @@ class ChatsViewModel(
     private fun loadData() {
         launch("chats_load") {
             runCatching { messagesRepository.getChats() }
-                .onFailure {
-                    proceedError(it)
-                    // todo: update state
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(
+                            errorMessage = error.message,
+                            isLoading = false,
+                        )
+                    }
                 }
                 .onSuccess { chats ->
                     mutableState.update {
                         it.copy(
                             chats = chats,
+                            isLoading = false,
+                            errorMessage = null,
                         )
                     }
                 }

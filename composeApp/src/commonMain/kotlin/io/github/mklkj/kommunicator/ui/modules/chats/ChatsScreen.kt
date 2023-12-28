@@ -1,6 +1,7 @@
 package io.github.mklkj.kommunicator.ui.modules.chats
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,11 +13,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -34,13 +38,28 @@ object ChatsScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getScreenModel<ChatsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
         Column {
-            ChatsScreenContent(
-                viewModel = viewModel,
-                onClick = { navigator.push(ConversationScreen(it.id)) },
-                modifier = Modifier.weight(1f),
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.weight(1f).fillMaxSize(),
+            ) {
+                when {
+                    state.isLoading -> CircularProgressIndicator()
+                    !state.errorMessage.isNullOrBlank() -> Text(
+                        text = state.errorMessage.orEmpty(),
+                        color = Color.Red,
+                    )
+
+                    state.chats.isNotEmpty() -> ChatsScreenContent(
+                        viewModel = viewModel,
+                        onClick = { navigator.push(ConversationScreen(it.id)) },
+                    )
+
+                    else -> Text("There is no chats")
+                }
+            }
             Button(onClick = {
                 viewModel.logout()
                 navigator.replaceAll(WelcomeScreen)
@@ -54,7 +73,7 @@ object ChatsScreen : Screen {
     private fun ChatsScreenContent(
         viewModel: ChatsViewModel,
         onClick: (Chat) -> Unit,
-        modifier: Modifier,
+        modifier: Modifier = Modifier,
     ) {
         val uiState by viewModel.state.collectAsStateWithLifecycle()
         LazyColumn(modifier.fillMaxSize()) {
