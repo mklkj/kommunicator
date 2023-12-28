@@ -74,21 +74,40 @@ fun Route.chatRoutes() {
         call.respond(chats + chats + chats + chats)
     }
     get("/{id}") {
+        val chat = chats.first { it.id.toString() == call.parameters["id"] }
         call.respond(
             ChatDetails(
-                name = chats.first { it.id.toString() == call.parameters["id"] }.name,
+                name = chat.name,
                 messages = listOf(
                     Message(
                         id = UUID(),
-                        content = "lorem ipsum dolor sit amet",
+                        content = " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eros risus, ullamcorper vitae mauris placerat, lobortis maximus nisi. Quisque consequat lobortis aliquam. Praesent ultrices dignissim nisi, hendrerit venenatis libero. Suspendisse nec sem sodales, iaculis leo eget, efficitur tellus. Suspendisse nec neque commodo, cursus lorem ac, rutrum nulla.",
+                        isUserMessage = false,
+                        authorName = chat.name,
                     ),
                     Message(
                         id = UUID(),
-                        content = "arcu",
+                        content = "Nullam pharetra quam vel nulla vestibulum scelerisque. Mauris eget dui lectus. Quisque eu dui porttitor, tempus justo nec, varius mauris.",
+                        isUserMessage = true,
+                        authorName = "You",
                     ),
                     Message(
                         id = UUID(),
                         content = "fastidii",
+                        isUserMessage = false,
+                        authorName = chat.name,
+                    ),
+                    Message(
+                        id = UUID(),
+                        content = "Nullam ultrices porttitor est, sit amet sodales massa efficitur sit amet. Phasellus pharetra id libero a placerat. Maecenas lacinia tincidunt nisi accumsan lobortis. Donec egestas velit et hendrerit fermentum",
+                        isUserMessage = false,
+                        authorName = chat.name,
+                    ),
+                    Message(
+                        id = UUID(),
+                        content = "Praesent commodo vestibulum nisl",
+                        isUserMessage = true,
+                        authorName = "You",
                     ),
                 )
             )
