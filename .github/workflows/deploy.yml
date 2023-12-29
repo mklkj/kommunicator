@@ -14,7 +14,7 @@ jobs:
               uses: SpicyPizza/create-envfile@v2
               with:
                 envkey_DEVELOPMENT: false
-                envkey_POSTGRES_HOST: "db"
+                envkey_POSTGRES_HOST: "kommunicator_db"
                 envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
                 envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
                 envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}

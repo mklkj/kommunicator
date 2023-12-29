@@ -10,9 +10,9 @@ services:
         networks:
             - docker_network
         depends_on:
-            - db
+            - kommunicator_db
 
-    db:
+    kommunicator_db:
         image: postgres:16-alpine
         restart: always
         env_file:
