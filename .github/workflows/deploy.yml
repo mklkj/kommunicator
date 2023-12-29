@@ -9,7 +9,7 @@ jobs:
         runs-on: ubuntu-latest
         environment: pich.ovh
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Create .env file
               uses: SpicyPizza/create-envfile@v2
               with:
