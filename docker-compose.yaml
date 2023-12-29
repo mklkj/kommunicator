@@ -25,7 +25,7 @@ services:
             - kommunicator_db:/var/lib/postgresql/data
 
 volumes:
-    db:
+    kommunicator_db:
         driver: local
 
 networks:
