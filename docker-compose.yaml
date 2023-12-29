@@ -22,7 +22,7 @@ services:
         networks:
             - docker_network
         volumes:
-            - db:/var/lib/postgresql/data
+            - kommunicator_db:/var/lib/postgresql/data
 
 volumes:
     db:
