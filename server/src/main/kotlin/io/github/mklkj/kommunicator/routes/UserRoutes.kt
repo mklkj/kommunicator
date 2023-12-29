@@ -1,5 +1,6 @@
 package io.github.mklkj.kommunicator.routes
 
+import io.github.mklkj.kommunicator.data.exceptions.AlreadyExist
 import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
@@ -25,17 +26,18 @@ fun Route.userRoutes() {
         val userRequest = call.receive<UserRequest>()
         val saveResult = runCatching { userService.save(userRequest) }
         if (saveResult.isFailure) {
-            saveResult.exceptionOrNull()?.printStackTrace()
-            return@post call.respond(HttpStatusCode.BadRequest)
+            val responseCode = when (saveResult.exceptionOrNull()) {
+                is AlreadyExist -> HttpStatusCode.Conflict
+                else -> HttpStatusCode.BadRequest
+            }
+            call.response.status(responseCode)
+        } else {
+            call.response.header(
+                name = "uuid",
+                value = userRequest.id.toString()
+            )
+            call.respond(message = HttpStatusCode.Created)
         }
-
-        call.response.header(
-            name = "id",
-            value = userRequest.id.toString()
-        )
-        call.respond(
-            message = HttpStatusCode.Created
-        )
     }
     authenticate {
         get {

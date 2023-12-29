@@ -25,6 +25,7 @@ val commonModule = module {
         Ktorfit.Builder()
             .baseUrl(BuildKonfig.BASE_URL.trimEnd('/'), checkUrl = false)
             .httpClient {
+                expectSuccess = true
                 install(ContentNegotiation) {
                     json(get())
                 }

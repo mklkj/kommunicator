@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -29,7 +30,7 @@ class UsersDao {
 
     suspend fun addUser(user: UserRequest) = withContext(Dispatchers.IO) {
         transaction {
-            UsersTable.insertIgnore {
+            UsersTable.insert {
                 it[uuid] = user.id
                 it[email] = user.email
                 it[username] = user.username

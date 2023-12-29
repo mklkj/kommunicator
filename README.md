@@ -195,7 +195,7 @@ wrażenie, że Flow nie emituje listy userów po wylogowaniu, ale następnego dn
 
 https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-ktor-sqldelight.html
 
-## Baza danych, ... (2023-12-28)
+## Baza danych na serwerze (2023-12-28)
 
 ... okazało się, że baza danych działała dobrze, tylko ja to napisałem tak, że to nie miało prawa
 działać. Myślałem, że jak zmienię startowy ekran on runtime w App.kt, to się to ładnie
@@ -223,6 +223,31 @@ Z ciekawostek to do migracji bazy na backendzie użyłem Flyway. Do zapisania p�
 żeby go zapisać w bazie postgresowej, trzeba było ręcznie utworzyć tam wcześniej takiego enuma
 (ja nawet nie wiedziałem, że postgres takie rzeczy ma). Oczywiście, można było to załatwić zwykłym
 stringiem, ale to by nie było to samo :)
+
+## Baza danych - deploy, usprawnienia (2023-12-29)
+
+Do późnych godzin wieczornych (a właściwie do 4 w nocy lub nad ranem — co kto woli) próbowałem
+ogarnąć bazę danych na VPSie przez docker compose. Teoretycznie wszystko powinno zadzialać od
+strzała. Teoretycznie. Jednak ciągle wywalało błąd autoryzacji na usera, którego podałem w envach.
+Zmieniłem je na domyślne, tj. `postgres` jako login i hasło. Wtedy znowu z brakiem bazy danych był
+problem. Z tego, co kojarzyłem, to baza danych tworzy się tylko przy pierwszym uruchomieniu. Tylko
+że wyrzucenie kontenera nie wystarczyło, trzeba było jeszcze wyczyścić volumen (co w sumie dobrze).
+
+Po drodze testowałem też te konenery u siebie i trafiłem na dziwny błąd z nie wykrywaniem migracji
+przez Flyway. Taka historia https://stackoverflow.com/a/77237118/6695449. Wystarczyło zrobić jak ten
+gość i pykło.
+
+Kontynuując kwestie z wczoraj związane z samym backendem — zrobiłem hashowanie hasła.
+Użyłem bcrypta. Zastanawiałem się nad https://github.com/patrickfav/bcrypt, ale jako że to bardzo
+delikatna sprawa, to ostatecznie użyłem implementacji ze spring security
+(`org.springframework.security:spring-security-crypto`).
+
+Dodałem lepszą (a w zasadzie jakąkolwiek) walidację przy tworzeniu konta i logowaniu. Teraz od razu
+jest jasne, że dane konto już istnieje (a raczej, że username jest już użyty) albo że wpisało się
+nieprawidłowe dane logowania.
+
+Ciekawostka — żeby wysłać w Ktorze sam kod http to https://ktor.io/docs/responses.html#status.
+Co do samego wyboru kodu http to https://stackoverflow.com/q/3825990/6695449
 
 ## Materiały
 

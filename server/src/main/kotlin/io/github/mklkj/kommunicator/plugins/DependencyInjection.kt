@@ -8,10 +8,13 @@ import org.koin.dsl.module
 import org.koin.ksp.generated.defaultModule
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 
 fun Application.configureDependencyInjection() {
     val appModule = module {
         single { this@configureDependencyInjection } bind Application::class
+        single<PasswordEncoder> { BCryptPasswordEncoder() }
     }
     install(Koin) {
         modules(appModule, defaultModule)

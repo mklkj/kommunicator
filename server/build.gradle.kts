@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.postgresql)
     implementation(libs.flyway.core)
 
+    implementation(libs.spring.security.crypto)
+    implementation(libs.commons.logging)
+
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
 }

@@ -47,7 +47,7 @@ class RegistrationScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         if (state.isRegistered) {
-            navigator.replaceAll(LoginScreen())
+            navigator.replace(LoginScreen())
         } else {
             Column {
                 TopAppBar(

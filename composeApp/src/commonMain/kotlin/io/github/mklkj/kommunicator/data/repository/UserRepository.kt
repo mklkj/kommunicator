@@ -6,6 +6,8 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import io.github.mklkj.kommunicator.data.models.LoginRequest
 import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.data.models.UserRequest
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -22,18 +24,28 @@ class UserRepository(
 ) {
 
     suspend fun registerUser(username: String, password: String) {
-        userService.registerUser(
-            UserRequest(
-                id = UUID(),
-                username = username,
-                password = password,
-                email = "marlene.henry@example.com",
-                firstName = "Alice Roy",
-                lastName = "Marvin Merritt",
-                dateOfBirth = LocalDate(2000, 1, 1),
-                gender = UserGender.MALE,
+        runCatching {
+            userService.registerUser(
+                UserRequest(
+                    id = UUID(),
+                    username = username,
+                    password = password,
+                    // todo: fill fields in the app
+                    email = "marlene.henry@example.com",
+                    firstName = "Alice Roy",
+                    lastName = "Marvin Merritt",
+                    dateOfBirth = LocalDate(2000, 1, 1),
+                    gender = UserGender.MALE,
+                )
             )
-        )
+        }.onFailure {
+            if (it is ClientRequestException) {
+                when (it.response.status) {
+                    HttpStatusCode.BadRequest -> error("Unknown error during registration")
+                    HttpStatusCode.Conflict -> error("User already exist")
+                }
+            } else throw it
+        }
     }
 
     fun isUserLoggedIn(): Flow<Boolean> {
@@ -47,12 +59,21 @@ class UserRepository(
     }
 
     suspend fun loginUser(username: String, password: String) {
-        val response = userService.loginUser(
-            LoginRequest(
-                username = username,
-                password = password,
+        val response = runCatching {
+            userService.loginUser(
+                LoginRequest(
+                    username = username,
+                    password = password,
+                )
             )
-        )
+        }.onFailure {
+            if (it is ClientRequestException) {
+                when (it.response.status) {
+                    HttpStatusCode.Unauthorized -> error("Invalid credentials")
+                }
+            } else throw it
+        }.getOrThrow()
+
         val user = userService.getUser(
             token = "Bearer ${response.token}",
             id = response.id,

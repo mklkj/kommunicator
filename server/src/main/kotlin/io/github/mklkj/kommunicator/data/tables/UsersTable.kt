@@ -22,4 +22,8 @@ object UsersTable : Table() {
     )
 
     override val primaryKey = PrimaryKey(uuid)
+
+    init {
+        uniqueIndex("Unique username constraint", username)
+    }
 }

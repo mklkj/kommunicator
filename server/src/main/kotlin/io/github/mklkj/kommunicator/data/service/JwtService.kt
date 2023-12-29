@@ -5,7 +5,6 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.typesafe.config.ConfigFactory
 import io.github.mklkj.kommunicator.data.models.LoginRequest
-import io.github.mklkj.kommunicator.data.models.User
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.config.HoconApplicationConfig
@@ -15,10 +14,12 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaInstant
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Singleton
 class JwtService(
     private val userService: UserService,
+    private val passwordEncoder: PasswordEncoder,
 ) {
 
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
@@ -34,8 +35,8 @@ class JwtService(
         .build()
 
     suspend fun createJwtToken(loginRequest: LoginRequest): Pair<UUID, String>? {
-        val foundUser: User? = userService.findByUsername(loginRequest.username)
-        return if (foundUser != null && loginRequest.password == foundUser.password) {
+        val foundUser = userService.findByUsername(loginRequest.username) ?: return null
+        return if (passwordEncoder.matches(loginRequest.password, foundUser.password)) {
             foundUser.id to JWT.create()
                 .withAudience(audience)
                 .withIssuer(issuer)

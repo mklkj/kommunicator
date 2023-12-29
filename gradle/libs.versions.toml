@@ -1,4 +1,5 @@
 [versions]
+commonsLogging = "1.3.0"
 exposedVersion = "0.45.0"
 firebase = "1.10.4"
 flywayCore = "10.4.1"
@@ -34,10 +35,12 @@ androidx-test-junit = "1.1.5"
 androidx-espresso-core = "3.5.1"
 junit = "4.13.2"
 postgresql = "42.7.1"
+springSecurityCrypto = "6.2.1"
 sqldelight = "2.0.1"
 voyager = "1.0.0"
 
 [libraries]
+commons-logging = { module = "commons-logging:commons-logging", version.ref = "commonsLogging" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposedVersion" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposedVersion" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposedVersion" }
@@ -94,6 +97,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+spring-security-crypto = { module = "org.springframework.security:spring-security-crypto", version.ref = "springSecurityCrypto" }
 sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
