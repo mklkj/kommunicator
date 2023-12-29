@@ -1,5 +1,7 @@
+import kotlinx.uuid.UUID;
+
 CREATE TABLE Users (
-    id TEXT NOT NULL PRIMARY KEY,
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
     email TEXT NOT NULL,
     username TEXT NOT NULL,
     token TEXT NOT NULL,

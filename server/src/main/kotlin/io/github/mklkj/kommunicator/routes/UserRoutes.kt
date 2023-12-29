@@ -1,7 +1,6 @@
 package io.github.mklkj.kommunicator.routes
 
 import io.github.mklkj.kommunicator.data.models.User
-import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
@@ -17,8 +16,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import kotlinx.datetime.LocalDate
-import kotlinx.uuid.UUID
 import org.koin.ktor.ext.inject
 
 fun Route.userRoutes() {
@@ -26,13 +23,15 @@ fun Route.userRoutes() {
 
     post {
         val userRequest = call.receive<UserRequest>()
-        val createdUser = userService.save(
-            user = userRequest.toModel()
-        ) ?: return@post call.respond(HttpStatusCode.BadRequest)
+        val saveResult = runCatching { userService.save(userRequest) }
+        if (saveResult.isFailure) {
+            saveResult.exceptionOrNull()?.printStackTrace()
+            return@post call.respond(HttpStatusCode.BadRequest)
+        }
 
         call.response.header(
             name = "id",
-            value = createdUser.id.toString()
+            value = userRequest.id.toString()
         )
         call.respond(
             message = HttpStatusCode.Created
@@ -60,18 +59,6 @@ fun Route.userRoutes() {
         }
     }
 }
-
-private fun UserRequest.toModel(): User =
-    User(
-        id = UUID(),
-        username = username,
-        password = password,
-        email = "lorena.koch@example.com",
-        firstName = "Charmaine Daniel",
-        lastName = "Bret Adkins",
-        dateOfBirth = LocalDate.fromEpochDays(0),
-        gender = UserGender.MALE,
-    )
 
 private fun User.toResponse(): UserResponse = UserResponse(
     id = id,

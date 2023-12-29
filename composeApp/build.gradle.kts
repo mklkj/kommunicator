@@ -73,6 +73,7 @@ kotlin {
 
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.kotlinx.uuid.sqldelight)
             // https://github.com/cashapp/sqldelight/issues/4357#issuecomment-1839905700
             //noinspection UseTomlInstead
             implementation("co.touchlab:stately-common:2.0.5")

@@ -16,16 +16,14 @@ fun Route.authRoute() {
 
     post {
         val loginRequest = call.receive<LoginRequest>()
-        val token = jwtService.createJwtToken(loginRequest)
-        token?.let { (id, token) ->
-            call.respond(
-                LoginResponse(
-                    id = id,
-                    token = token,
-                )
-            )
-        } ?: call.respond(
+        val (id, token) = jwtService.createJwtToken(loginRequest) ?: return@post call.respond(
             message = HttpStatusCode.Unauthorized,
+        )
+        call.respond(
+            LoginResponse(
+                id = id,
+                token = token,
+            )
         )
     }
 }

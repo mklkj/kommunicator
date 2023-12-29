@@ -106,8 +106,9 @@ Z paroma przeszkodami, ale udało mi się to zrobić tak, żeby mi w miarę odpo
 minusem jest potrzeba edycji śledzonego przez gita pliku gradle.properties, ale niech na razie tak
 zostanie.
 
-Ciekawostka: jeśli Xcode project configuration nie jest ustawione (bo akurat zmienialiśmy dostępne konfiguracje przez XCode)
-to build się zawiesza na tej części z gradlem i nic się nie dzieje przez wiele minut.
+Ciekawostka: jeśli Xcode project configuration nie jest ustawione (bo akurat zmienialiśmy dostępne
+konfiguracje przez XCode) to build się zawiesza na tej części z gradlem i nic się nie dzieje przez
+wiele minut.
 
 ## Deploy API (:server) na VPSa (2023-12-07)
 
@@ -200,6 +201,28 @@ https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-ktor-sqlde
 działać. Myślałem, że jak zmienię startowy ekran on runtime w App.kt, to się to ładnie
 przekomponuje, ale to tak nie działa. Dodałem `replaceAll` na WelcomeScreen przy wylogowywaniu
 i wszystko gra.
+
+Dalej — usprawniłem ekran z listą czatów oraz z ekranem konwersacji.
+
+Dalej — połączenie z bazą PostgreSQL w części serwerowej. Używamy Jetbrains Exposed. Mały problem
+ze zmiennymi środowiskowymi. Fajny plugin https://plugins.jetbrains.com/plugin/7861-envfile/versions/stable
+ale nie dostępny niby dla Android Studio. Na szczęście można to ominąć, pobierając zip ręcznie.
+
+Przewijając do godziny prawie 03:00 - połączenie działa. Udało mi się zarejestrować usera
+i zalogować się na niego.
+Do zrobienia na pewno będzie zrobienie jakiegoś upserta przy istniejącym
+już uuid (problem dwóch generałów) oraz wyjątku przy już istniejącym username.
+Będzie trzeba też ogarnąć hashowanie hasła przy tworzeniu kont i porównywanie takiego hasła później.
+Celuję tutaj raczej w bcrypt ze Spring security (celuję w coś, co znam, a bcrypta znam z PHP).
+
+Z "sukcesów" (a raczej rzeczy, które się jakoś ładnie złożyły) to użyłem integracji kotlinx.uuid
+z SQLDelight i Jetbrains Exposed, dzięki czemu się to jakoś tam ładnie teraz prawie samo
+serializuje.
+
+Z ciekawostek to do migracji bazy na backendzie użyłem Flyway. Do zapisania płci użyłem enuma, ale
+żeby go zapisać w bazie postgresowej, trzeba było ręcznie utworzyć tam wcześniej takiego enuma
+(ja nawet nie wiedziałem, że postgres takie rzeczy ma). Oczywiście, można było to załatwić zwykłym
+stringiem, ale to by nie było to samo :)
 
 ## Materiały
 

@@ -6,8 +6,14 @@ import kotlinx.uuid.UUID
 
 @Serializable
 data class UserRequest(
+    val id: UUID,
+    val email: String,
     val username: String,
     val password: String,
+    val firstName: String,
+    val lastName: String,
+    val dateOfBirth: LocalDate,
+    val gender: UserGender,
 )
 
 @Serializable

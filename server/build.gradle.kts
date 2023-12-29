@@ -31,11 +31,19 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.uuid.core)
+    implementation(libs.kotlinx.uuid.exposed)
 
     implementation(libs.koin.ktor)
     implementation(project.dependencies.platform(libs.koin.annotations.bom))
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp)
+
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.postgresql)
+    implementation(libs.flyway.core)
 
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)

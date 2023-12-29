@@ -33,7 +33,7 @@ class JwtService(
         .withIssuer(issuer)
         .build()
 
-    fun createJwtToken(loginRequest: LoginRequest): Pair<UUID, String>? {
+    suspend fun createJwtToken(loginRequest: LoginRequest): Pair<UUID, String>? {
         val foundUser: User? = userService.findByUsername(loginRequest.username)
         return if (foundUser != null && loginRequest.password == foundUser.password) {
             foundUser.id to JWT.create()
@@ -45,11 +45,11 @@ class JwtService(
         } else null
     }
 
-    fun customValidator(
+    suspend fun customValidator(
         credential: JWTCredential,
     ): JWTPrincipal? {
         val username = extractUsername(credential)
-        val foundUser = username?.let(userService::findByUsername)
+        val foundUser = username?.let { userService.findByUsername(it) }
         return foundUser?.let {
             if (audienceMatches(credential)) {
                 JWTPrincipal(credential.payload)
