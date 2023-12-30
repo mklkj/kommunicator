@@ -5,12 +5,10 @@ import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
+import io.github.mklkj.kommunicator.utils.extractPrincipalUsername
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -71,9 +69,3 @@ private fun User.toResponse(): UserResponse = UserResponse(
     dateOfBirth = dateOfBirth,
     gender = gender,
 )
-
-private fun extractPrincipalUsername(call: ApplicationCall): String? =
-    call.principal<JWTPrincipal>()
-        ?.payload
-        ?.getClaim("username")
-        ?.asString()

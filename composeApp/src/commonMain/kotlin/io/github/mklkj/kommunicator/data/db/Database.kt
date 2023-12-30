@@ -8,6 +8,7 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import kotlinx.uuid.sqldelight.UUIDStringAdapter
 import org.koin.core.annotation.Singleton
@@ -26,6 +27,10 @@ class Database(sqlDriver: SqlDriver) {
 
     fun getAlLUsers(): Flow<List<LocalUser>> {
         return dbQuery.selectAllUsers(::mapUserSelecting).asFlow().mapToList(Dispatchers.IO)
+    }
+
+    suspend fun getCurrentUser(): LocalUser? = withContext(Dispatchers.IO) {
+        dbQuery.selectAllUsers(::mapUserSelecting).executeAsOneOrNull()
     }
 
     fun insertUser(user: LocalUser) {

@@ -247,7 +247,29 @@ jest jasne, że dane konto już istnieje (a raczej, że username jest już użyt
 nieprawidłowe dane logowania.
 
 Ciekawostka — żeby wysłać w Ktorze sam kod http to https://ktor.io/docs/responses.html#status.
-Co do samego wyboru kodu http to https://stackoverflow.com/q/3825990/6695449
+Co do samego wyboru kodu http to https://stackoverflow.com/q/3825990/6695449.
+
+Do końca dnia bawiłem się z naprawą crasha `java.io.NotSerializableException: kotlinx.uuid.UUID`.
+Spowodowany jest on tym, że jako argument w `ConversationScreen` przekazuję `kotlinx.uuid.UUID`,
+który to niestety nie jest serializowalny na androidzie (tj. nie implementuje
+`java.lang.Serializable`). Więc żeby to zrobić ładnie, bez wycofywania się z wyboru tego typu
+pomyślałem, że zmodyfikuję oryginalną bibliotekę. Najpierw sforkowałem oryginalą bibliotekę, która
+jak się okazało... już dawno nie jest rozwijana i ja sam używam tutaj już forku *facepalm*.
+Straciłem na to kilka godzin, bo przez to, że biblioteka 3 lata nie była ruszana, to nawet zbudować
+się nie chciała. Kiedy już wziąłem tego forka i zrobiłem z niego swojego forka, dodałem według
+instrukcji z docsów Voyagera https://voyager.adriel.cafe/state-restoration#multiplatform-state-restoration
+JavaSerializable. Do tego teścik z serializacją i deserializacją według https://www.baeldung.com/java-serialization
+i w ten sposób powstał taki PR https://github.com/hfhbd/kotlinx-uuid/pull/282. Sam crash raczej
+nie jest mocno dotkliwy na tym etapie projektu, więc mogę poczekać, aż zostanie zmergowany do
+*upstreamu*.
+
+## Poszerzenie sprawdzania JWT na endpointy chatu (2023-12-30)
+
+W końcu to trzeba było zrobić — czaty i wiadomości muszą być zabezpieczone. Nawet nie wiecie, jak
+się ucieszyłem, gdy zobaczyłem, że jest gotowy plugin pełniący funkcję interceptora dodającego JWT
+do nagłówka przy każdym requeście. Zachwyt nie trwał jednak zbyt długo, bo się okazało, że ten token
+się tam zapisuje na wieki... aż nie trafi się request z 401. Ale znalazłem obejście, więc jakoś
+to przeżyjemy https://youtrack.jetbrains.com/issue/KTOR-4759/Auth-BearerAuthProvider-caches-result-of-loadToken-until-process-death.
 
 ## Materiały
 

@@ -3,8 +3,10 @@ package io.github.mklkj.kommunicator.routes
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.utils.extractPrincipalUsername
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.engine.logError
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -73,7 +75,13 @@ fun Route.chatRoutes() {
         ),
     )
     get {
-        call.respond(chats + chats + chats + chats)
+        val username = extractPrincipalUsername(call)
+        logError(call, IllegalArgumentException("Username: $username"))
+        call.respond(chats.map {
+            it.copy(
+                lastMessageAuthor = username ?: it.lastMessageAuthor,
+            )
+        })
     }
     get("/{id}") {
         val chat = chats.first { it.id.toString() == call.parameters["id"] }

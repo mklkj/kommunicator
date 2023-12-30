@@ -6,7 +6,11 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import io.github.mklkj.kommunicator.data.models.LoginRequest
 import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.data.models.UserRequest
+import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
+import io.ktor.client.plugins.plugin
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -21,6 +25,7 @@ import org.koin.core.annotation.Singleton
 class UserRepository(
     private val userService: UserService,
     private val database: Database,
+    private val httpClient: HttpClient,
 ) {
 
     suspend fun registerUser(username: String, password: String) {
@@ -55,6 +60,7 @@ class UserRepository(
     suspend fun logout() {
         withContext(Dispatchers.IO) {
             database.clearDatabase()
+            invalidateBearerTokens()
         }
     }
 
@@ -88,5 +94,21 @@ class UserRepository(
                 lastName = user.lastName
             )
         )
+        invalidateBearerTokens()
+    }
+
+    /**
+     * Force the Auth plugin to invoke the `loadTokens` block again on the next client request.
+     * @see [https://youtrack.jetbrains.com/issue/KTOR-4759/Auth-BearerAuthProvider-caches-result-of-loadToken-until-process-death#focus=Comments-27-6422735.0-0]
+     */
+    private fun invalidateBearerTokens() {
+        try {
+            httpClient.plugin(Auth).providers
+                .filterIsInstance<BearerAuthProvider>()
+                .first()
+                .clearToken()
+        } catch (e: IllegalStateException) {
+            // No-op; plugin not installed
+        }
     }
 }

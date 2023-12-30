@@ -6,6 +6,7 @@ import io.github.mklkj.kommunicator.routes.chatRoutes
 import io.github.mklkj.kommunicator.routes.userRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
+import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -19,6 +20,8 @@ fun Application.configureRouting() {
 
         route("/api/auth") { authRoute() }
         route("/api/user") { userRoutes() }
-        route("/api/chats") { chatRoutes() }
+        authenticate {
+            route("/api/chats") { chatRoutes() }
+        }
     }
 }
