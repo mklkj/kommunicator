@@ -271,6 +271,9 @@ do nagłówka przy każdym requeście. Zachwyt nie trwał jednak zbyt długo, bo
 się tam zapisuje na wieki... aż nie trafi się request z 401. Ale znalazłem obejście, więc jakoś
 to przeżyjemy https://youtrack.jetbrains.com/issue/KTOR-4759/Auth-BearerAuthProvider-caches-result-of-loadToken-until-process-death.
 
+A tu ładne screeny jak cały mechanizm z refresh tokenami mógłby wyglądać
+https://medium.com/@lahirujay/token-refresh-implementation-with-ktor-in-kotlin-multiplatform-mobile-f4d77b33b355
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
