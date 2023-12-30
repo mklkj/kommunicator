@@ -1,14 +1,10 @@
 package io.github.mklkj.kommunicator.data.models
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.uuid.UUID
 
 @Serializable
-data class Message(
+data class MessageRequest(
     val id: UUID,
-    val isUserMessage: Boolean,
-    val authorName: String,
-    val timestamp: Instant,
     val content: String,
 )

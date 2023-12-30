@@ -1,5 +1,6 @@
 package io.github.mklkj.kommunicator.ui.modules.conversation
 
+import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.update
@@ -34,11 +35,12 @@ class ConversationViewModel(
         }
     }
 
-    fun sendMessage(chatId: UUID, content: String) {
+    fun sendMessage(chatId: UUID, message: MessageRequest) {
         launch("chat_send_message") {
             mutableState.update { it.copy(isLoading = true) }
-            messagesRepository.sendMessage(chatId, content)
+            messagesRepository.sendMessage(chatId, message)
             mutableState.update { it.copy(isLoading = false) }
+            loadData(chatId)
         }
     }
 }

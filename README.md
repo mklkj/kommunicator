@@ -283,6 +283,8 @@ https://medium.com/@lahirujay/token-refresh-implementation-with-ktor-in-kotlin-m
 - JWT do autoryzacji - https://ktor.io/docs/jwt.html
 - moze jakaś integracja z ChatGPT? - https://github.com/yml-org/ychat
 - przykładowa aplikacja KM w Compose UI i Swift UI - https://github.com/getspherelabs/cosmo-kmp
+- przykładowy schemat bazy danych - https://github.com/yoosuf/Messenger
+- aplikacja chatu z Gemini - https://github.com/chouaibMo/ChatGemini/tree/main
 
 
 https://github.com/tunjid/Tiler

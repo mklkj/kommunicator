@@ -38,6 +38,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import kotlinx.uuid.UUID
 
@@ -134,29 +135,31 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     @Composable
     private fun ChatInput(
         isLoading: Boolean,
-        onSendClick: (String) -> Unit,
+        onSendClick: (MessageRequest) -> Unit,
         modifier: Modifier = Modifier,
     ) {
-        var message by remember { mutableStateOf("") }
+        var messageId = remember { UUID() }
+        var content by remember { mutableStateOf("") }
 
         TextField(
-            value = message,
-            onValueChange = { message = it },
+            value = content,
+            onValueChange = { content = it },
             maxLines = 3,
             placeholder = { Text(text = "Type a message...") },
             trailingIcon = {
                 Button(
                     onClick = {
-                        onSendClick(message)
-                        message = ""
+                        onSendClick(MessageRequest(messageId, content))
+                        content = ""
+                        messageId = UUID()
                     },
-                    enabled = message.isNotBlank() && !isLoading,
+                    enabled = content.isNotBlank() && !isLoading,
                     content = {
                         if (isLoading) CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = MaterialTheme.colorScheme.onPrimary,
                         ) else Icon(
-                            Icons.Default.ArrowForward,
+                            imageVector = Icons.Default.ArrowForward,
                             contentDescription = null,
                             modifier = Modifier.rotate(-90.0F).size(20.dp),
                         )

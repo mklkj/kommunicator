@@ -40,6 +40,7 @@ class JwtService(
             foundUser.id to JWT.create()
                 .withAudience(audience)
                 .withIssuer(issuer)
+                .withClaim("userId", foundUser.id.toString())
                 .withClaim("username", loginRequest.username)
                 .withExpiresAt(Clock.System.now().plus(1, DateTimeUnit.HOUR).toJavaInstant())
                 .sign(Algorithm.HMAC256(secret))
