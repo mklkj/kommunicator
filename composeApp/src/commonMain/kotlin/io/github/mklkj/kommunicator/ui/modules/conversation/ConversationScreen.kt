@@ -138,7 +138,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
         onSendClick: (MessageRequest) -> Unit,
         modifier: Modifier = Modifier,
     ) {
-        var messageId = remember { UUID() }
+        var messageId by remember { mutableStateOf(UUID()) }
         var content by remember { mutableStateOf("") }
 
         TextField(
