@@ -1,4 +1,4 @@
-package io.github.mklkj.kommunicator.data.tables
+package io.github.mklkj.kommunicator.data.dao.tables
 
 import io.github.mklkj.kommunicator.data.enums.PGEnum
 import io.github.mklkj.kommunicator.data.models.UserGender

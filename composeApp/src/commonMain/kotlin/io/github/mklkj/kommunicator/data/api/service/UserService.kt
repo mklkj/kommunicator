@@ -27,7 +27,7 @@ interface UserService {
     ): UserResponse
 
     @POST("/api/auth")
-    suspend fun loginUser(
+    suspend fun getToken(
         @Body body: LoginRequest,
         @Header("Content-Type") contentType: String = "application/json",
     ): LoginResponse

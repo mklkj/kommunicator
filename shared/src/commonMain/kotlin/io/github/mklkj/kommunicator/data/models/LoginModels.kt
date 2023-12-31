@@ -10,7 +10,13 @@ data class LoginRequest(
 )
 
 @Serializable
+data class LoginRefreshRequest(
+    val refreshToken: String,
+)
+
+@Serializable
 data class LoginResponse(
     val id: UUID,
     val token: String,
+    val refreshToken: String,
 )

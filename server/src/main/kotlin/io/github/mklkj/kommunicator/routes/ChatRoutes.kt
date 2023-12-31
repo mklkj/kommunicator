@@ -11,7 +11,6 @@ import io.github.mklkj.kommunicator.utils.principalId
 import io.github.mklkj.kommunicator.utils.principalUsername
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
-import io.ktor.server.engine.logError
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -87,7 +86,6 @@ fun Route.chatRoutes() {
     )
     get {
         val username = extractPrincipalUsername(call)
-        logError(call, IllegalArgumentException("Username: $username"))
         call.respond(chats.map {
             it.copy(
                 lastMessageAuthor = username ?: it.lastMessageAuthor,

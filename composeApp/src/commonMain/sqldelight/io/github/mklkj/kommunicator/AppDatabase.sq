@@ -5,13 +5,17 @@ CREATE TABLE Users (
     email TEXT NOT NULL,
     username TEXT NOT NULL,
     token TEXT NOT NULL,
+    refreshToken TEXT NOT NULL,
     firstName TEXT NOT NULL,
     lastName TEXT NOT NULL
 );
 
 insertUser:
-INSERT INTO Users(id, email, username, token, firstName, lastName)
-VALUES(?, ?, ?, ?, ?, ?);
+INSERT INTO Users(id, email, username, token, refreshToken, firstName, lastName)
+VALUES(?, ?, ?, ?, ?, ?,?);
+
+updateUserTokens:
+UPDATE Users SET token = ?, refreshToken=? WHERE id = ?;
 
 removeAllUsers:
 DELETE FROM Users;

@@ -15,6 +15,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import kotlinx.uuid.UUID
 import org.koin.ktor.ext.inject
 
 fun Route.userRoutes() {
@@ -49,7 +50,7 @@ fun Route.userRoutes() {
         get("/{id}") {
             val id: String = call.parameters["id"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val foundUser = userService.findById(id)
+            val foundUser = userService.findById(UUID(id))
                 ?: return@get call.respond(HttpStatusCode.NotFound)
             if (foundUser.username != extractPrincipalUsername(call))
                 return@get call.respond(HttpStatusCode.NotFound)

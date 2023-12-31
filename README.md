@@ -274,6 +274,16 @@ to przeżyjemy https://youtrack.jetbrains.com/issue/KTOR-4759/Auth-BearerAuthPro
 A tu ładne screeny jak cały mechanizm z refresh tokenami mógłby wyglądać
 https://medium.com/@lahirujay/token-refresh-implementation-with-ktor-in-kotlin-multiplatform-mobile-f4d77b33b355
 
+## Refresh tokenu (2023-12-31)
+
+Zrobiłem refresh tokenu. Na backendzie mam tabelkę `usertokens` z wszystkimi refresh tokenami i przy
+logowaniu tworzę userowi jednego (losowy stiring) i odsyłam razem z walidnym access tokenem (JWT).
+Po tym, jak access token przestanie być ważny, to user ma puknąć pod `/api/auth/refresh`, gdzie
+dostaje nowy refresh token (poprzedni jest usuwany) i nowy access token. Na razie ustawiłem ważność
+access tokenu na minutę. Zastanawiam się, jak powszedni będzie problem z odebraniem nowego access
+tokenu przez klienta. Bo jeśli backend go usunie, a user nie dostanie nowego, to efektywnie zostanie
+wywalony z apki.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

@@ -66,7 +66,7 @@ class UserRepository(
 
     suspend fun loginUser(username: String, password: String) {
         val response = runCatching {
-            userService.loginUser(
+            userService.getToken(
                 LoginRequest(
                     username = username,
                     password = password,
@@ -90,6 +90,7 @@ class UserRepository(
                 email = user.email,
                 username = user.username,
                 token = response.token,
+                refreshToken = response.refreshToken,
                 firstName = user.firstName,
                 lastName = user.lastName
             )

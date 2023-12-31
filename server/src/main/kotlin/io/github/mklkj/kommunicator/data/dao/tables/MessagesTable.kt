@@ -1,4 +1,4 @@
-package io.github.mklkj.kommunicator.data.tables
+package io.github.mklkj.kommunicator.data.dao.tables
 
 import kotlinx.uuid.exposed.kotlinxUUID
 import org.jetbrains.exposed.sql.Table

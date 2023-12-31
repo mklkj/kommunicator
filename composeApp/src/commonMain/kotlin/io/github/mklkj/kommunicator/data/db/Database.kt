@@ -33,12 +33,22 @@ class Database(sqlDriver: SqlDriver) {
         dbQuery.selectAllUsers(::mapUserSelecting).executeAsOneOrNull()
     }
 
+    suspend fun updateUserTokens(id: UUID, token: String, refreshToken: String) =
+        withContext(Dispatchers.IO) {
+            dbQuery.updateUserTokens(
+                id = id,
+                token = token,
+                refreshToken = refreshToken,
+            )
+        }
+
     fun insertUser(user: LocalUser) {
         dbQuery.insertUser(
             id = user.id,
             email = user.email,
             username = user.username,
             token = user.token,
+            refreshToken = user.refreshToken,
             firstName = user.firstName,
             lastName = user.lastName,
         )
@@ -50,6 +60,7 @@ private fun mapUserSelecting(
     email: String,
     username: String,
     token: String,
+    refreshToken: String,
     firstName: String,
     lastName: String,
 ): LocalUser = LocalUser(
@@ -57,6 +68,7 @@ private fun mapUserSelecting(
     email = email,
     username = username,
     token = token,
+    refreshToken = refreshToken,
     firstName = firstName,
     lastName = lastName
 )

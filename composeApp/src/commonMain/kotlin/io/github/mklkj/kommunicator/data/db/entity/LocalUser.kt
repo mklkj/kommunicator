@@ -7,6 +7,7 @@ data class LocalUser(
     val email: String,
     val username: String,
     val token: String,
+    val refreshToken: String,
     val firstName: String,
     val lastName: String,
 )

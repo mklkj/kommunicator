@@ -1,7 +1,8 @@
 package io.github.mklkj.kommunicator.data
 
-import io.github.mklkj.kommunicator.data.tables.MessagesTable
-import io.github.mklkj.kommunicator.data.tables.UsersTable
+import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
+import io.github.mklkj.kommunicator.data.dao.tables.UserTokensTable
+import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -14,6 +15,7 @@ class DatabaseFactory {
     private val tables = arrayOf(
         UsersTable,
         MessagesTable,
+        UserTokensTable,
     )
 
     fun init() {
