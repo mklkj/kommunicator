@@ -1,5 +1,6 @@
 package io.github.mklkj.kommunicator.ui.modules.chats
 
+import io.github.mklkj.kommunicator.data.exceptions.UserTokenExpiredException
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
@@ -24,6 +25,7 @@ class ChatsViewModel(
                     mutableState.update {
                         it.copy(
                             errorMessage = error.message,
+                            isLoggedIn = error !is UserTokenExpiredException,
                             isLoading = false,
                         )
                     }

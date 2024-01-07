@@ -6,10 +6,12 @@ import io.github.mklkj.kommunicator.BuildKonfig
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
+import io.github.mklkj.kommunicator.data.exceptions.UserTokenExpiredException
 import io.github.mklkj.kommunicator.data.models.LoginRefreshRequest
 import io.github.mklkj.kommunicator.data.models.LoginResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -20,6 +22,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -55,12 +58,20 @@ val commonModule = module {
                         val refreshToken = currentUser?.refreshToken
                         if (refreshToken.isNullOrBlank()) error("Refresh token missing!")
 
-                        val tokenInfo = client.post(
-                            urlString = BuildKonfig.BASE_URL.trimEnd('/') + "/api/auth/refresh",
-                        ) {
-                            contentType(ContentType.Application.Json)
-                            setBody(LoginRefreshRequest(refreshToken = refreshToken))
-                        }.body<LoginResponse>()
+                        val tokenInfo = runCatching {
+                            client.post(
+                                urlString = BuildKonfig.BASE_URL.trimEnd('/') + "/api/auth/refresh",
+                            ) {
+                                contentType(ContentType.Application.Json)
+                                setBody(LoginRefreshRequest(refreshToken = refreshToken))
+                                markAsRefreshTokenRequest()
+                            }.body<LoginResponse>()
+                        }.onFailure {
+                            if (it is ClientRequestException && it.response.status == HttpStatusCode.Unauthorized) {
+                                database.deleteCurrentUser()
+                                throw UserTokenExpiredException(it)
+                            } else throw it
+                        }.getOrThrow()
 
                         database.updateUserTokens(
                             id = tokenInfo.id,

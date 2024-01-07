@@ -19,18 +19,18 @@ class Database(sqlDriver: SqlDriver) {
     private val database = AppDatabase(sqlDriver, Users.Adapter(UUIDStringAdapter))
     private val dbQuery = database.appDatabaseQueries
 
-    fun clearDatabase() {
-        dbQuery.transaction {
-            dbQuery.removeAllUsers()
-        }
-    }
-
     fun getAlLUsers(): Flow<List<LocalUser>> {
         return dbQuery.selectAllUsers(::mapUserSelecting).asFlow().mapToList(Dispatchers.IO)
     }
 
     suspend fun getCurrentUser(): LocalUser? = withContext(Dispatchers.IO) {
         dbQuery.selectAllUsers(::mapUserSelecting).executeAsOneOrNull()
+    }
+
+    suspend fun deleteCurrentUser() = withContext(Dispatchers.IO) {
+        dbQuery.transaction {
+            dbQuery.removeAllUsers() // todo: rename?
+        }
     }
 
     suspend fun updateUserTokens(id: UUID, token: String, refreshToken: String) =

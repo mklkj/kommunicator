@@ -284,6 +284,15 @@ access tokenu na minutę. Zastanawiam się, jak powszedni będzie problem z odeb
 tokenu przez klienta. Bo jeśli backend go usunie, a user nie dostanie nowego, to efektywnie zostanie
 wywalony z apki.
 
+## Obsługa wygasłych refresh tokenów (2024-01-07)
+
+Tydzień mi uciekł... 
+
+Zrobiłem obsługę HTTP 401 w apce. Jak refresh token wygaśnie (po miesiącu) to apka raz, że w ogóle
+skończy ładować dane (a wieszała się przez mój błąd — blokowała się po otrzymaniu 401 po refreshu)
+to teraz wyloguje aktualnie zalogowanego usera i dodatkowo przeniesie go na WelcomeScreen, gdzie
+będzie mógł się zalogować ponownie.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

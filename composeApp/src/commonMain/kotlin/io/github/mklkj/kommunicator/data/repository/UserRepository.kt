@@ -59,7 +59,7 @@ class UserRepository(
 
     suspend fun logout() {
         withContext(Dispatchers.IO) {
-            database.clearDatabase()
+            database.deleteCurrentUser()
             invalidateBearerTokens()
         }
     }
