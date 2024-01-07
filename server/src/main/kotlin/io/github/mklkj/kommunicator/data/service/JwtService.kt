@@ -24,7 +24,6 @@ class JwtService(
     private val passwordEncoder: PasswordEncoder,
 ) {
 
-    private val tokenValidityLength = DateTimeUnit.MINUTE
     private val appConfig = HoconApplicationConfig(ConfigFactory.load())
     private val secret = getConfigProperty("jwt.secret")
     private val issuer = getConfigProperty("jwt.issuer")
@@ -50,7 +49,7 @@ class JwtService(
             .withIssuer(issuer)
             .withClaim("userId", user.id.toString())
             .withClaim("username", user.username)
-            .withExpiresAt(Clock.System.now().plus(tokenValidityLength).toJavaInstant())
+            .withExpiresAt(Clock.System.now().plus(1, DateTimeUnit.MINUTE).toJavaInstant())
             .sign(Algorithm.HMAC256(secret))
     }
 

@@ -302,3 +302,6 @@ https://github.com/getspherelabs/cosmo-kmp
 https://atscaleconference.com/messaging-at-scale/
 https://www.donnfelker.com/why-kotlin-multiplatform-wont-succeed/
 https://github.com/theapache64/rebugger
+https://stackoverflow.com/questions/28907831/how-to-use-jti-claim-in-a-jwt
+https://github.com/JetBrains/Exposed/wiki/Transactions
+https://github.com/yveskalume/gemini-chat
