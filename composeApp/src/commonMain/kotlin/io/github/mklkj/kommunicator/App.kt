@@ -12,27 +12,24 @@ import cafe.adriel.voyager.navigator.Navigator
 import io.github.mklkj.kommunicator.ui.modules.chats.ChatsScreen
 import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
-import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 
 @Composable
 fun App() {
-    KoinContext {
-        MaterialTheme {
-            val viewModel = koinInject<AppViewModel>()
-            val isLoggedIn by viewModel.state.collectAsStateWithLifecycle()
+    MaterialTheme {
+        val viewModel = koinInject<AppViewModel>()
+        val isLoggedIn by viewModel.state.collectAsStateWithLifecycle()
 
-            val startScreen = when (isLoggedIn) {
-                true -> ChatsScreen
-                false -> WelcomeScreen
-                null -> return@MaterialTheme Box(Modifier.fillMaxSize()) {
-                    CircularProgressIndicator()
-                }
+        val startScreen = when (isLoggedIn) {
+            true -> ChatsScreen
+            false -> WelcomeScreen
+            null -> return@MaterialTheme Box(Modifier.fillMaxSize()) {
+                CircularProgressIndicator()
             }
+        }
 
-            Navigator(startScreen) {
-                CurrentScreen()
-            }
+        Navigator(startScreen) {
+            CurrentScreen()
         }
     }
 }

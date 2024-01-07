@@ -19,7 +19,11 @@ class ChatsViewModel(
 
     private fun loadData() {
         launch("chats_load") {
-            runCatching { messagesRepository.getChats() }
+            runCatching {
+                val user = userRepository.getCurrentUser()
+                val chats = messagesRepository.getChats()
+                Pair(user, chats)
+            }
                 .onFailure { error ->
                     proceedError(error)
                     mutableState.update {
@@ -30,21 +34,16 @@ class ChatsViewModel(
                         )
                     }
                 }
-                .onSuccess { chats ->
+                .onSuccess { (user, chats) ->
                     mutableState.update {
                         it.copy(
                             chats = chats,
                             isLoading = false,
                             errorMessage = null,
+                            userAvatarUrl = user.avatarUrl,
                         )
                     }
                 }
-        }
-    }
-
-    fun logout() {
-        launch("logout_user", cancelExisting = false) {
-            userRepository.logout()
         }
     }
 }

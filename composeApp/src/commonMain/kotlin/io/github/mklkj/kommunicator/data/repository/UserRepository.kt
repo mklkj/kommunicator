@@ -64,6 +64,10 @@ class UserRepository(
         }
     }
 
+    suspend fun getCurrentUser(): LocalUser {
+        return database.getCurrentUser() ?: error("There is no currently logged in user!")
+    }
+
     suspend fun loginUser(username: String, password: String) {
         val response = runCatching {
             userService.getToken(

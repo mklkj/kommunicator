@@ -10,4 +10,7 @@ data class LocalUser(
     val refreshToken: String,
     val firstName: String,
     val lastName: String,
-)
+) {
+
+    val avatarUrl: String = "https://i.pravatar.cc/256?u=$id"
+}

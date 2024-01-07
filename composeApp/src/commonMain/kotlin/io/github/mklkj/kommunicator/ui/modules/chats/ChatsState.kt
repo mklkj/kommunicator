@@ -7,4 +7,5 @@ data class ChatsState(
     val errorMessage: String? = null,
     val isLoggedIn: Boolean = true,
     val chats: List<Chat> = emptyList(),
+    val userAvatarUrl: String? = null,
 )

@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +36,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.ui.modules.account.AccountScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
@@ -51,34 +51,21 @@ object ChatsScreen : Screen {
         val viewModel = getScreenModel<ChatsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        if (!state.isLoggedIn) {
-            navigator.replaceAll(WelcomeScreen)
-        } else Column {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.weight(1f).fillMaxSize(),
-            ) {
-                when {
-                    state.isLoading -> CircularProgressIndicator()
-                    !state.errorMessage.isNullOrBlank() -> Text(
-                        text = state.errorMessage.orEmpty(),
-                        color = Color.Red,
-                    )
+        when {
+            !state.isLoggedIn -> navigator.replaceAll(WelcomeScreen)
+            state.isLoading -> CircularProgressIndicator()
+            !state.errorMessage.isNullOrBlank() -> Text(
+                text = state.errorMessage.orEmpty(),
+                color = Color.Red,
+            )
 
-                    state.chats.isNotEmpty() -> ChatsScreenContent(
-                        viewModel = viewModel,
-                        onClick = { navigator.push(ConversationScreen(it.id)) },
-                    )
+            state.chats.isNotEmpty() -> ChatsScreenContent(
+                viewModel = viewModel,
+                onChatClick = { navigator.push(ConversationScreen(it.id)) },
+                onAccountClick = { navigator.push(AccountScreen()) }
+            )
 
-                    else -> Text("There is no chats")
-                }
-            }
-            Button(onClick = {
-                viewModel.logout()
-                navigator.replaceAll(WelcomeScreen)
-            }) {
-                Text("Logout")
-            }
+            else -> Text("There is no chats")
         }
     }
 
@@ -86,18 +73,38 @@ object ChatsScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     private fun ChatsScreenContent(
         viewModel: ChatsViewModel,
-        onClick: (Chat) -> Unit,
+        onChatClick: (Chat) -> Unit,
+        onAccountClick: () -> Unit,
         modifier: Modifier = Modifier,
     ) {
         val uiState by viewModel.state.collectAsStateWithLifecycle()
 
         Column {
-            TopAppBar(title = { Text("Czaty") })
+            TopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        AppImage(
+                            url = uiState.userAvatarUrl.orEmpty(),
+                            modifier = Modifier
+                                .background(Color.DarkGray, CircleShape)
+                                .clip(CircleShape)
+                                .size(48.dp)
+                                .clickable { onAccountClick() }
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        Text("Czaty")
+                    }
+                },
+                modifier = Modifier.height(80.dp)
+            )
             LazyColumn(modifier.fillMaxSize()) {
                 items(uiState.chats) { chat ->
                     ChatItem(
                         item = chat,
-                        onClick = onClick,
+                        onClick = onChatClick,
                     )
                 }
             }
