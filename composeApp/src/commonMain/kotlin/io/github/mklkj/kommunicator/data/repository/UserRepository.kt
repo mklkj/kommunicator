@@ -110,8 +110,8 @@ class UserRepository(
         try {
             httpClient.plugin(Auth).providers
                 .filterIsInstance<BearerAuthProvider>()
-                .first()
-                .clearToken()
+                .firstOrNull()
+                ?.clearToken()
         } catch (e: IllegalStateException) {
             // No-op; plugin not installed
         }

@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.plugins
 import io.github.mklkj.kommunicator.Greeting
 import io.github.mklkj.kommunicator.routes.authRoute
 import io.github.mklkj.kommunicator.routes.chatRoutes
+import io.github.mklkj.kommunicator.routes.contactRoutes
 import io.github.mklkj.kommunicator.routes.userRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -22,6 +23,7 @@ fun Application.configureRouting() {
         route("/api/user") { userRoutes() }
         authenticate {
             route("/api/chats") { chatRoutes() }
+            route("/api/contacts") { contactRoutes() }
         }
     }
 }

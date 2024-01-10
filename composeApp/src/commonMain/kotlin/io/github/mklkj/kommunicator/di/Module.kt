@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.di
 import co.touchlab.kermit.Logger
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.github.mklkj.kommunicator.BuildKonfig
+import io.github.mklkj.kommunicator.data.api.service.ContactService
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
@@ -44,6 +45,7 @@ val commonModule = module {
             }
             install(Auth) {
                 val database = get<Database>()
+                // todo: fix issue on user login/registration
                 bearer {
                     loadTokens {
                         database.getCurrentUser()?.let {
@@ -106,4 +108,5 @@ val commonModule = module {
     }
     single { get<Ktorfit>().create<MessagesService>() }
     single { get<Ktorfit>().create<UserService>() }
+    single { get<Ktorfit>().create<ContactService>() }
 }

@@ -296,6 +296,11 @@ będzie mógł się zalogować ponownie.
 Dodałem też sobie ekran konta (z nazwą usera i przyciskiem do wylogowywania), bo czemu nie. Przyda
 się.
 
+## Dodawanie kontaktów (2024-01-08/10)
+
+Voyager, voyager, voyager... niby masz te swoje nawigowanie między ekranami z integracją z tabami,
+ale jak chce zrobić i to, i to, to działa to słabo!
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

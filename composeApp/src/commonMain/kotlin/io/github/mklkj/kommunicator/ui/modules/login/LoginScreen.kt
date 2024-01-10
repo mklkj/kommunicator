@@ -34,7 +34,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.github.mklkj.kommunicator.ui.modules.chats.ChatsScreen
+import io.github.mklkj.kommunicator.ui.modules.homescreen.HomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 
 class LoginScreen : Screen {
@@ -47,7 +47,7 @@ class LoginScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         if (state.isLoggedIn) {
-            navigator.replaceAll(ChatsScreen)
+            navigator.replaceAll(HomeScreen)
         } else {
             Column {
                 TopAppBar(
