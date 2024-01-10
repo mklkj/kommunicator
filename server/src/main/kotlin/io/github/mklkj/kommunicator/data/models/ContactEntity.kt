@@ -7,3 +7,12 @@ data class ContactEntity(
     val contactUserId: UUID,
     val userId: UUID,
 )
+
+
+data class ContactsEntityWithContactUserEntity(
+    val id: UUID,
+    val contactUserId: UUID,
+    val firstName: String,
+    val lastName: String,
+    val username: String,
+)

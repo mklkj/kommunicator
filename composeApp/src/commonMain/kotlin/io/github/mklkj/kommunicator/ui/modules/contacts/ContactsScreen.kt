@@ -161,7 +161,7 @@ internal object ContactsScreen : Tab {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "// TODO",
+                    text = "@${item.username}",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

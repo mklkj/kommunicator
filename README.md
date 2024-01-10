@@ -296,10 +296,22 @@ będzie mógł się zalogować ponownie.
 Dodałem też sobie ekran konta (z nazwą usera i przyciskiem do wylogowywania), bo czemu nie. Przyda
 się.
 
-## Dodawanie kontaktów (2024-01-08/10)
+## Dodawanie kontaktów (2024-01-08)
 
 Voyager, voyager, voyager... niby masz te swoje nawigowanie między ekranami z integracją z tabami,
 ale jak chce zrobić i to, i to, to działa to słabo!
+
+Zrobiłem bottom nava z zakładką z kontaktami (coś jak w Messengerze). Przy okazji wynikły problemy
+(z nawigacją) i trochę się zeszło.
+
+## Dodawanie kontaktów ciąg dalszy (2024-01-10)
+
+Skończyłem (na razie) kwestię z nawigacją. Dorobiłem ekran dodawania kontaktu oraz backend.
+Wywaliłem nagłówek content type json z poszczególnych serwisów i dodałem go jako taki w default
+request. Backend teraz umie dodawać pojedynczy kontakt. Jak spróbujesz dodać siebie, to zwróci 409.
+Jak to nieistniejący kontakt, to 204, a jak istniejący to 500 - do zmiany. Idzie 500, bo primary key
+by się powtarzał i to na poziomie bazy się teraz wywala. Pasuje dodać sprawdzenie, żeby tego
+uniknąć. No i pasuje dodać ludzkie komunikaty po stronie apki.
 
 ## Materiały
 

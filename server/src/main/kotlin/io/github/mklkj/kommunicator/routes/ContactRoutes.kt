@@ -1,11 +1,11 @@
 package io.github.mklkj.kommunicator.routes
 
-import io.github.mklkj.kommunicator.data.models.Contact
 import io.github.mklkj.kommunicator.data.models.ContactAddRequest
 import io.github.mklkj.kommunicator.data.models.ContactsResponse
 import io.github.mklkj.kommunicator.data.service.ContactService
 import io.github.mklkj.kommunicator.data.service.UserService
 import io.github.mklkj.kommunicator.utils.principalId
+import io.github.mklkj.kommunicator.utils.principalUsername
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -22,6 +22,10 @@ fun Route.contactRoutes() {
     post {
         val request = call.receive<ContactAddRequest>()
         val currentUserId = call.principalId ?: error("Invalid JWT!")
+        if (call.principalUsername == request.username) {
+            return@post call.response.status(HttpStatusCode.Conflict)
+        }
+
         val contactUser = userService
             .findByUsername(request.username)
             ?: return@post call.response.status(HttpStatusCode.BadRequest)
@@ -37,19 +41,6 @@ fun Route.contactRoutes() {
     get {
         val userId = call.principalId ?: error("Invalid JWT")
         val items = contactService.getContactsByUser(userId)
-        call.respond(
-            ContactsResponse(
-                contacts = items.map {
-                    Contact(
-                        id = it.id,
-                        contactUserId = it.contactUserId,
-                        avatarUrl = "https://search.yahoo.com/search?p=nisl",
-                        name = "Raz Dwa",
-                        username = "Hans Humphrey",
-                        isActive = false,
-                    )
-                }
-            )
-        )
+        call.respond(ContactsResponse(contacts = items))
     }
 }
