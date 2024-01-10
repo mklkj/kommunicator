@@ -2,7 +2,6 @@ package io.github.mklkj.kommunicator.data.api.service
 
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
-import de.jensklingenberg.ktorfit.http.Header
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import io.github.mklkj.kommunicator.data.models.Chat
@@ -22,6 +21,5 @@ interface MessagesService {
     suspend fun sendMessage(
         @Path("chatId") chatId: UUID,
         @Body message: MessageRequest,
-        @Header("Content-Type") contentType: String = "application/json",
     )
 }

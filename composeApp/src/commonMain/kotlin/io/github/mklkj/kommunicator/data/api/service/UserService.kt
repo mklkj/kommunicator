@@ -14,21 +14,14 @@ import kotlinx.uuid.UUID
 interface UserService {
 
     @POST("/api/user")
-    suspend fun registerUser(
-        @Body body: UserRequest,
-        @Header("Content-Type") contentType: String = "application/json",
-    )
+    suspend fun registerUser(@Body body: UserRequest)
 
     @GET("/api/user/{id}")
     suspend fun getUser(
-        @Header("Authorization") token: String,
+        @Header("Authorization") token: String, // todo: add this from bearer token block
         @Path("id") id: UUID,
-        @Header("Content-Type") contentType: String = "application/json",
     ): UserResponse
 
     @POST("/api/auth")
-    suspend fun getToken(
-        @Body body: LoginRequest,
-        @Header("Content-Type") contentType: String = "application/json",
-    ): LoginResponse
+    suspend fun getToken(@Body body: LoginRequest): LoginResponse
 }

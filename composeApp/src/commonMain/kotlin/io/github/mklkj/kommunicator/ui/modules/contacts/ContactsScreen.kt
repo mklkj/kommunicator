@@ -15,9 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,6 +38,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import io.github.mklkj.kommunicator.data.models.Contact
+import io.github.mklkj.kommunicator.ui.modules.contacts.add.ContactAddScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
@@ -59,34 +65,45 @@ internal object ContactsScreen : Tab {
         val viewModel = getScreenModel<ContactsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        when {
-            state.isLoading -> Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                CircularProgressIndicator()
-            }
-
-            !state.errorMessage.isNullOrBlank() -> Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                Text(text = state.errorMessage.orEmpty(), color = Color.Red)
-            }
-
-            state.contacts.isEmpty() -> Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Text(text = "You have no contacts!")
-            }
-
-            else -> ContactsContent(
-                contacts = state.contacts,
-                onContactClick = {
-                    navigator.push(ConversationScreen(it.id)) // todo: this is not a chat id!
+        Scaffold(
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { navigator.push(ContactAddScreen()) },
+                ) {
+                    Icon(Icons.Filled.Add, "Add contact")
                 }
-            )
+            },
+            floatingActionButtonPosition = FabPosition.End,
+        ) {
+            when {
+                state.isLoading -> Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    CircularProgressIndicator()
+                }
+
+                !state.errorMessage.isNullOrBlank() -> Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    Text(text = state.errorMessage.orEmpty(), color = Color.Red)
+                }
+
+                state.contacts.isEmpty() -> Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = "You have no contacts!")
+                }
+
+                else -> ContactsContent(
+                    contacts = state.contacts,
+                    onContactClick = {
+                        navigator.push(ConversationScreen(it.id)) // todo: this is not a chat id!
+                    }
+                )
+            }
         }
     }
 
@@ -144,7 +161,7 @@ internal object ContactsScreen : Tab {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Active ...",
+                    text = "// TODO",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
