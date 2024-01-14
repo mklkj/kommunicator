@@ -7,13 +7,13 @@ import io.github.mklkj.kommunicator.data.models.UserTokenEntity
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.routes.createRefreshToken
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.isDistantFuture
-import kotlinx.datetime.isDistantPast
+import kotlinx.datetime.toJavaInstant
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.koin.core.annotation.Singleton
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.time.Duration
+import java.time.Instant
 import kotlin.time.toKotlinDuration
 
 @Singleton
@@ -55,7 +55,10 @@ class UserService(
         return newSuspendedTransaction {
             val tokenInfo = getTokenInfo(refreshToken) ?: return@newSuspendedTransaction null
 
-            // todo: add checking is tokenInfo valid
+            if (!tokenInfo.validTo.toJavaInstant().isAfter(Instant.now())) {
+                return@newSuspendedTransaction null
+            }
+
             val user = findById(tokenInfo.userId) ?: return@newSuspendedTransaction null
 
             val (id, token) = jwtService.createJwtToken(user)
@@ -65,7 +68,7 @@ class UserService(
                 userId = id,
                 refreshToken = createRefreshToken(),
                 timestamp = Clock.System.now(),
-                validTo = Clock.System.now().plus(java.time.Duration.ofDays(30).toKotlinDuration()),
+                validTo = Clock.System.now().plus(Duration.ofDays(30).toKotlinDuration()),
             )
             saveUserToken(userToken)
 

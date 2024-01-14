@@ -135,7 +135,7 @@ buildkonfig {
 
     targetConfigs("dev") {
         create("android") {
-            buildConfigField(STRING, baseUrlKey, "http://192.168.227.5:8080/", const = true)
+            buildConfigField(STRING, baseUrlKey, "http://192.168.0.2:8080/", const = true)
             // host loopback in android emulator
 //            buildConfigField(STRING, baseUrlKey, "http://10.0.2.2:8080/", const = true)
         }

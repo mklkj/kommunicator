@@ -50,7 +50,6 @@ val commonModule = module {
             }
             install(Auth) {
                 val database = get<Database>()
-                // todo: fix issue on user login/registration
                 bearer {
                     loadTokens {
                         database.getCurrentUser()?.let {
@@ -62,8 +61,8 @@ val commonModule = module {
                     }
                     refreshTokens {
                         val currentUser = database.getCurrentUser()
-                        val refreshToken = currentUser?.refreshToken
-                        if (refreshToken.isNullOrBlank()) error("Refresh token missing!")
+                            ?: return@refreshTokens null
+                        val refreshToken = currentUser.refreshToken
 
                         val tokenInfo = runCatching {
                             client.post(
