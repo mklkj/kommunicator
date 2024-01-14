@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import io.github.mklkj.kommunicator.data.models.Contact
+import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.ui.modules.contacts.add.ContactAddScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
@@ -63,6 +64,10 @@ internal object ContactsScreen : Tab {
     override fun Content() {
         val navigator = LocalNavigatorParent
         val viewModel = getScreenModel<ContactsViewModel>()
+        // todo: workaround for ViewModel being disposed on navigating to add contact screen
+        LaunchedEffect(Unit) {
+            viewModel.loadData()
+        }
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         Scaffold(
@@ -109,8 +114,8 @@ internal object ContactsScreen : Tab {
 
     @Composable
     private fun ContactsContent(
-        contacts: List<Contact>,
-        onContactClick: (Contact) -> Unit,
+        contacts: List<LocalContact>,
+        onContactClick: (LocalContact) -> Unit,
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
@@ -125,7 +130,7 @@ internal object ContactsScreen : Tab {
     }
 
     @Composable
-    private fun ContactItem(item: Contact, onClick: (Contact) -> Unit) {
+    private fun ContactItem(item: LocalContact, onClick: (LocalContact) -> Unit) {
         Row(
             Modifier
                 .clickable(onClick = { onClick(item) })
@@ -154,7 +159,7 @@ internal object ContactsScreen : Tab {
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
-                    text = item.name,
+                    text = "${item.firstName} ${item.lastName}",
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,

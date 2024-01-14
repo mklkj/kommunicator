@@ -19,7 +19,8 @@ class ContactRepository(
                 id = it.id,
                 contactUserId = it.contactUserId,
                 avatarUrl = "https://gravatar.com/avatar/${md5(it.email)}",
-                name = "${it.firstName} ${it.lastName}",
+                firstName = it.firstName,
+                lastName = it.lastName,
                 username = it.username,
                 isActive = Random.nextBoolean(), // todo
             )

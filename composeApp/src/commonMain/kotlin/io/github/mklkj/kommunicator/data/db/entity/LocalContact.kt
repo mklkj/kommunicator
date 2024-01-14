@@ -1,11 +1,10 @@
-package io.github.mklkj.kommunicator.data.models
+package io.github.mklkj.kommunicator.data.db.entity
 
-import kotlinx.serialization.Serializable
 import kotlinx.uuid.UUID
 
-@Serializable
-data class Contact(
+data class LocalContact(
     val id: UUID,
+    val userId: UUID,
     val contactUserId: UUID,
     val avatarUrl: String,
     val firstName: String,

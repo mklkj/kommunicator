@@ -1,3 +1,4 @@
+import kotlin.Boolean;
 import kotlinx.uuid.UUID;
 
 CREATE TABLE Users (
@@ -7,12 +8,13 @@ CREATE TABLE Users (
     token TEXT NOT NULL,
     refreshToken TEXT NOT NULL,
     firstName TEXT NOT NULL,
-    lastName TEXT NOT NULL
+    lastName TEXT NOT NULL,
+    avatarUrl TEXT NOT NULL DEFAULT ''
 );
 
 insertUser:
-INSERT INTO Users(id, email, username, token, refreshToken, firstName, lastName)
-VALUES(?, ?, ?, ?, ?, ?,?);
+INSERT INTO Users(id, email, username, token, refreshToken, firstName, lastName, avatarUrl)
+VALUES(?, ?, ?, ?, ?, ?,?, ?);
 
 updateUserTokens:
 UPDATE Users SET token = ?, refreshToken=? WHERE id = ?;
@@ -21,5 +23,25 @@ removeAllUsers:
 DELETE FROM Users;
 
 selectAllUsers:
-SELECT Users.*
-FROM Users;
+SELECT Users.* FROM Users;
+
+CREATE TABLE Contacts (
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    userId TEXT AS UUID NOT NULL,
+    contactUserId TEXT AS UUID NOT NULL,
+    avatarUrl TEXT NOT NULL,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    username TEXT NOT NULL,
+    isActive INTEGER AS Boolean NOT NULL
+);
+
+insertContact:
+INSERT INTO Contacts(id, userId, contactUserId, avatarUrl, firstName, lastName, username, isActive)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?);
+
+removeAllContacts:
+DELETE FROM Contacts WHERE userId = ?;
+
+selectAllContacts:
+SELECT Contacts.* FROM Contacts WHERE userId = ?;

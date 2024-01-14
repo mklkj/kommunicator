@@ -1,12 +1,17 @@
 package io.github.mklkj.kommunicator.ui.modules.contacts
 
 import io.github.mklkj.kommunicator.data.repository.ContactRepository
+import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Singleton
 
 @Singleton
 class ContactsViewModel(
+    private val userRepository: UserRepository,
     private val contactRepository: ContactRepository,
 ) : BaseViewModel<ContactsState>(ContactsState()) {
 
@@ -14,10 +19,14 @@ class ContactsViewModel(
         loadData()
     }
 
-    private fun loadData() {
-        launch("load_contacts", cancelExisting = false) {
-            runCatching { contactRepository.getContacts()}
-                .onFailure { error ->
+    fun loadData() {
+        launch("load_contacts", cancelExisting = false, isFlowObserver = true) {
+            val userId = userRepository.getCurrentUser().id
+            runCatching { contactRepository.refreshContacts() }
+                .onFailure { proceedError(it) }
+
+            contactRepository.getContacts(userId)
+                .catch { error ->
                     proceedError(error)
                     mutableState.update {
                         it.copy(
@@ -26,7 +35,7 @@ class ContactsViewModel(
                         )
                     }
                 }
-                .onSuccess { contacts ->
+                .onEach { contacts ->
                     mutableState.update {
                         it.copy(
                             errorMessage = null,
@@ -35,6 +44,7 @@ class ContactsViewModel(
                         )
                     }
                 }
+                .collect()
         }
     }
 }

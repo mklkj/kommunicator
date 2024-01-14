@@ -3,8 +3,11 @@ package io.github.mklkj.kommunicator.data.db
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.db.SqlDriver
+import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.Users
+import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.db.entity.LocalUser
+import io.github.mklkj.kommunicator.data.models.Contact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -16,10 +19,18 @@ import org.koin.core.annotation.Singleton
 @Singleton
 class Database(sqlDriver: SqlDriver) {
 
-    private val database = AppDatabase(sqlDriver, Users.Adapter(UUIDStringAdapter))
+    private val database = AppDatabase(
+        driver = sqlDriver,
+        ContactsAdapter = Contacts.Adapter(
+            idAdapter = UUIDStringAdapter,
+            userIdAdapter = UUIDStringAdapter,
+            contactUserIdAdapter = UUIDStringAdapter,
+        ),
+        UsersAdapter = Users.Adapter(UUIDStringAdapter)
+    )
     private val dbQuery = database.appDatabaseQueries
 
-    fun getAlLUsers(): Flow<List<LocalUser>> {
+    fun getAllUsers(): Flow<List<LocalUser>> {
         return dbQuery.selectAllUsers(::mapUserSelecting).asFlow().mapToList(Dispatchers.IO)
     }
 
@@ -51,8 +62,33 @@ class Database(sqlDriver: SqlDriver) {
             refreshToken = user.refreshToken,
             firstName = user.firstName,
             lastName = user.lastName,
+            avatarUrl = user.avatarUrl,
         )
     }
+
+    fun getAllContacts(userId: UUID): Flow<List<LocalContact>> {
+        return dbQuery.selectAllContacts(userId, ::mapContactSelecting)
+            .asFlow().mapToList(Dispatchers.IO)
+    }
+
+    suspend fun insertContacts(userId: UUID, contacts: List<Contact>) =
+        withContext(Dispatchers.IO) {
+            dbQuery.transaction {
+                dbQuery.removeAllContacts(userId)
+                contacts.forEach {
+                    dbQuery.insertContact(
+                        id = it.id,
+                        userId = userId,
+                        contactUserId = it.contactUserId,
+                        avatarUrl = it.avatarUrl,
+                        firstName = it.firstName,
+                        lastName = it.lastName,
+                        username = it.username,
+                        isActive = it.isActive,
+                    )
+                }
+            }
+        }
 }
 
 private fun mapUserSelecting(
@@ -63,6 +99,7 @@ private fun mapUserSelecting(
     refreshToken: String,
     firstName: String,
     lastName: String,
+    avatarUrl: String,
 ): LocalUser = LocalUser(
     id = id,
     email = email,
@@ -70,5 +107,26 @@ private fun mapUserSelecting(
     token = token,
     refreshToken = refreshToken,
     firstName = firstName,
-    lastName = lastName
+    lastName = lastName,
+    avatarUrl = avatarUrl,
+)
+
+private fun mapContactSelecting(
+    id: UUID,
+    userId: UUID,
+    contactUserId: UUID,
+    avatarUrl: String,
+    firstName: String,
+    lastName: String,
+    username: String,
+    isActive: Boolean,
+): LocalContact = LocalContact(
+    id = id,
+    userId = userId,
+    contactUserId = contactUserId,
+    avatarUrl = avatarUrl,
+    firstName = firstName,
+    lastName = lastName,
+    username = username,
+    isActive = isActive
 )

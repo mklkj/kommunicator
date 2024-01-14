@@ -52,7 +52,7 @@ class UserRepository(
     }
 
     fun isUserLoggedIn(): Flow<Boolean> {
-        return database.getAlLUsers().map { it.isNotEmpty() }
+        return database.getAllUsers().map { it.isNotEmpty() }
     }
 
     suspend fun logout() {
@@ -94,7 +94,8 @@ class UserRepository(
                 token = response.token,
                 refreshToken = response.refreshToken,
                 firstName = user.firstName,
-                lastName = user.lastName
+                lastName = user.lastName,
+                avatarUrl = user.avatarUrl,
             )
         )
         invalidateBearerTokens()
