@@ -6,6 +6,7 @@ import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserTokenEntity
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.routes.createRefreshToken
+import io.github.mklkj.kommunicator.routes.toResponse
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaInstant
 import kotlinx.uuid.UUID

@@ -12,5 +12,6 @@ data class LocalUser(
     val lastName: String,
 ) {
 
+    // todo: make this as field filled from API
     val avatarUrl: String = "https://i.pravatar.cc/256?u=$id"
 }

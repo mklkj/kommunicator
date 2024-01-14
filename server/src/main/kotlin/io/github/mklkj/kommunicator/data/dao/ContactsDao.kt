@@ -29,6 +29,7 @@ class ContactsDao {
             contactUserId = row[ContactsTable.contactUserId],
             firstName = row[UsersTable.firstName],
             lastName = row[UsersTable.lastName],
+            email = row[UsersTable.email],
             username = row[UsersTable.username],
         )
 

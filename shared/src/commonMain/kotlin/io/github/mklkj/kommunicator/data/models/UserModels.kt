@@ -25,4 +25,5 @@ data class UserResponse(
     val lastName: String,
     val dateOfBirth: LocalDate,
     val gender: UserGender,
+    val avatarUrl: String,
 )

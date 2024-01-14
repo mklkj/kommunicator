@@ -6,6 +6,7 @@ import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
 import io.github.mklkj.kommunicator.utils.extractPrincipalUsername
+import io.github.mklkj.kommunicator.utils.md5
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
@@ -54,14 +55,13 @@ fun Route.userRoutes() {
                 ?: return@get call.respond(HttpStatusCode.NotFound)
             if (foundUser.username != extractPrincipalUsername(call))
                 return@get call.respond(HttpStatusCode.NotFound)
-            call.respond(
-                message = foundUser.toResponse()
-            )
+
+            call.respond(message = foundUser.toResponse())
         }
     }
 }
 
-private fun User.toResponse(): UserResponse = UserResponse(
+fun User.toResponse(): UserResponse = UserResponse(
     id = id,
     username = username,
     email = email,
@@ -69,4 +69,5 @@ private fun User.toResponse(): UserResponse = UserResponse(
     lastName = lastName,
     dateOfBirth = dateOfBirth,
     gender = gender,
+    avatarUrl = "https://gravatar.com/avatar/${md5(email)}"
 )
