@@ -33,8 +33,8 @@ class UserRepository(
             userService.registerUser(
                 UserRequest(
                     id = UUID(),
-                    username = username,
-                    password = password,
+                    username = username.trim(),
+                    password = password.trim(),
                     // todo: fill fields in the app
                     email = "marlene.henry@example.com",
                     firstName = "Alice Roy",
@@ -72,8 +72,8 @@ class UserRepository(
         val response = runCatching {
             userService.getToken(
                 LoginRequest(
-                    username = username,
-                    password = password,
+                    username = username.trim(),
+                    password = password.trim(),
                 )
             )
         }.onFailure {
