@@ -4,8 +4,8 @@ import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import io.github.mklkj.kommunicator.data.models.LoginRequest
-import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.data.models.UserRequest
+import io.github.mklkj.kommunicator.ui.modules.registration.RegistrationCredentials
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.auth.Auth
@@ -17,7 +17,6 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDate
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -28,19 +27,18 @@ class UserRepository(
     private val httpClient: HttpClient,
 ) {
 
-    suspend fun registerUser(username: String, password: String) {
+    suspend fun registerUser(credentials: RegistrationCredentials) {
         runCatching {
             userService.registerUser(
                 UserRequest(
                     id = UUID(),
-                    username = username.trim(),
-                    password = password.trim(),
-                    // todo: fill fields in the app
-                    email = "marlene.henry@example.com",
-                    firstName = "Alice Roy",
-                    lastName = "Marvin Merritt",
-                    dateOfBirth = LocalDate(2000, 1, 1),
-                    gender = UserGender.MALE,
+                    username = credentials.username.trim(),
+                    password = credentials.password.trim(),
+                    email = credentials.email.trim(),
+                    firstName = credentials.firstName.trim(),
+                    lastName = credentials.lastName.trim(),
+                    dateOfBirth = credentials.dateOfBirth!!,
+                    gender = credentials.gender!!,
                 )
             )
         }.onFailure {
