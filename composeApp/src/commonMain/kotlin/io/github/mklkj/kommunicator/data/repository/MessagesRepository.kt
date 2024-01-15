@@ -1,7 +1,9 @@
 package io.github.mklkj.kommunicator.data.repository
 
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
+import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import kotlinx.uuid.UUID
@@ -11,6 +13,18 @@ import org.koin.core.annotation.Singleton
 class MessagesRepository(
     private val messagesService: MessagesService,
 ) {
+
+    suspend fun createChat(chatId: UUID, contacts: List<LocalContact>) {
+        messagesService.createChat(
+            ChatCreateRequest(
+                chatId = chatId,
+                customName = null,
+                participants = contacts.map {
+                    it.contactUserId
+                },
+            )
+        )
+    }
 
     suspend fun getChats(): List<Chat> {
         return messagesService.getChats()

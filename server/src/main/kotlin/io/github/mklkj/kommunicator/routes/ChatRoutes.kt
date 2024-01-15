@@ -1,14 +1,13 @@
 package io.github.mklkj.kommunicator.routes
 
-import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageEntity
 import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.service.ChatService
 import io.github.mklkj.kommunicator.data.service.MessageService
-import io.github.mklkj.kommunicator.utils.extractPrincipalUsername
 import io.github.mklkj.kommunicator.utils.principalId
-import io.github.mklkj.kommunicator.utils.principalUsername
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -18,99 +17,63 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.util.getOrFail
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
-import kotlinx.datetime.toLocalDateTime
-import kotlinx.uuid.UUID
 import kotlinx.uuid.toUUID
+import kotlinx.uuid.toUUIDOrNull
 import org.koin.ktor.ext.inject
 
-val chatId1 = UUID("be5707b4-68d2-4370-b8e7-a5a9593990a0")
-val chatId2 = UUID("dcd8023e-852e-4c11-9845-1c9edcf2c2b1")
-val chatId3 = UUID("02f8066d-be94-49e5-ad91-6df32133c2c1")
-val chatId4 = UUID("f1c78ea2-d3c8-46b9-9d49-e7a98f0898fe")
-
 fun Route.chatRoutes() {
+    val chatService by inject<ChatService>()
     val messageService by inject<MessageService>()
 
-    val chats = listOf(
-        Chat(
-            isUnread = false,
-            lastMessage = "lorem ipsum dolor sit amet",
-            lastMessageAuthor = "ridens",
-            name = "Oliwka Wojtaszek",
-            avatarUrl = "https://i.pravatar.cc/256?u=$chatId1",
-            lastMessageTimestamp = Clock.System.now()
-                .minus(2, DateTimeUnit.SECOND)
-                .toLocalDateTime(TimeZone.UTC),
-            isActive = false,
-            id = chatId1,
-        ),
-        Chat(
-            isUnread = true,
-            lastMessage = "aenean",
-            lastMessageAuthor = "aptent",
-            name = "Zuzanna Baran",
-            avatarUrl = "https://i.pravatar.cc/256?u=$chatId2",
-            lastMessageTimestamp = Clock.System.now()
-                .minus(12, DateTimeUnit.HOUR)
-                .toLocalDateTime(TimeZone.UTC),
-            isActive = true,
-            id = chatId2,
-        ),
-        Chat(
-            isUnread = true,
-            lastMessage = "aenean",
-            lastMessageAuthor = "aptent",
-            name = "Dominika Mydłowska",
-            avatarUrl = "https://i.pravatar.cc/256?u=$chatId3",
-            lastMessageTimestamp = Clock.System.now()
-                .minus(128, DateTimeUnit.HOUR)
-                .toLocalDateTime(TimeZone.UTC),
-            isActive = false,
-            id = chatId3,
-        ),
-        Chat(
-            isUnread = false,
-            lastMessage = "aenean",
-            lastMessageAuthor = "aptent",
-            name = "Adrian Duda",
-            avatarUrl = "https://i.pravatar.cc/256?u=$chatId4",
-            lastMessageTimestamp = Clock.System.now()
-                .minus(1280, DateTimeUnit.HOUR)
-                .toLocalDateTime(TimeZone.UTC),
-            isActive = false,
-            id = chatId4,
-        ),
-    )
     get {
-        val username = extractPrincipalUsername(call)
-        call.respond(chats.map {
-            it.copy(
-                lastMessageAuthor = username ?: it.lastMessageAuthor,
+        val userId = call.principalId ?: error("Invalid JWT!")
+        val chats = chatService.getChats(userId)
+
+        call.respond(chats)
+    }
+    post {
+        val request = call.receive<ChatCreateRequest>()
+        chatService.addChat(
+            request.copy(
+                participants = request.participants + listOfNotNull(call.principalId)
             )
-        })
+        )
+        call.response.status(HttpStatusCode.Created)
     }
     get("/{id}") {
-        val chat = chats.first { it.id.toString() == call.parameters["id"] }
-        val currentUserId = call.principalId
+        val chat = chatService.getChat(
+            chatId = call.parameters["id"]?.toUUIDOrNull() ?: error("Invalid chat id"),
+            userId = call.principalId ?: error("Invalid JWT"),
+        ) ?: return@get call.response.status(HttpStatusCode.NotFound)
 
+        val currentUserId = call.principalId
         val chatMessages = messageService.getMessages(chat.id)
+        val participants = chat.participants
 
         call.respond(
             ChatDetails(
-                name = chat.name,
-                messages = chatMessages.map {
+                name = chat.name ?: buildString {
+                    val name = chat.participants.first().let {
+                        it.customName ?: it.firstName
+                    }
+                    append(name)
+                },
+                messages = chatMessages.map { message ->
                     Message(
-                        id = it.id,
-                        isUserMessage = it.userId == currentUserId,
-                        authorName = when (it.userId) {
-                            currentUserId -> call.principalUsername.orEmpty()
-                            else -> chat.name // todo: get real name from Users table
-                        },
-                        timestamp = it.timestamp,
-                        content = it.content,
+                        id = message.id,
+                        isUserMessage = message.userId == currentUserId,
+                        authorName = when (message.userId) {
+                            currentUserId -> "You"
+                            else -> {
+                                val participant = participants
+                                    .find { it.userId == message.userId }
+                                participant?.customName ?: participant?.let {
+                                    "${it.firstName} ${it.lastName}"
+                                } ?: chat.name
+                            }
+                        }.orEmpty(),
+                        timestamp = message.timestamp,
+                        content = message.content,
                     )
                 },
             )

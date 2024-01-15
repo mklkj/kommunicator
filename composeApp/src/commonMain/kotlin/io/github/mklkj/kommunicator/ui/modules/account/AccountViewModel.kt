@@ -3,9 +3,9 @@ package io.github.mklkj.kommunicator.ui.modules.account
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.update
-import org.koin.core.annotation.Singleton
+import org.koin.core.annotation.Factory
 
-@Singleton
+@Factory
 class AccountViewModel(
     private val userRepository: UserRepository,
 ) : BaseViewModel<AccountState>(AccountState()) {

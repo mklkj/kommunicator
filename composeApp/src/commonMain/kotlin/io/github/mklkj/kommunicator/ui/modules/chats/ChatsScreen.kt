@@ -45,7 +45,8 @@ import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
-import io.github.mklkj.kommunicator.utils.timeAgoSince
+import kotlinx.datetime.Clock
+import nl.jacobras.humanreadable.HumanReadable
 
 internal object ChatsScreen : Tab {
 
@@ -63,44 +64,11 @@ internal object ChatsScreen : Tab {
         }
 
     @Composable
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun Content() {
         val navigator = LocalNavigatorParent
         val viewModel = getScreenModel<ChatsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-
-        when {
-            !state.isLoggedIn -> navigator.replaceAll(WelcomeScreen)
-            state.isLoading -> Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                CircularProgressIndicator()
-            }
-
-            !state.errorMessage.isNullOrBlank() -> Text(
-                text = state.errorMessage.orEmpty(),
-                color = Color.Red,
-            )
-
-            state.chats.isNotEmpty() -> ChatsScreenContent(
-                viewModel = viewModel,
-                onChatClick = { navigator.push(ConversationScreen(it.id)) },
-                onAccountClick = { navigator.push(AccountScreen()) }
-            )
-
-            else -> Text("There is no chats")
-        }
-    }
-
-    @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
-    private fun ChatsScreenContent(
-        viewModel: ChatsViewModel,
-        onChatClick: (Chat) -> Unit,
-        onAccountClick: () -> Unit,
-        modifier: Modifier = Modifier,
-    ) {
-        val uiState by viewModel.state.collectAsStateWithLifecycle()
 
         Column {
             TopAppBar(
@@ -110,12 +78,12 @@ internal object ChatsScreen : Tab {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         AppImage(
-                            url = uiState.userAvatarUrl.orEmpty(),
+                            url = state.userAvatarUrl.orEmpty(),
                             modifier = Modifier
                                 .background(Color.DarkGray, CircleShape)
                                 .clip(CircleShape)
                                 .size(48.dp)
-                                .clickable { onAccountClick() }
+                                .clickable { navigator.push(AccountScreen()) }
                         )
                         Spacer(Modifier.width(16.dp))
                         Text("Czaty")
@@ -123,13 +91,49 @@ internal object ChatsScreen : Tab {
                 },
                 modifier = Modifier.height(80.dp)
             )
-            LazyColumn(modifier.fillMaxSize()) {
-                items(uiState.chats) { chat ->
+
+            ChatsScreenContent(
+                state = state,
+                onLoggedOut = { navigator.replaceAll(WelcomeScreen) },
+                onChatClick = { navigator.push(ConversationScreen(it.id)) }
+            )
+        }
+    }
+
+    @Composable
+    private fun ChatsScreenContent(
+        state: ChatsState,
+        onLoggedOut: () -> Unit,
+        onChatClick: (Chat) -> Unit,
+    ) {
+        when {
+            !state.isLoggedIn -> onLoggedOut()
+            state.isLoading -> Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                CircularProgressIndicator()
+            }
+
+            !state.errorMessage.isNullOrBlank() -> Text(
+                text = state.errorMessage,
+                color = Color.Red,
+            )
+
+            state.chats.isNotEmpty() -> LazyColumn(Modifier.fillMaxSize()) {
+                items(state.chats) { chat ->
                     ChatItem(
                         item = chat,
-                        onClick = onChatClick,
+                        onClick = { onChatClick(it) },
                     )
                 }
+            }
+
+            else -> Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("There is no chats")
             }
         }
     }
@@ -164,7 +168,7 @@ internal object ChatsScreen : Tab {
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
-                    text = item.name,
+                    text = item.name ?: "Brak nazwy",
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -198,7 +202,9 @@ internal object ChatsScreen : Tab {
                         )
                     }
                     Text(
-                        text = timeAgoSince(item.lastMessageTimestamp),
+                        text = HumanReadable.timeAgo(
+                            item.lastMessageTimestamp ?: Clock.System.now()
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (item.isUnread) FontWeight.Bold else null,

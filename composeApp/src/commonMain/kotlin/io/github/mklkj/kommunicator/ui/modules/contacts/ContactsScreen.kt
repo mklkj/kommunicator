@@ -70,7 +70,10 @@ internal object ContactsScreen : Tab {
         }
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        Scaffold(
+        if (state.createdChat != null) {
+            navigator.push(ConversationScreen(state.createdChat!!))
+            viewModel.onConversationOpened()
+        } else Scaffold(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { navigator.push(ContactAddScreen()) },
@@ -104,9 +107,7 @@ internal object ContactsScreen : Tab {
 
                 else -> ContactsContent(
                     contacts = state.contacts,
-                    onContactClick = {
-                        navigator.push(ConversationScreen(it.id)) // todo: this is not a chat id!
-                    }
+                    onContactClick = { viewModel.onCreateChat(it) },
                 )
             }
         }

@@ -17,12 +17,6 @@ import org.koin.core.annotation.Singleton
 @Singleton
 class ContactsDao {
 
-    private fun resultRowToContact(row: ResultRow) = ContactEntity(
-        id = row[ContactsTable.id],
-        contactUserId = row[ContactsTable.contactUserId],
-        userId = row[ContactsTable.userId],
-    )
-
     private fun resultRowToContactWithContactUser(row: ResultRow) =
         ContactsEntityWithContactUserEntity(
             id = row[ContactsTable.id],

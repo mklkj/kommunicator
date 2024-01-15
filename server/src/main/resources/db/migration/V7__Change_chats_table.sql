@@ -1,0 +1,2 @@
+ALTER TABLE chatparticipants ALTER COLUMN "customName" TYPE VARCHAR(64),
+ALTER COLUMN "customName" DROP NOT NULL;

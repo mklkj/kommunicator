@@ -1,5 +1,7 @@
 package io.github.mklkj.kommunicator.data
 
+import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
+import io.github.mklkj.kommunicator.data.dao.tables.ChatsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ContactsTable
 import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
 import io.github.mklkj.kommunicator.data.dao.tables.UserTokensTable
@@ -18,6 +20,8 @@ class DatabaseFactory {
         MessagesTable,
         UserTokensTable,
         ContactsTable,
+        ChatsTable,
+        ChatParticipantsTable,
     )
 
     fun init() {

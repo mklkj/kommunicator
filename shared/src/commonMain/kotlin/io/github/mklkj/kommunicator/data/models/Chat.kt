@@ -1,6 +1,6 @@
 package io.github.mklkj.kommunicator.data.models
 
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.uuid.UUID
 
@@ -10,8 +10,20 @@ data class Chat(
     val avatarUrl: String,
     val isUnread: Boolean,
     val isActive: Boolean,
-    val lastMessageTimestamp: LocalDateTime,
-    val lastMessage: String,
-    val lastMessageAuthor: String,
-    val name: String,
+    val participants: List<ChatParticipant>,
+    val lastMessageTimestamp: Instant?,
+    val lastMessage: String?,
+    val lastMessageAuthor: String?,
+    val name: String?,
+)
+
+@Serializable
+data class ChatParticipant(
+    val id: UUID,
+    val userId: UUID,
+    val username: String,
+    val customName: String?,
+    val firstName: String,
+    val lastName: String,
+    val avatarUrl: String,
 )
