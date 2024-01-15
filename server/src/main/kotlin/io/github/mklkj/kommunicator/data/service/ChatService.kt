@@ -22,6 +22,7 @@ class ChatService(
         val chat = chatRepository.getChat(chatId, userId) ?: return null
         val lastMessage = messageRepository.getLastMessage(chatId)
         val participants = chatRepository.getParticipants(chatId)
+            .filterNot { it.userId == userId }
         return Chat(
             id = chat.id,
             avatarUrl = "https://duckduckgo.com/?q=vituperatoribus",
@@ -91,6 +92,6 @@ class ChatService(
                     )
                 },
             )
-        }
+        }.sortedByDescending { it.lastMessageTimestamp }
     }
 }
