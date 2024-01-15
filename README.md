@@ -313,6 +313,30 @@ Jak to nieistniejący kontakt, to 204, a jak istniejący to 500 - do zmiany. Idz
 by się powtarzał i to na poziomie bazy się teraz wywala. Pasuje dodać sprawdzenie, żeby tego
 uniknąć. No i pasuje dodać ludzkie komunikaty po stronie apki.
 
+## Cache'owanie kontaktów, tworzenie czatów (2024-01-14)
+
+Zacząłem od kompletnych podstaw i dorobiłem brakującą walidację refresh tokenu. Teraz jak straci
+on ważność, to apka wyloguje usera.
+
+Potem poprawki przy logowaniu i rejestracji — trim na danych wejściowych, dodanie brakujących pól,
+walidacji do nich.
+
+Zamiast placeholderów avatarów dodałem requesty do gravatara — dzięki temu pokazuje się mój avatar.
+
+Dalej zrobiłem zapisywanie kontaktów do bazy danych, która jest tutaj też jedynym źródłem prawdy.
+Przy wejściu na ekran kontaktów oczywiście je odświeżam, ale wszystko przechodzi przez bazę danych.
+Tutaj też wyszedł problem z trzymaniem stanu view modeli — po przejściu na ekran dodawania kontaktu
+poprzedni ekran z ich listą nie zaktualizuje się mimo emisji z bazy danych. Wygląda na to, że job
+zostaje scancelowany. Trzeba to dokładnie jeszcze sprawdzić i znaleźć lepsze rozwiązanie niż
+przeładowywanie danych za każdym razem.
+
+No i wisienka na torcie dzisiejszych zmagań — chaty. Dodałem stosowne tableki w bazie danych.
+Baza, jak i apka jest w zasadzie przygotowana wstępnie na chaty grupowe, ale chyba nie będę ich
+implementował, jeszcze zobaczymy. Na razie działa tworzenie chatu podając id usera. Jest trochę
+nadrutowane, bo lista chatów jak i pojedynczy czat nie są zbyt optymalnie wyciągane z bazy danych.
+Teraz czym więcej czatów po wejściu do apki tym więcej będzie requestów do bazy, co nie jest dobre.
+Trzeba będzie znaleźć opcję na ogarnięcie tego odpowiednimi podzapytaniami itp.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

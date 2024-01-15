@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.uuid.UUID
-import org.koin.core.annotation.Singleton
+import org.koin.core.annotation.Factory
 
-@Singleton
+@Factory
 class ContactsViewModel(
     private val userRepository: UserRepository,
     private val contactRepository: ContactRepository,
