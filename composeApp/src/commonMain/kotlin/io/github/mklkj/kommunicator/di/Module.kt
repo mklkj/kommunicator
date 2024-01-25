@@ -13,6 +13,7 @@ import io.github.mklkj.kommunicator.data.models.LoginResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -30,6 +31,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
+import kotlin.time.Duration.Companion.seconds
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 val commonModule = module {
@@ -41,10 +43,15 @@ val commonModule = module {
     }
     single {
         HttpClient {
+            expectSuccess = true
             defaultRequest {
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
-            expectSuccess = true
+            install(HttpTimeout) {
+                requestTimeoutMillis = 15.seconds.inWholeMilliseconds
+                connectTimeoutMillis = 15.seconds.inWholeMilliseconds
+                socketTimeoutMillis = 15.seconds.inWholeMilliseconds
+            }
             install(ContentNegotiation) {
                 json(get())
             }
