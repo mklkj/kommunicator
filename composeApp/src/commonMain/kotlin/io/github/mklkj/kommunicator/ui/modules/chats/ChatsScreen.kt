@@ -16,17 +16,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +53,10 @@ import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
+import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
+import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
+import io.github.mklkj.kommunicator.ui.widgets.rememberPullRefreshState
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import nl.jacobras.humanreadable.HumanReadable
 
@@ -70,70 +82,97 @@ internal object ChatsScreen : Tab {
         val viewModel = navigator.getNavigatorScreenModel<ChatsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        Column {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        AppImage(
-                            url = state.userAvatarUrl.orEmpty(),
-                            modifier = Modifier
-                                .background(Color.DarkGray, CircleShape)
-                                .clip(CircleShape)
-                                .size(48.dp)
-                                .clickable { navigator.push(AccountScreen()) }
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        Text("Czaty")
-                    }
-                },
-                modifier = Modifier.height(80.dp)
-            )
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val pullRefreshState = rememberPullRefreshState(state.isLoading, viewModel::onRefresh)
 
-            ChatsScreenContent(
-                state = state,
-                onLoggedOut = { navigator.replaceAll(WelcomeScreen) },
-                onChatClick = { navigator.push(ConversationScreen(it.id)) }
-            )
-        }
-    }
-
-    @Composable
-    private fun ChatsScreenContent(
-        state: ChatsState,
-        onLoggedOut: () -> Unit,
-        onChatClick: (Chat) -> Unit,
-    ) {
-        when {
-            !state.isLoggedIn -> onLoggedOut()
-            state.isLoading -> Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                CircularProgressIndicator()
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            AppImage(
+                                url = state.userAvatarUrl.orEmpty(),
+                                modifier = Modifier
+                                    .background(Color.DarkGray, CircleShape)
+                                    .clip(CircleShape)
+                                    .size(48.dp)
+                                    .clickable { navigator.push(AccountScreen()) }
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text("Czaty")
+                        }
+                    },
+                    modifier = Modifier.height(80.dp)
+                )
             }
-
-            !state.errorMessage.isNullOrBlank() -> Text(
-                text = state.errorMessage,
-                color = Color.Red,
-            )
-
-            state.chats.isNotEmpty() -> LazyColumn(Modifier.fillMaxSize()) {
-                items(state.chats) { chat ->
-                    ChatItem(
-                        item = chat,
-                        onClick = { onChatClick(it) },
-                    )
+        ) { paddingValues ->
+            LaunchedEffect(state.error) {
+                if (state.error != null) {
+                    scope.launch {
+                        val action = snackbarHostState.showSnackbar(
+                            message = state.error?.message.toString(),
+                            actionLabel = "Retry",
+                        )
+                        if (action == SnackbarResult.ActionPerformed) {
+                            viewModel.onRefresh()
+                        }
+                    }
                 }
             }
 
-            else -> Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .pullRefresh(pullRefreshState)
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
-                Text("There is no chats")
+                when {
+                    !state.isLoggedIn -> navigator.replaceAll(WelcomeScreen)
+
+                    state.isLoading && state.chats.isEmpty() -> Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        CircularProgressIndicator()
+                    }
+
+                    state.error != null && state.chats.isEmpty() -> Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                    ) {
+                        Text(
+                            text = state.error?.message.toString(),
+                            color = Color.Red,
+                        )
+                    }
+
+                    state.chats.isEmpty() -> Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                    ) {
+                        Text("There is no chats")
+                    }
+
+                    else -> LazyColumn(Modifier.fillMaxSize()) {
+                        items(state.chats) { chat ->
+                            ChatItem(
+                                item = chat,
+                                onClick = { navigator.push(ConversationScreen(it.id)) },
+                            )
+                        }
+                    }
+                }
+
+                PullRefreshIndicator(
+                    modifier = Modifier.align(alignment = Alignment.TopCenter),
+                    refreshing = state.isLoading,
+                    state = pullRefreshState,
+                )
             }
         }
     }

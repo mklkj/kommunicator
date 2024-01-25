@@ -28,7 +28,7 @@ class ChatsViewModel(
                     proceedError(error)
                     mutableState.update {
                         it.copy(
-                            errorMessage = error.message,
+                            error = error,
                             isLoggedIn = error !is UserTokenExpiredException,
                             isLoading = false,
                         )
@@ -39,11 +39,18 @@ class ChatsViewModel(
                         it.copy(
                             chats = chats,
                             isLoading = false,
-                            errorMessage = null,
+                            error = null,
                             userAvatarUrl = user.avatarUrl,
                         )
                     }
                 }
         }
+    }
+
+    fun onRefresh() {
+        mutableState.update {
+            it.copy(isLoading = true)
+        }
+        loadData()
     }
 }

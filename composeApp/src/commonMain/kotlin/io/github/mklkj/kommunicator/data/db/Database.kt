@@ -66,9 +66,13 @@ class Database(sqlDriver: SqlDriver) {
         )
     }
 
-    fun getAllContacts(userId: UUID): Flow<List<LocalContact>> {
+    fun observeContacts(userId: UUID): Flow<List<LocalContact>> {
         return dbQuery.selectAllContacts(userId, ::mapContactSelecting)
             .asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getContacts(userId: UUID): List<LocalContact> {
+        return dbQuery.selectAllContacts(userId, ::mapContactSelecting).executeAsList()
     }
 
     suspend fun insertContacts(userId: UUID, contacts: List<Contact>) =

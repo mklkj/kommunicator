@@ -337,6 +337,21 @@ nadrutowane, bo lista chatów jak i pojedynczy czat nie są zbyt optymalnie wyci
 Teraz czym więcej czatów po wejściu do apki tym więcej będzie requestów do bazy, co nie jest dobre.
 Trzeba będzie znaleźć opcję na ogarnięcie tego odpowiednimi podzapytaniami itp.
 
+## Ładowanie/przeładowywanie danych chatów i kontaktów (2024-01-25)
+
+Naprawiłem ten dziwny efekt z przeładowywaniem chatów i kontaktów przy ponownym wejściu na dany
+ekran. Jak? Wystarczyło ze-scopować view modele na navigatora (coś jak navGraphViewModels
+w androidzie).
+
+To z kolei zmusiło mnie w końcu do zaimplementowania pull to refresha na tych ekranach, żeby dało
+się z nich korzystać, zanim zajmę się websocketami (a przyda się to i tak, jako fallback).
+
+Niestety w (stabilnej wersji) material3 ciągle pull to refresha. Ale ktoś przeportował. Skopiowałem
+(do ui.widgets.PullRefresh). Działa. Przerobiłem siłą rzeczy te ekrany tak, żeby ten pull refresh
+działał. Dodałem też pokazywanie snackbara z errorem i przyciskiem ponów. Wydaje się, że strasznie
+dużo boilerplate'u wyszło. I to prawda. Nie mam jeszcze pomysłu co z tym zrobić, póki co niech
+zostanie.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

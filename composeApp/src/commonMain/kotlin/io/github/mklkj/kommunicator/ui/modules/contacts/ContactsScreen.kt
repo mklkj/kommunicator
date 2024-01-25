@@ -2,6 +2,7 @@ package io.github.mklkj.kommunicator.ui.modules.contacts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
@@ -23,10 +26,15 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +51,10 @@ import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
+import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
+import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
+import io.github.mklkj.kommunicator.ui.widgets.rememberPullRefreshState
+import kotlinx.coroutines.launch
 
 internal object ContactsScreen : Tab {
 
@@ -65,10 +77,15 @@ internal object ContactsScreen : Tab {
         val viewModel = navigator.getNavigatorScreenModel<ContactsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
+        val pullRefreshState = rememberPullRefreshState(state.isLoading, viewModel::onRefresh)
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
         if (state.createdChat != null) {
             navigator.push(ConversationScreen(state.createdChat!!))
             viewModel.onConversationOpened()
         } else Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { navigator.push(ContactAddScreen()) },
@@ -77,49 +94,66 @@ internal object ContactsScreen : Tab {
                 }
             },
             floatingActionButtonPosition = FabPosition.End,
-        ) {
-            when {
-                state.isLoading -> Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    CircularProgressIndicator()
+        ) { paddingValues ->
+            LaunchedEffect(state.error) {
+                if (state.error != null) {
+                    scope.launch {
+                        val action = snackbarHostState.showSnackbar(
+                            message = state.error?.message.toString(),
+                            actionLabel = "Retry",
+                        )
+                        if (action == SnackbarResult.ActionPerformed) {
+                            viewModel.onRefresh()
+                        }
+                    }
                 }
-
-                !state.errorMessage.isNullOrBlank() -> Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Text(text = state.errorMessage.orEmpty(), color = Color.Red)
-                }
-
-                state.contacts.isEmpty() -> Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(text = "You have no contacts!")
-                }
-
-                else -> ContactsContent(
-                    contacts = state.contacts,
-                    onContactClick = { viewModel.onCreateChat(it) },
-                )
             }
-        }
-    }
 
-    @Composable
-    private fun ContactsContent(
-        contacts: List<LocalContact>,
-        onContactClick: (LocalContact) -> Unit,
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(contacts) {
-                ContactItem(
-                    item = it,
-                    onClick = onContactClick,
+            Box(
+                modifier = Modifier
+                    .pullRefresh(pullRefreshState)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                when {
+                    state.isLoading && state.contacts.isEmpty() -> Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        CircularProgressIndicator()
+                    }
+
+                    state.error != null && state.contacts.isEmpty() -> Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Text(text = state.error?.message.toString(), color = Color.Red)
+                    }
+
+                    state.contacts.isEmpty() -> Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    ) {
+                        Text(text = "You have no contacts!")
+                    }
+
+                    else -> LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+                    ) {
+                        items(state.contacts) { contact ->
+                            ContactItem(
+                                item = contact,
+                                onClick = { viewModel.onCreateChat(it) },
+                            )
+                        }
+                    }
+                }
+
+                PullRefreshIndicator(
+                    modifier = Modifier.align(alignment = Alignment.TopCenter),
+                    refreshing = state.isLoading,
+                    state = pullRefreshState,
                 )
             }
         }

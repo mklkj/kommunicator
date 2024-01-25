@@ -5,7 +5,7 @@ import kotlinx.uuid.UUID
 
 data class ContactsState(
     val isLoading: Boolean = true,
-    val errorMessage: String? = null,
+    val error: Throwable? = null,
     val contacts: List<LocalContact> = emptyList(),
     val createdChat: UUID? = null,
 )

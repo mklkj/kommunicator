@@ -3,7 +3,6 @@ package io.github.mklkj.kommunicator.ui.modules.contacts
 import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.repository.ContactRepository
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
-import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -14,7 +13,6 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class ContactsViewModel(
-    private val userRepository: UserRepository,
     private val contactRepository: ContactRepository,
     private val messagesRepository: MessagesRepository,
 ) : BaseViewModel<ContactsState>(ContactsState()) {
@@ -25,16 +23,12 @@ class ContactsViewModel(
 
     private fun loadData() {
         launch("load_contacts", cancelExisting = false, isFlowObserver = true) {
-            val userId = userRepository.getCurrentUser().id
-            runCatching { contactRepository.refreshContacts() }
-                .onFailure { proceedError(it) }
-
-            contactRepository.getContacts(userId)
+            contactRepository.observeContacts()
                 .catch { error ->
                     proceedError(error)
                     mutableState.update {
                         it.copy(
-                            errorMessage = error.message,
+                            error = error,
                             isLoading = false,
                         )
                     }
@@ -42,7 +36,7 @@ class ContactsViewModel(
                 .onEach { contacts ->
                     mutableState.update {
                         it.copy(
-                            errorMessage = null,
+                            error = null,
                             isLoading = false,
                             contacts = contacts,
                         )
@@ -60,7 +54,7 @@ class ContactsViewModel(
                 .onFailure { error ->
                     proceedError(error)
                     mutableState.update {
-                        it.copy(errorMessage = error.message)
+                        it.copy(error = error)
                     }
                 }
                 .onSuccess {
@@ -69,6 +63,22 @@ class ContactsViewModel(
                     }
                 }
             mutableState.update { it.copy(isLoading = false) }
+        }
+    }
+
+    fun onRefresh() {
+        launch("refresh_contacts", cancelExisting = false) {
+            mutableState.update { it.copy(isLoading = true) }
+            runCatching { contactRepository.refreshContacts() }
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(
+                            error = error,
+                            isLoading = false,
+                        )
+                    }
+                }
         }
     }
 
