@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -22,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
@@ -68,8 +71,8 @@ class RegistrationScreen : Screen {
 
         if (state.isRegistered) {
             navigator.replace(LoginScreen())
-        } else {
-            Column {
+        } else Scaffold(
+            topBar = {
                 TopAppBar(
                     title = { Text("Registration") },
                     navigationIcon = {
@@ -81,11 +84,15 @@ class RegistrationScreen : Screen {
                         }
                     },
                 )
-                RegistrationScreenContent(
-                    state = state,
-                    onSignUp = viewModel::signUp,
-                )
             }
+        ) {
+            RegistrationScreenContent(
+                state = state,
+                onSignUp = viewModel::signUp,
+                modifier = Modifier
+                    .padding(it)
+                    .verticalScroll(rememberScrollState())
+            )
         }
     }
 
@@ -94,6 +101,7 @@ class RegistrationScreen : Screen {
     private fun RegistrationScreenContent(
         state: RegistrationState,
         onSignUp: (RegistrationCredentials) -> Unit,
+        modifier: Modifier = Modifier,
     ) {
         var username by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
@@ -108,7 +116,7 @@ class RegistrationScreen : Screen {
         var isDatePickerShown by remember { mutableStateOf(false) }
 
         Column(
-            Modifier
+            modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {

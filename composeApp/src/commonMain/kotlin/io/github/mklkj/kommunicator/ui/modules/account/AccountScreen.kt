@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -40,89 +41,90 @@ import io.github.mklkj.kommunicator.ui.widgets.AppImage
 class AccountScreen : Screen {
 
     @Composable
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getScreenModel<AccountViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        when {
-            state.isLoading -> Box(contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = navigator::pop) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                            )
+                        }
+                    },
+                )
             }
+        ) {
+            Box(Modifier.padding(it)) {
+                when {
+                    state.isLoading -> Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
 
-            !state.errorMessage.isNullOrBlank() -> Box(contentAlignment = Alignment.Center) {
-                Text(state.errorMessage.orEmpty(), color = Color.Red)
+                    !state.errorMessage.isNullOrBlank() -> Box(contentAlignment = Alignment.Center) {
+                        Text(state.errorMessage.orEmpty(), color = Color.Red)
+                    }
+
+                    else -> AccountContent(
+                        user = state.user!!,
+                    ) {
+                        viewModel.logout()
+                        navigator.replaceAll(WelcomeScreen)
+                    }
+                }
             }
-
-            else -> AccountContent(
-                navigateUp = navigator::pop,
-                user = state.user!!,
-                onLogout = {
-                    viewModel.logout()
-                    navigator.replaceAll(WelcomeScreen)
-                },
-            )
         }
     }
 
     @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
     private fun AccountContent(
         user: LocalUser,
-        navigateUp: () -> Unit,
         onLogout: () -> Unit,
     ) {
-        Column(Modifier.fillMaxSize()) {
-            TopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
-                        )
-                    }
-                },
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(20.dp)
+        ) {
+            AppImage(
+                url = user.avatarUrl,
+                modifier = Modifier
+                    .background(Color.DarkGray, CircleShape)
+                    .clip(CircleShape)
+                    .size(128.dp)
+                    .align(Alignment.CenterHorizontally)
             )
-            Column(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(20.dp)
+
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "${user.firstName} ${user.lastName}",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "@${user.username}",
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(32.dp))
+            Button(
+                onClick = onLogout,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                AppImage(
-                    url = user.avatarUrl,
-                    modifier = Modifier
-                        .background(Color.DarkGray, CircleShape)
-                        .clip(CircleShape)
-                        .size(128.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "${user.firstName} ${user.lastName}",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "@${user.username}",
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(32.dp))
-                Button(
-                    onClick = onLogout,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text("Logout")
-                }
+                Text("Logout")
             }
         }
     }

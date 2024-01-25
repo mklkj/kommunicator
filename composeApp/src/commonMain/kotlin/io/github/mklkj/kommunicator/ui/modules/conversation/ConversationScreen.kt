@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -65,33 +66,38 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     ) {
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        Column(Modifier.fillMaxSize()) {
-            TopAppBar(
-                title = { Text(state.details?.name.orEmpty()) },
-                navigationIcon = {
-                    IconButton(onClick = { navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
-                        )
-                    }
-                },
-            )
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(state.details?.name.orEmpty()) },
+                    navigationIcon = {
+                        IconButton(onClick = { navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                            )
+                        }
+                    },
+                )
+            },
+            bottomBar = {
+                ChatInput(
+                    isLoading = state.isLoading,
+                    onSendClick = { viewModel.sendMessage(chatId, it) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        ) { paddingValues ->
             LazyColumn(
                 reverseLayout = true,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
                 items(state.details?.messages.orEmpty()) {
                     ChatMessage(it)
                 }
             }
-            ChatInput(
-                isLoading = state.isLoading,
-                onSendClick = { viewModel.sendMessage(chatId, it) },
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 
