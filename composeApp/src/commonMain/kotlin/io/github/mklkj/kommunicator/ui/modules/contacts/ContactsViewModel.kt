@@ -23,7 +23,7 @@ class ContactsViewModel(
         loadData()
     }
 
-    fun loadData() {
+    private fun loadData() {
         launch("load_contacts", cancelExisting = false, isFlowObserver = true) {
             val userId = userRepository.getCurrentUser().id
             runCatching { contactRepository.refreshContacts() }

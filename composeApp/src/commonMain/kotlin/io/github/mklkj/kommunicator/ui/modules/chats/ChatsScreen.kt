@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.getNavigatorScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import io.github.mklkj.kommunicator.data.models.Chat
@@ -67,7 +67,7 @@ internal object ChatsScreen : Tab {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun Content() {
         val navigator = LocalNavigatorParent
-        val viewModel = getScreenModel<ChatsViewModel>()
+        val viewModel = navigator.getNavigatorScreenModel<ChatsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         Column {

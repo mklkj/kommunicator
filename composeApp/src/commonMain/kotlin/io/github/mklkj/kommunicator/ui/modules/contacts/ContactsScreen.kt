@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.koin.getNavigatorScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import io.github.mklkj.kommunicator.data.db.entity.LocalContact
@@ -63,11 +62,7 @@ internal object ContactsScreen : Tab {
     @Composable
     override fun Content() {
         val navigator = LocalNavigatorParent
-        val viewModel = getScreenModel<ContactsViewModel>()
-        // todo: workaround for ViewModel being disposed on navigating to add contact screen
-        LaunchedEffect(Unit) {
-            viewModel.loadData()
-        }
+        val viewModel = navigator.getNavigatorScreenModel<ContactsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         if (state.createdChat != null) {
