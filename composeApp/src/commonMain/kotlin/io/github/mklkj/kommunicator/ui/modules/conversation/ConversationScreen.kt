@@ -3,8 +3,8 @@ package io.github.mklkj.kommunicator.ui.modules.conversation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +41,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
+import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
 import kotlinx.uuid.UUID
 
 class ConversationScreen(private val chatId: UUID) : Screen {
@@ -80,23 +81,21 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     },
                 )
             },
-            bottomBar = {
+        ) { paddingValues ->
+            Column(Modifier.scaffoldPadding(paddingValues)) {
+                LazyColumn(
+                    reverseLayout = true,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(state.details?.messages.orEmpty()) {
+                        ChatMessage(it)
+                    }
+                }
                 ChatInput(
                     isLoading = state.isLoading,
                     onSendClick = { viewModel.sendMessage(chatId, it) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().imePadding()
                 )
-            }
-        ) { paddingValues ->
-            LazyColumn(
-                reverseLayout = true,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                items(state.details?.messages.orEmpty()) {
-                    ChatMessage(it)
-                }
             }
         }
     }

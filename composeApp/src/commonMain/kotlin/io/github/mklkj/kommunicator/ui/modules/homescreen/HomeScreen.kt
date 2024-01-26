@@ -2,7 +2,6 @@ package io.github.mklkj.kommunicator.ui.modules.homescreen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,6 +15,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import io.github.mklkj.kommunicator.ui.modules.chats.ChatsScreen
 import io.github.mklkj.kommunicator.ui.modules.contacts.ContactsScreen
+import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
 
 object HomeScreen : Screen {
 
@@ -26,7 +26,7 @@ object HomeScreen : Screen {
         TabNavigator(ChatsScreen, key = tabNavigatorId) { tabNavigator ->
             Scaffold(
                 content = {
-                    Box(Modifier.padding(it)) {
+                    Box(Modifier.scaffoldPadding(it)) {
                         CurrentTab()
                     }
                 },
@@ -46,7 +46,12 @@ object HomeScreen : Screen {
             selected = tabNavigator.current == tab,
             onClick = { tabNavigator.current = tab },
             label = { Text(tab.options.title) },
-            icon = { Icon(painter = tab.options.icon!!, contentDescription = tab.options.title) },
+            icon = {
+                Icon(
+                    painter = tab.options.icon!!,
+                    contentDescription = tab.options.title,
+                )
+            },
         )
     }
 }

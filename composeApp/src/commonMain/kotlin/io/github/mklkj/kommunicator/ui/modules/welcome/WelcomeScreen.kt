@@ -38,7 +38,12 @@ object WelcomeScreen : Screen {
         onRegister: () -> Unit,
     ) {
         Scaffold {
-            Column(Modifier.fillMaxSize().padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .padding(16.dp)
+            ) {
                 Image(
                     painter = painterResource("compose-multiplatform.xml"),
                     contentDescription = null,

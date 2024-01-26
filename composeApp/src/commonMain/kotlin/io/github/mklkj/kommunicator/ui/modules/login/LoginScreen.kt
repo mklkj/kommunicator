@@ -4,9 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -15,7 +16,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -23,15 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -39,6 +35,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.ui.modules.homescreen.HomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
+import io.github.mklkj.kommunicator.ui.widgets.TextInput
+import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
 
 class LoginScreen : Screen {
 
@@ -68,12 +66,8 @@ class LoginScreen : Screen {
         ) {
             LoginScreenContent(
                 state = state,
-                onLoginClick = { username, password ->
-                    viewModel.login(username, password)
-                },
-                modifier = Modifier
-                    .padding(it)
-                    .verticalScroll(rememberScrollState())
+                onLoginClick = viewModel::login,
+                modifier = Modifier.scaffoldPadding(it)
             )
         }
     }
@@ -85,35 +79,29 @@ class LoginScreen : Screen {
         onLoginClick: (username: String, password: String) -> Unit,
         modifier: Modifier = Modifier,
     ) {
-        var username by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
         val (first, second) = remember { FocusRequester.createRefs() }
+
+        val username = remember { mutableStateOf("") }
+        val password = remember { mutableStateOf("") }
 
         Column(
             modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(16.dp)
         ) {
-            OutlinedTextField(
-                label = { Text("Username") },
-                value = username,
-                onValueChange = { username = it },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(first)
-                    .focusProperties { next = second }
+            TextInput(
+                label = "Username",
+                textState = username,
+                focusRef = first,
+                nextFocusRef = second,
             )
-            OutlinedTextField(
-                label = { Text("Password") },
-                value = password,
-                onValueChange = { password = it },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(second)
+            TextInput(
+                label = "Password",
+                textState = password,
+                focusRef = second,
+                keyboardType = KeyboardType.Password,
             )
             if (!state.errorMessage.isNullOrBlank()) {
                 Text(
@@ -121,9 +109,10 @@ class LoginScreen : Screen {
                     color = Color.Red,
                 )
             }
+            Spacer(Modifier.height(16.dp))
             Spacer(Modifier.weight(1f))
             Button(
-                onClick = { onLoginClick(username, password) },
+                onClick = { onLoginClick(username.value, password.value) },
                 enabled = !state.isLoading,
             ) {
                 if (state.isLoading) {

@@ -94,7 +94,7 @@ internal object ContactsScreen : Tab {
                 }
             },
             floatingActionButtonPosition = FabPosition.End,
-        ) { paddingValues ->
+        ) {
             LaunchedEffect(state.error) {
                 if (state.error != null) {
                     scope.launch {
@@ -113,7 +113,6 @@ internal object ContactsScreen : Tab {
                 modifier = Modifier
                     .pullRefresh(pullRefreshState)
                     .fillMaxSize()
-                    .padding(paddingValues)
             ) {
                 when {
                     state.isLoading && state.contacts.isEmpty() -> Box(

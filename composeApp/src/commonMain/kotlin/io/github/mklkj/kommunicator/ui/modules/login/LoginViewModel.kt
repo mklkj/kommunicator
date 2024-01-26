@@ -11,19 +11,19 @@ class LoginViewModel(
 ) : BaseViewModel<LoginState>(LoginState()) {
 
     fun login(username: String, password: String) {
-        val isNotValid = username.isBlank() || password.isBlank()
-        mutableState.update {
-            it.copy(
-                isLoading = false,
-                errorMessage = when {
-                    isNotValid -> "All field are required"
-                    else -> it.errorMessage
-                }
-            )
+        if (!isFieldsValid(username, password)) {
+            return mutableState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "All field are required",
+                )
+            }
         }
-        if (isNotValid) return
 
-        launch("login_user") {
+        launch("login_user", cancelExisting = false) {
+            mutableState.update {
+                it.copy(isLoading = true)
+            }
             runCatching { userRepository.loginUser(username, password) }
                 .onFailure { error ->
                     proceedError(error)
@@ -45,5 +45,18 @@ class LoginViewModel(
                     }
                 }
         }
+    }
+
+    private fun isFieldsValid(username: String, password: String): Boolean {
+        var isValid = true
+
+        if (username.isBlank()) {
+            isValid = false
+        }
+        if (password.isBlank()) {
+            isValid = false
+        }
+
+        return isValid
     }
 }

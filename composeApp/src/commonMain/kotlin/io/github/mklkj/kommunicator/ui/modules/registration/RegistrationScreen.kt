@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,11 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -51,6 +48,9 @@ import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.noRippleClickable
+import io.github.mklkj.kommunicator.ui.widgets.RadioButtonWithLabel
+import io.github.mklkj.kommunicator.ui.widgets.TextInput
+import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
 import io.github.mklkj.kommunicator.utils.getMillis
 import io.github.mklkj.kommunicator.utils.now
 import io.github.mklkj.kommunicator.utils.toLocalDate
@@ -59,7 +59,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.periodUntil
 
-@OptIn(ExperimentalMaterial3Api::class)
 class RegistrationScreen : Screen {
 
     @Composable
@@ -89,28 +88,28 @@ class RegistrationScreen : Screen {
             RegistrationScreenContent(
                 state = state,
                 onSignUp = viewModel::signUp,
-                modifier = Modifier
-                    .padding(it)
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.scaffoldPadding(it)
             )
         }
     }
 
     @Composable
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
     private fun RegistrationScreenContent(
         state: RegistrationState,
         onSignUp: (RegistrationCredentials) -> Unit,
         modifier: Modifier = Modifier,
     ) {
-        var username by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        var passwordConfirm by remember { mutableStateOf("") }
-        var email by remember { mutableStateOf("") }
-        var firstName by remember { mutableStateOf("") }
-        var lastName by remember { mutableStateOf("") }
         val (usernameRef, passwordRef, passwordConfirmRef) = remember { FocusRequester.createRefs() }
         val (emailRef, firstNameRef, lastNameRef) = remember { FocusRequester.createRefs() }
+
+        val username = remember { mutableStateOf("") }
+        val password = remember { mutableStateOf("") }
+        val passwordConfirm = remember { mutableStateOf("") }
+        val email = remember { mutableStateOf("") }
+        val firstName = remember { mutableStateOf("") }
+        val lastName = remember { mutableStateOf("") }
+
         var gender by remember { mutableStateOf<UserGender?>(null) }
         var dateOfBirth by remember { mutableStateOf<LocalDate?>(null) }
         var isDatePickerShown by remember { mutableStateOf(false) }
@@ -118,109 +117,66 @@ class RegistrationScreen : Screen {
         Column(
             modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(16.dp)
         ) {
-            OutlinedTextField(
-                label = { Text("Username") },
-                value = username,
-                onValueChange = { username = it },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(usernameRef)
-                    .focusProperties { next = passwordRef }
+            TextInput(
+                label = "Username",
+                textState = username,
+                focusRef = usernameRef,
+                nextFocusRef = passwordRef,
             )
-            OutlinedTextField(
-                label = { Text("Password") },
-                value = password,
-                onValueChange = { password = it },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(passwordRef)
-                    .focusProperties { next = passwordConfirmRef }
+            TextInput(
+                label = "Password",
+                textState = password,
+                keyboardType = KeyboardType.Password,
+                focusRef = passwordRef,
+                nextFocusRef = passwordConfirmRef,
             )
-            OutlinedTextField(
-                label = { Text("Confirm password") },
-                value = passwordConfirm,
-                onValueChange = { passwordConfirm = it },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(passwordConfirmRef)
-                    .focusProperties { next = emailRef }
+            TextInput(
+                label = "Confirm password",
+                textState = passwordConfirm,
+                keyboardType = KeyboardType.Password,
+                focusRef = passwordConfirmRef,
+                nextFocusRef = emailRef,
             )
-            OutlinedTextField(
-                label = { Text("E-mail") },
-                value = email,
-                onValueChange = { email = it },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(emailRef)
-                    .focusProperties { next = firstNameRef }
+            TextInput(
+                label = "E-mail",
+                textState = email,
+                keyboardType = KeyboardType.Email,
+                focusRef = emailRef,
+                nextFocusRef = firstNameRef,
             )
-            OutlinedTextField(
-                label = { Text("First name") },
-                value = firstName,
-                onValueChange = { firstName = it },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(firstNameRef)
-                    .focusProperties { next = lastNameRef }
+            TextInput(
+                label = "First name",
+                textState = firstName,
+                capitalization = KeyboardCapitalization.Words,
+                focusRef = firstNameRef,
+                nextFocusRef = lastNameRef,
             )
-            OutlinedTextField(
-                label = { Text("Last name") },
-                value = lastName,
-                onValueChange = { lastName = it },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(lastNameRef)
+            TextInput(
+                label = "Last name",
+                textState = lastName,
+                capitalization = KeyboardCapitalization.Words,
+                focusRef = lastNameRef,
             )
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Gender: ")
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.noRippleClickable {
-                        gender = UserGender.MALE
-                    }
-                ) {
-                    RadioButton(
-                        selected = gender == UserGender.MALE,
-                        onClick = { gender = UserGender.MALE },
-                    )
-                    Text(
-                        text = "Male",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 4.dp, end = 8.dp)
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.noRippleClickable {
-                        gender = UserGender.FEMALE
-                    }
-                ) {
-                    RadioButton(
-                        selected = gender == UserGender.FEMALE,
-                        onClick = { gender = UserGender.FEMALE },
-                    )
-                    Text(
-                        text = "Female",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 4.dp),
-                    )
-                }
+
+                RadioButtonWithLabel(
+                    label = "Male",
+                    isSelected = gender == UserGender.MALE,
+                    value = UserGender.MALE,
+                    onValueSelect = { gender = UserGender.MALE },
+                )
+                RadioButtonWithLabel(
+                    label = "Female",
+                    isSelected = gender == UserGender.FEMALE,
+                    value = UserGender.FEMALE,
+                    onValueSelect = { gender = UserGender.FEMALE },
+                )
             }
             OutlinedTextField(
                 label = { Text("Date of birth") },
@@ -248,16 +204,17 @@ class RegistrationScreen : Screen {
                 )
             }
             Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(16.dp))
             Button(
                 onClick = {
                     onSignUp(
                         RegistrationCredentials(
-                            username = username,
-                            password = password,
-                            passwordConfirm = passwordConfirm,
-                            email = email,
-                            firstName = firstName,
-                            lastName = lastName,
+                            username = username.value,
+                            password = password.value,
+                            passwordConfirm = passwordConfirm.value,
+                            email = email.value,
+                            firstName = firstName.value,
+                            lastName = lastName.value,
                             dateOfBirth = dateOfBirth,
                             gender = gender,
                         )
