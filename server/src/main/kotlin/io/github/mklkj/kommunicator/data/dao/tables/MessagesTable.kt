@@ -4,12 +4,12 @@ import kotlinx.uuid.exposed.kotlinxUUID
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
-object MessagesTable : Table() {
+object MessagesTable : Table("messages") {
 
     val id = kotlinxUUID("id")
-    val chatId = kotlinxUUID("chatId")
-    val userId = kotlinxUUID("userId")
-    val timestamp = timestamp("timestamp")
+    val chatId = kotlinxUUID("chat_id")
+    val userId = kotlinxUUID("user_id")
+    val createdAt = timestamp("created_at")
     val content = text("content")
 
     override val primaryKey = PrimaryKey(id)

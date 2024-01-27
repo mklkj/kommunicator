@@ -20,7 +20,7 @@ class UserTokensDao {
         id = row[UserTokensTable.id],
         userId = row[UserTokensTable.userId],
         refreshToken = row[UserTokensTable.refreshToken],
-        timestamp = row[UserTokensTable.timestamp],
+        timestamp = row[UserTokensTable.createdAt],
         validTo = row[UserTokensTable.validTo],
     )
 
@@ -30,7 +30,7 @@ class UserTokensDao {
                 it[id] = token.id
                 it[userId] = token.userId
                 it[refreshToken] = token.refreshToken
-                it[timestamp] = token.timestamp
+                it[createdAt] = token.timestamp
                 it[validTo] = token.validTo
             }
         }

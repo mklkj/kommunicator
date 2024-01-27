@@ -43,7 +43,7 @@ class ContactsDao {
                 otherTable = UsersTable,
                 joinType = JoinType.LEFT,
                 onColumn = ContactsTable.contactUserId,
-                otherColumn = UsersTable.uuid
+                otherColumn = UsersTable.id
             )
             .select { ContactsTable.userId eq userId }
             .limit(15)

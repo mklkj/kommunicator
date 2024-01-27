@@ -8,7 +8,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,7 +17,7 @@ import org.koin.core.annotation.Singleton
 class UsersDao {
 
     private fun resultRowToUser(row: ResultRow) = User(
-        id = row[UsersTable.uuid],
+        id = row[UsersTable.id],
         email = row[UsersTable.email],
         username = row[UsersTable.username],
         password = row[UsersTable.password],
@@ -31,7 +30,7 @@ class UsersDao {
     suspend fun addUser(user: UserRequest) = withContext(Dispatchers.IO) {
         transaction {
             UsersTable.insert {
-                it[uuid] = user.id
+                it[id] = user.id
                 it[email] = user.email
                 it[username] = user.username
                 it[password] = user.password
@@ -49,7 +48,7 @@ class UsersDao {
 
     suspend fun findUser(uuid: UUID): User? = dbQuery {
         UsersTable
-            .select { UsersTable.uuid eq uuid }
+            .select { UsersTable.id eq uuid }
             .firstOrNull()?.let(::resultRowToUser)
     }
 

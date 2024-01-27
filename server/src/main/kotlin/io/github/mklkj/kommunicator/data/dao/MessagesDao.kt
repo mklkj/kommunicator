@@ -23,7 +23,7 @@ class MessagesDao {
         id = row[MessagesTable.id],
         chatId = row[MessagesTable.chatId],
         userId = row[MessagesTable.userId],
-        timestamp = row[MessagesTable.timestamp],
+        timestamp = row[MessagesTable.createdAt],
         content = row[MessagesTable.content],
     )
 
@@ -31,7 +31,7 @@ class MessagesDao {
         id = row[MessagesTable.id],
         chatId = row[MessagesTable.chatId],
         userId = row[MessagesTable.userId],
-        timestamp = row[MessagesTable.timestamp],
+        timestamp = row[MessagesTable.createdAt],
         content = row[MessagesTable.content],
         authorUsername = row[UsersTable.username],
         authorFirstName = row[UsersTable.firstName],
@@ -45,7 +45,7 @@ class MessagesDao {
                 it[id] = message.id
                 it[chatId] = message.chatId
                 it[userId] = message.userId
-                it[timestamp] = message.timestamp
+                it[createdAt] = message.timestamp
                 it[content] = message.content
             }
         }
@@ -54,7 +54,7 @@ class MessagesDao {
     suspend fun getMessages(chatId: UUID): List<MessageEntity> = dbQuery {
         MessagesTable
             .select { MessagesTable.chatId eq chatId }
-            .orderBy(MessagesTable.timestamp, order = SortOrder.DESC)
+            .orderBy(MessagesTable.createdAt, order = SortOrder.DESC)
             .limit(15)
             // todo: add pagination
             // based on where <= timestamp???
@@ -67,10 +67,10 @@ class MessagesDao {
                 otherTable = UsersTable,
                 joinType = JoinType.LEFT,
                 onColumn = MessagesTable.userId,
-                otherColumn = UsersTable.uuid,
+                otherColumn = UsersTable.id,
             )
             .select { MessagesTable.chatId eq chatId }
-            .orderBy(MessagesTable.timestamp, order = SortOrder.DESC)
+            .orderBy(MessagesTable.createdAt, order = SortOrder.DESC)
             .firstOrNull()
             ?.let { resultRowToMessageWithAuthor(it) }
     }

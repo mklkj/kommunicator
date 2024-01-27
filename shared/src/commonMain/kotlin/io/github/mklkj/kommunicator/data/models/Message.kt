@@ -8,6 +8,7 @@ import kotlinx.uuid.UUID
 data class Message(
     val id: UUID,
     val isUserMessage: Boolean,
+    val authorId: UUID,
     val authorName: String,
     val timestamp: Instant,
     val content: String,

@@ -46,7 +46,7 @@ class DatabaseFactory {
         transaction(database) {
             SchemaUtils.statementsRequiredToActualizeScheme(*tables).let {
                 if (it.isNotEmpty()) {
-                    println(it)
+                    println(it.joinToString(";\n"))
                     error("There is/are ${it.size} migrations to run!")
                 }
             }

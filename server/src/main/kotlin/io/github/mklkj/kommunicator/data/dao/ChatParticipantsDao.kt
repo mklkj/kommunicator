@@ -17,7 +17,7 @@ class ChatParticipantsDao {
         return ChatParticipantEntity(
             id = row[ChatParticipantsTable.id],
             customName = row[ChatParticipantsTable.customName],
-            userId = row[UsersTable.uuid],
+            userId = row[UsersTable.id],
             email = row[UsersTable.email],
             username = row[UsersTable.username],
             userFirstName = row[UsersTable.firstName],
@@ -31,7 +31,7 @@ class ChatParticipantsDao {
             .join(
                 onColumn = ChatParticipantsTable.userId,
                 otherTable = UsersTable,
-                otherColumn = UsersTable.uuid,
+                otherColumn = UsersTable.id,
                 joinType = JoinType.LEFT,
             )
             .select { ChatParticipantsTable.chatId eq chatId }

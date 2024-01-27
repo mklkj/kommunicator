@@ -62,6 +62,7 @@ fun Route.chatRoutes() {
                     Message(
                         id = message.id,
                         isUserMessage = message.userId == currentUserId,
+                        authorId = message.userId,
                         authorName = when (message.userId) {
                             currentUserId -> "You"
                             else -> {

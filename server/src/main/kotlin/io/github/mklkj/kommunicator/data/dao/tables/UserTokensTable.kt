@@ -4,13 +4,13 @@ import kotlinx.uuid.exposed.kotlinxUUID
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
-object UserTokensTable : Table() {
+object UserTokensTable : Table("users_tokens") {
 
     val id = kotlinxUUID("id")
-    val userId = kotlinxUUID("userId")
-    val refreshToken = varchar("refreshToken", 16)
-    val timestamp = timestamp("timestamp")
-    val validTo = timestamp("validTo")
+    val userId = kotlinxUUID("user_id")
+    val refreshToken = varchar("refresh_token", 16)
+    val createdAt = timestamp("created_at")
+    val validTo = timestamp("valid_to")
 
     override val primaryKey = PrimaryKey(id)
 }
