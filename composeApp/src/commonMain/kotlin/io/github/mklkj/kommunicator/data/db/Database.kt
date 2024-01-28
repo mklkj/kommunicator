@@ -3,7 +3,10 @@ package io.github.mklkj.kommunicator.data.db
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.db.SqlDriver
+import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.Contacts
+import io.github.mklkj.kommunicator.Messages
+import io.github.mklkj.kommunicator.Participants
 import io.github.mklkj.kommunicator.Users
 import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.db.entity.LocalUser
@@ -26,7 +29,10 @@ class Database(sqlDriver: SqlDriver) {
             userIdAdapter = UUIDStringAdapter,
             contactUserIdAdapter = UUIDStringAdapter,
         ),
-        UsersAdapter = Users.Adapter(UUIDStringAdapter)
+        UsersAdapter = Users.Adapter(UUIDStringAdapter),
+        ChatsAdapter = Chats.Adapter(UUIDStringAdapter, UUIDStringAdapter),
+        MessagesAdapter = Messages.Adapter(UUIDStringAdapter),
+        ParticipantsAdapter = Participants.Adapter(UUIDStringAdapter)
     )
     private val dbQuery = database.appDatabaseQueries
 
@@ -93,6 +99,23 @@ class Database(sqlDriver: SqlDriver) {
                 }
             }
         }
+
+    fun observeChats(userId: UUID): Flow<List<Chats>> {
+        return dbQuery.selectAllChats(userId)
+            .asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getChats(userId: UUID): List<Chats> {
+        return dbQuery.selectAllChats(userId).executeAsList()
+    }
+
+    suspend fun insertChats(userId: UUID, chats: List<Chats>) {
+        withContext(Dispatchers.IO) {
+            dbQuery.transaction {
+//                dbQuery.insertChat()
+            }
+        }
+    }
 }
 
 private fun mapUserSelecting(

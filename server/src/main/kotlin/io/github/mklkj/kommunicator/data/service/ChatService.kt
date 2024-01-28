@@ -5,6 +5,7 @@ import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatParticipant
 import io.github.mklkj.kommunicator.data.repository.ChatRepository
 import io.github.mklkj.kommunicator.data.repository.MessageRepository
+import io.github.mklkj.kommunicator.utils.md5
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -34,9 +35,7 @@ class ChatService(
             name = chat.customName,
             participants = participants.map {
                 ChatParticipant(
-                    id = it.id,
                     userId = it.userId,
-                    username = it.username,
                     customName = it.customName,
                     firstName = it.userFirstName,
                     lastName = it.userLastName,
@@ -48,33 +47,29 @@ class ChatService(
 
     suspend fun getChats(userId: UUID): List<Chat> {
         return chatRepository.getChats(userId).map { chat ->
-            // todo: convert to subquery to fix n+1 problem
-            val lastMessage = messageRepository.getLastMessage(chat.id)
-            val participants = chatRepository.getParticipants(chat.id)
-                .filterNot { it.userId == userId }
-
+            val participants = chat.participants.filterNot { it.userId == userId }
             Chat(
                 id = chat.id,
                 avatarUrl = when (participants.size) {
-                    1 -> participants.single().userAvatarUrl
-                    else -> "https://i.pravatar.cc/256?=${chat.id}"
+                    1 -> "https://gravatar.com/avatar/${md5(participants.single().email)}"
+                    else -> "https://i.pravatar.cc/256?u=${chat.id}"
                 },
                 isUnread = false,
                 isActive = false,
-                lastMessageTimestamp = lastMessage?.timestamp,
-                lastMessage = lastMessage?.content,
-                lastMessageAuthor = lastMessage?.authorFirstName,
+                lastMessageTimestamp = chat.lastMessageCreatedAt,
+                lastMessage = chat.lastMessageContent,
+                lastMessageAuthor = chat.lastMessageAuthorFirstName,
                 name = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
                     when (participants.size) {
                         1 -> {
-                            append(participants.single().userFirstName)
+                            append(participants.single().firstName)
                             append(" ")
-                            append(participants.single().userLastName)
+                            append(participants.single().lastName)
                         }
 
                         else -> {
                             val names = participants.joinToString(", ") {
-                                "${it.userFirstName} ${it.userLastName}"
+                                "${it.firstName} ${it.lastName}"
                             }
                             append(names)
                         }
@@ -82,16 +77,14 @@ class ChatService(
                 },
                 participants = participants.map {
                     ChatParticipant(
-                        id = it.id,
                         userId = it.userId,
-                        username = it.username,
                         customName = it.customName,
-                        firstName = it.userFirstName,
-                        lastName = it.userLastName,
-                        avatarUrl = it.userAvatarUrl
+                        firstName = it.firstName,
+                        lastName = it.lastName,
+                        avatarUrl = "https://gravatar.com/avatar/${md5(it.email)}",
                     )
                 },
             )
-        }.sortedByDescending { it.lastMessageTimestamp }
+        }
     }
 }

@@ -1,6 +1,8 @@
 import kotlin.Boolean;
 import kotlinx.uuid.UUID;
 
+-- USERS
+
 CREATE TABLE Users (
     id TEXT AS UUID NOT NULL PRIMARY KEY,
     email TEXT NOT NULL,
@@ -25,6 +27,8 @@ DELETE FROM Users;
 selectAllUsers:
 SELECT Users.* FROM Users;
 
+-- CONTACTS
+
 CREATE TABLE Contacts (
     id TEXT AS UUID NOT NULL PRIMARY KEY,
     userId TEXT AS UUID NOT NULL,
@@ -45,3 +49,40 @@ DELETE FROM Contacts WHERE userId = ?;
 
 selectAllContacts:
 SELECT Contacts.* FROM Contacts WHERE userId = ?;
+
+-- CHATS
+
+CREATE TABLE Chats (
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    userId TEXT AS UUID NOT NULL,
+    customName TEXT
+);
+
+insertChat:
+INSERT OR REPLACE INTO Chats(id, userId, customName)
+VALUES(?, ?, ?);
+
+selectAllChats:
+SELECT Chats.* FROM Chats WHERE userId = ?;
+
+-- MESSAGES
+
+CREATE TABLE Messages (
+    id TEXT AS UUID NOT NULL PRIMARY KEY
+    -- TODO
+);
+
+insertMessage:
+INSERT OR REPLACE INTO Messages(id)
+VALUES(?);
+
+-- PARTICIPANTS
+
+CREATE TABLE Participants(
+    id TEXT AS UUID NOT NULL PRIMARY KEY
+    -- TODO
+);
+
+insertParticipants:
+INSERT OR REPLACE INTO Participants(id)
+VALUES(?);

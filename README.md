@@ -52,7 +52,7 @@ Ten wizard wygenerował też moduł z backendem (<3) więc chętnie tego użyję
 Zacząłem tworzyć ekran z listą czatów (ChatsScreen). Na te potrzeby utworzyłem model `Chat`,
 umieszczając go we współdzielonym między apką a serwerem module `shared`.
 
-Aby od razu zadbać  o jego serializację, dodałem we współdzielonym module `kotlinx.serialization`.
+Aby od razu zadbać o jego serializację, dodałem we współdzielonym module `kotlinx.serialization`.
 Do zapisu czasu wysłania ostatniej wiadomości w czacie użyłem typu z biblioteki `kotlin.datetime`,
 która też znalazła się we wspólnych zależnościach.
 
@@ -61,7 +61,7 @@ Ta wymaga bezpośredniego zdefiniowania odpowiedniego silnika HTTP dla bibliotek
 z targetów, co zrobiłem, a co przyda się przy tworzeniu części sieciowej.
 
 Następnie zacząłem prace nad architekturą — chciałem dodać view model, by tam trzymać stan listy
-chatów, jak i pobierać je z API. Użyłem więc view modeli od mokko oraz koin do DI. 
+chatów, jak i pobierać je z API. Użyłem więc view modeli od mokko oraz koin do DI.
 Czy jest idealnie? Nie jest. Ale jako tako na razie działa.
 
 Idąc za ciosem zacząłem kombinować z konfiguracją sieci. Przeniosłem mockowe dane z common do server
@@ -121,7 +121,8 @@ i wystawione pod moją domeną kommunicator.pich.ovh.
 Jakie były trudności? Ze względu na to, że moduł serwerowy, moduł współdzielony, jak i apka mobilna
 są połączone w jeden wielki projekt, a VPS w Oracle jest na ARM (VM.Standard.A1.Flex, czyli
 Arm processor from Ampere) i przez brak prebuildu kotlina na tę architekturę
-(kotlin-native-prebuilt-linux-aarch64 https://youtrack.jetbrains.com/issue/KT-36871/Support-Aarch64-Linux-as-a-host-for-the-Kotlin-Native)
+(kotlin-native-prebuilt-linux-aarch64
+https://youtrack.jetbrains.com/issue/KT-36871/Support-Aarch64-Linux-as-a-host-for-the-Kotlin-Native)
 to musiałem hackować i wywalić na potrzeby zbudowania tego modułu, modułu composeApp oraz targetów
 iOSowych z modułu shared.
 
@@ -150,13 +151,14 @@ ani integracji z Koinem. Appyx również.
 
 1. Zrobiłem (ukradłem) ikonkę https://uxwing.com/chat-icon/.
 2. Zamiast nietypowanych stringów jako UUID machnąłem biblioteczkę od tego, która ma od razu
-wsparcie dla SQLDelight i Jetbrains Exposed.
+   wsparcie dla SQLDelight i Jetbrains Exposed.
 3. Na podstawie https://codersee.com/secure-rest-api-with-ktor-jwt-access-tokens/ zrobiłem
-(skopiowałem) część serwerową rejestracji (na razie tylko in-memory), pobierania tokenu i szczegółów
-usera
+   (skopiowałem) część serwerową rejestracji (na razie tylko in-memory), pobierania tokenu i
+   szczegółów
+   usera
 4. Machnąłem na szybko ekrany welcome, rejestracji i logowania. Obsługa błędów jest słaba, dużo
-trzeba jeszcze zrobić w okolicach obsługi różnych kodów HTTP z API, ale da się zarejestrować
-i potem zalogować takim kontem.
+   trzeba jeszcze zrobić w okolicach obsługi różnych kodów HTTP z API, ale da się zarejestrować
+   i potem zalogować takim kontem.
 
 ## Firebase i Crashlytics (2023-12-26)
 
@@ -205,7 +207,8 @@ i wszystko gra.
 Dalej — usprawniłem ekran z listą czatów oraz z ekranem konwersacji.
 
 Dalej — połączenie z bazą PostgreSQL w części serwerowej. Używamy Jetbrains Exposed. Mały problem
-ze zmiennymi środowiskowymi. Fajny plugin https://plugins.jetbrains.com/plugin/7861-envfile/versions/stable
+ze zmiennymi środowiskowymi. Fajny
+plugin https://plugins.jetbrains.com/plugin/7861-envfile/versions/stable
 ale nie dostępny niby dla Android Studio. Na szczęście można to ominąć, pobierając zip ręcznie.
 
 Przewijając do godziny prawie 03:00 - połączenie działa. Udało mi się zarejestrować usera
@@ -257,8 +260,10 @@ pomyślałem, że zmodyfikuję oryginalną bibliotekę. Najpierw sforkowałem or
 jak się okazało... już dawno nie jest rozwijana i ja sam używam tutaj już forku *facepalm*.
 Straciłem na to kilka godzin, bo przez to, że biblioteka 3 lata nie była ruszana, to nawet zbudować
 się nie chciała. Kiedy już wziąłem tego forka i zrobiłem z niego swojego forka, dodałem według
-instrukcji z docsów Voyagera https://voyager.adriel.cafe/state-restoration#multiplatform-state-restoration
-JavaSerializable. Do tego teścik z serializacją i deserializacją według https://www.baeldung.com/java-serialization
+instrukcji z docsów
+Voyagera https://voyager.adriel.cafe/state-restoration#multiplatform-state-restoration
+JavaSerializable. Do tego teścik z serializacją i deserializacją
+według https://www.baeldung.com/java-serialization
 i w ten sposób powstał taki PR https://github.com/hfhbd/kotlinx-uuid/pull/282. Sam crash raczej
 nie jest mocno dotkliwy na tym etapie projektu, więc mogę poczekać, aż zostanie zmergowany do
 *upstreamu*.
@@ -269,7 +274,8 @@ W końcu to trzeba było zrobić — czaty i wiadomości muszą być zabezpieczo
 się ucieszyłem, gdy zobaczyłem, że jest gotowy plugin pełniący funkcję interceptora dodającego JWT
 do nagłówka przy każdym requeście. Zachwyt nie trwał jednak zbyt długo, bo się okazało, że ten token
 się tam zapisuje na wieki... aż nie trafi się request z 401. Ale znalazłem obejście, więc jakoś
-to przeżyjemy https://youtrack.jetbrains.com/issue/KTOR-4759/Auth-BearerAuthProvider-caches-result-of-loadToken-until-process-death.
+to przeżyjemy
+https://youtrack.jetbrains.com/issue/KTOR-4759/Auth-BearerAuthProvider-caches-result-of-loadToken-until-process-death.
 
 A tu ładne screeny jak cały mechanizm z refresh tokenami mógłby wyglądać
 https://medium.com/@lahirujay/token-refresh-implementation-with-ktor-in-kotlin-multiplatform-mobile-f4d77b33b355
@@ -286,7 +292,7 @@ wywalony z apki.
 
 ## Obsługa wygasłych refresh tokenów, ekran konta (2024-01-07)
 
-Tydzień mi uciekł... 
+Tydzień mi uciekł...
 
 Zrobiłem obsługę HTTP 401 w apce. Jak refresh token wygaśnie (po miesiącu) to apka raz, że w ogóle
 skończy ładować dane (a wieszała się przez mój błąd — blokowała się po otrzymaniu 401 po refreshu)
@@ -352,6 +358,26 @@ działał. Dodałem też pokazywanie snackbara z errorem i przyciskiem ponów. W
 dużo boilerplate'u wyszło. I to prawda. Nie mam jeszcze pomysłu co z tym zrobić, póki co niech
 zostanie.
 
+## Pobieranie listy czatów z ostatnią wiadomością i listą participantów (2024-01-27/28)
+
+To było dopiero wyzwanie! Tl;dr: udało się.
+
+A o co chodziło? Cóż, do tej pory lista czatów była pobierana w bardzo nieefektywny sposób, bo
+najpierw była pobierana sama lista czatów, w których participantem jest aktualny user, a potem
+DO KAŻDEGO OSOBNO była wyciągana ostatnia wiadomość z tego czatu ORAZ lista participantów.
+Udało się zastąpić to wszystko pojedynczym zapytaniem sql.
+
+Problemy, które po kolei wystąpiły:
+
+1. jak napisać takie zapytanie? Początkowo wzorowałem się na
+   tym https://stackoverflow.com/a/63353088/6695449, ale potem dla uproszczenia użyłem do pobierania
+   ostatniej wiadomości lateral joina https://stackoverflow.com/a/63340078/6695449
+2. jak w exposed wykonać takie wielkie query? Raczej nie uda mi się go zapisać przy użyciu
+   ichniejszego DSL. Okazuje się, że się da https://stackoverflow.com/a/63451601/6695449
+3. jak zmapować wynik tego zapytania? To było trochę ciężkie, niby
+   to https://stackoverflow.com/a/66517209/6695449
+   oraz https://github.com/JetBrains/Exposed/issues/118 pomogło, ale musiałem jeszcze kombinować
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
@@ -363,7 +389,6 @@ zostanie.
 - przykładowa aplikacja KM w Compose UI i Swift UI - https://github.com/getspherelabs/cosmo-kmp
 - przykładowy schemat bazy danych - https://github.com/yoosuf/Messenger
 - aplikacja chatu z Gemini - https://github.com/chouaibMo/ChatGemini/tree/main
-
 
 https://github.com/tunjid/Tiler
 https://github.com/getspherelabs/cosmo-kmp

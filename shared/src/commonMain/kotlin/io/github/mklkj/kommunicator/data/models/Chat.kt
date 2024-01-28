@@ -19,9 +19,7 @@ data class Chat(
 
 @Serializable
 data class ChatParticipant(
-    val id: UUID,
     val userId: UUID,
-    val username: String,
     val customName: String?,
     val firstName: String,
     val lastName: String,

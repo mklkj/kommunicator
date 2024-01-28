@@ -5,6 +5,7 @@ import io.github.mklkj.kommunicator.data.dao.ChatsDao
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatEntity
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
+import io.github.mklkj.kommunicator.data.models.ChatSummaryEntity
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -26,7 +27,7 @@ class ChatRepository(
         return chatParticipantsDao.getParticipants(chatId)
     }
 
-    suspend fun getChats(userId: UUID): List<ChatEntity> {
+    suspend fun getChats(userId: UUID): List<ChatSummaryEntity> {
         return chatsDao.getChats(userId)
     }
 }
