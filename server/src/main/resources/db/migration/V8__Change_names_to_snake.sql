@@ -1,5 +1,6 @@
 ALTER TABLE chatparticipants RENAME TO chat_participants;
 ALTER TABLE chat_participants RENAME COLUMN "chatId" TO chat_id;
+ALTER TABLE chat_participants RENAME COLUMN "userId" TO user_id;
 ALTER TABLE chat_participants RENAME COLUMN "customName" TO custom_name;
 
 ALTER TABLE chats RENAME COLUMN "customName" TO custom_name;
