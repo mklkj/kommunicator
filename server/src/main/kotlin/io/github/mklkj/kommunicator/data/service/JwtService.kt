@@ -53,16 +53,9 @@ class JwtService(
             .sign(Algorithm.HMAC256(secret))
     }
 
-    suspend fun customValidator(
-        credential: JWTCredential,
-    ): JWTPrincipal? {
-        val username = extractUsername(credential)
-        val foundUser = username?.let { userRepository.findByUsername(it) }
-        return foundUser?.let {
-            if (audienceMatches(credential)) {
-                JWTPrincipal(credential.payload)
-            } else null
-        }
+    fun customValidator(credential: JWTCredential): JWTPrincipal? = when {
+        audienceMatches(credential) -> JWTPrincipal(credential.payload)
+        else -> null
     }
 
     private fun audienceMatches(
@@ -71,7 +64,4 @@ class JwtService(
 
     private fun getConfigProperty(path: String) =
         appConfig.property(path).getString()
-
-    private fun extractUsername(credential: JWTCredential): String? =
-        credential.payload.getClaim("username").asString()
 }

@@ -11,7 +11,7 @@ Sposobem na zabezpieczenie komunikacji między klientem a serwerem oprócz SSL b
 Podstawowe funkcjonalności komunikatora:
 
 - [x] rejestracja i logowanie
-- [ ] dodawanie kontaktów
+- [x] dodawanie kontaktów
 - [x] wysyłanie i odbieranie wiadomości tekstowych
 - [ ] statusy (odczytana wiadomość, pisanie)
 - [ ] historia wiadomości dostępna offline
