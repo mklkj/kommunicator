@@ -15,8 +15,13 @@ class ChatService(
     private val messageRepository: MessageRepository,
 ) {
 
-    suspend fun addChat(request: ChatCreateRequest) {
-        chatRepository.createChat(request)
+    suspend fun addChat(request: ChatCreateRequest): UUID {
+        val existingChats = chatRepository.getChatsContainingParticipants(request.participants)
+        if (existingChats.isNotEmpty()) {
+            return existingChats.first()
+        }
+
+        return chatRepository.createChat(request)
     }
 
     suspend fun getChat(chatId: UUID, userId: UUID): Chat? {

@@ -20,16 +20,15 @@ class MessagesRepository(
     private val database: Database,
 ) {
 
-    suspend fun createChat(chatId: UUID, contacts: List<LocalContact>) {
-        messagesService.createChat(
+    suspend fun createChat(contacts: List<LocalContact>): UUID {
+        return messagesService.createChat(
             ChatCreateRequest(
-                chatId = chatId,
                 customName = null,
                 participants = contacts.map {
                     it.contactUserId
                 },
             )
-        )
+        ).chatId
     }
 
     fun observeChats(): Flow<List<Chats>> {

@@ -1,6 +1,7 @@
 package io.github.mklkj.kommunicator.routes
 
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
+import io.github.mklkj.kommunicator.data.models.ChatCreateResponse
 import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageEntity
@@ -33,12 +34,12 @@ fun Route.chatRoutes() {
     }
     post {
         val request = call.receive<ChatCreateRequest>()
-        chatService.addChat(
+        val createdChatId = chatService.addChat(
             request.copy(
                 participants = request.participants + listOfNotNull(call.principalId)
             )
         )
-        call.response.status(HttpStatusCode.Created)
+        call.respond(HttpStatusCode.Created, ChatCreateResponse(createdChatId))
     }
     get("/{id}") {
         val chat = chatService.getChat(

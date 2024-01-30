@@ -1,5 +1,6 @@
 package io.github.mklkj.kommunicator.data.dao
 
+import io.github.mklkj.kommunicator.data.columns.ArrayColumnType
 import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ChatsTable
 import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
@@ -36,20 +37,42 @@ class ChatsDao {
         )
     }
 
-    suspend fun createChat(chatCreateRequest: ChatCreateRequest) = withContext(Dispatchers.IO) {
-        transaction {
-            ChatsTable.insert {
-                it[id] = chatCreateRequest.chatId
-                it[customName] = chatCreateRequest.customName
-            }
-            ChatParticipantsTable.batchInsert(chatCreateRequest.participants) { participantId ->
-                this[ChatParticipantsTable.id] = UUID()
-                this[ChatParticipantsTable.chatId] = chatCreateRequest.chatId
-                this[ChatParticipantsTable.userId] = participantId
-                this[ChatParticipantsTable.customName] = null
-            }
+    suspend fun getChatsContainingParticipants(participantsIds: List<UUID>): List<UUID> = dbQuery {
+        @Language("sql")
+        val query = """
+            SELECT chat_id
+            FROM chat_participants
+            GROUP BY chat_id
+            HAVING array_agg(chat_participants.user_id ORDER BY chat_participants.user_id) = ?
+        """
+
+        val stmt = TransactionManager.current().connection.prepareStatement(query, false)
+        val column = ArrayColumnType("UUID", participantsIds.size)
+        stmt.fillParameters(listOf(Pair(column, participantsIds.sortedBy { it.toString() })))
+        stmt.executeQuery().map { rs ->
+            ChatParticipantsTable.chatId.columnType.valueFromDB(
+                ChatParticipantsTable.chatId.columnType.readObject(rs, 1)!!
+            ) as UUID
         }
     }
+
+    suspend fun createChat(chatCreateRequest: ChatCreateRequest): UUID =
+        withContext(Dispatchers.IO) {
+            val chatId = UUID()
+            transaction {
+                ChatsTable.insert {
+                    it[id] = chatId
+                    it[customName] = chatCreateRequest.customName
+                }
+                ChatParticipantsTable.batchInsert(chatCreateRequest.participants) { participantId ->
+                    this[ChatParticipantsTable.id] = UUID()
+                    this[ChatParticipantsTable.chatId] = chatId
+                    this[ChatParticipantsTable.userId] = participantId
+                    this[ChatParticipantsTable.customName] = null
+                }
+            }
+            chatId
+        }
 
     suspend fun getChat(chatId: UUID, userId: UUID): ChatEntity? = dbQuery {
         ChatParticipantsTable

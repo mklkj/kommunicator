@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -47,17 +46,16 @@ class ContactsViewModel(
     }
 
     fun onCreateChat(contact: LocalContact) {
-        val chatId = UUID()
         launch("create_chat_${contact.id}", cancelExisting = false) {
             mutableState.update { it.copy(isLoading = true) }
-            runCatching { messagesRepository.createChat(chatId, listOf(contact)) }
+            runCatching { messagesRepository.createChat(listOf(contact)) }
                 .onFailure { error ->
                     proceedError(error)
                     mutableState.update {
                         it.copy(error = error)
                     }
                 }
-                .onSuccess {
+                .onSuccess { chatId ->
                     mutableState.update {
                         it.copy(createdChat = chatId)
                     }

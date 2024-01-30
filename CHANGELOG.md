@@ -361,6 +361,19 @@ Problemy, które po kolei wystąpiły:
    to https://stackoverflow.com/a/66517209/6695449
    oraz https://github.com/JetBrains/Exposed/issues/118 pomogło, ale musiałem jeszcze kombinować
 
+## Unikanie tworzenia nowych czatów dla tych samych uczestników (2024-01-30)
+
+W tej chwili kliknięcie w kontakt tworzy nowy czat. Za każdym razem. Chciałem to obejść tak, żeby
+przed utworzeniem nowego czatu sprawdzić, czy dla danej listy participantów już istnieje jakiś czat
+i zwracać od razu jego ID. Problem nie jest prosty.
+Znalazłem https://stackoverflow.com/a/69180271/6695449, ale tutaj dochodzi jeszcze kwestia tego,
+że używam Exposed, a identyfikatorami u mnie są UUID. Dodatkowo ja tu potrzebuję dynamicznie
+podstawiać identyfikatory. Znalazłem sposób na obsługę bindowania typu array przy bindowaniu
+w tym wątku https://github.com/JetBrains/Exposed/issues/150. Kolejnym problemem okazało się
+porównywanie tych tablic — żeby dostać true, obie muszą mieć dodatkowo tę samą kolejność. Szukałem
+uniwersalnego sposobu na to (https://stackoverflow.com/q/12870105/6695449) ale ostatecznie zostałem
+przy zwykłym sortowaniem w `array_agg` + sortowaniem listy participantów przed bindowaniem.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

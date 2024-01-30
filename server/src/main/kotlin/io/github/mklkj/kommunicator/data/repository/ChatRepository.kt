@@ -15,8 +15,12 @@ class ChatRepository(
     private val chatParticipantsDao: ChatParticipantsDao,
 ) {
 
-    suspend fun createChat(chatCreateRequest: ChatCreateRequest) {
-        chatsDao.createChat(chatCreateRequest)
+    suspend fun getChatsContainingParticipants(participantsIds: List<UUID>): List<UUID> {
+        return chatsDao.getChatsContainingParticipants(participantsIds)
+    }
+
+    suspend fun createChat(chatCreateRequest: ChatCreateRequest): UUID {
+        return chatsDao.createChat(chatCreateRequest)
     }
 
     suspend fun getChat(chatId: UUID, userId: UUID): ChatEntity? {
