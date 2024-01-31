@@ -1,7 +1,7 @@
 # Kommunicator — aplikacja multiplatformowa w Kotlin Multiplatform
 
 [![Bitrise](https://img.shields.io/bitrise/e9f1ec00-2da0-40c7-9fdd-36b2c6a0ea46/master?token=UPKOp09hQ_iw6OdY0OeWWg&style=flat-square)](https://app.bitrise.io/app/e9f1ec00-2da0-40c7-9fdd-36b2c6a0ea46)
-[![Download latest apk](https://img.shields.io/badge/apk-download_latest-blue?style=flat-square)(https://manager.wulkanowy.net.pl/v1/download/app/e9f1ec00-2da0-40c7-9fdd-36b2c6a0ea46/branch/master)]
+[![Download latest apk](https://img.shields.io/badge/apk-download_latest-blue?style=flat-square)](https://manager.wulkanowy.net.pl/v1/download/app/e9f1ec00-2da0-40c7-9fdd-36b2c6a0ea46/branch/master)
 
 Założeniem projektu (nazwa kodowa "Kommunicator") jest stworzenie komunikatora w formie aplikacji
 mobilnej na Androida i iOS przy wykorzystaniu technologii Kotlin Multiplatform. Aplikacja będzie
