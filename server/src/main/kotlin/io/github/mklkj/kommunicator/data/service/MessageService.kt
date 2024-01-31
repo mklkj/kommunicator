@@ -22,20 +22,20 @@ class MessageService(
 
         return messageRepository.getMessages(chatId)
             .map { message ->
-                val participant = participants.find { it.userId == message.userId }
+                val participant = participants.first { it.userId == message.userId }
                 Message(
                     id = message.id,
                     isUserMessage = message.userId == userId,
-                    authorId = message.userId,
-                    authorCustomName = participant?.customName,
+                    authorId = participant.id,
+                    authorCustomName = participant.customName,
                     authorName = when (message.userId) {
                         userId -> "You"
                         else -> {
-                            participant?.customName ?: participant?.let {
+                            participant.customName ?: participant.let {
                                 "${it.userFirstName} ${it.userLastName}"
                             }
                         }
-                    }.orEmpty(),
+                    },
                     createdAt = message.timestamp,
                     content = message.content,
                 )

@@ -70,7 +70,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(state.details?.name.orEmpty()) },
+                    title = { Text(state.chat?.customName.orEmpty()) },
                     navigationIcon = {
                         IconButton(onClick = { navigateUp() }) {
                             Icon(
@@ -87,7 +87,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     reverseLayout = true,
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(state.details?.messages.orEmpty()) {
+                    items(state.messages) {
                         ChatMessage(it)
                     }
                 }

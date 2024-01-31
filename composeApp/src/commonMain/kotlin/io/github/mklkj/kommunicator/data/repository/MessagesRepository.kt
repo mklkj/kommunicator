@@ -1,11 +1,11 @@
 package io.github.mklkj.kommunicator.data.repository
 
+import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
-import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import kotlinx.coroutines.flow.Flow
@@ -44,18 +44,26 @@ class MessagesRepository(
         }
     }
 
+    suspend fun getChat(chatId: UUID): Chats {
+        return database.getChat(chatId)
+    }
+
     suspend fun refreshChats() {
         val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
         val remoteChats = messagesService.getChats()
         database.insertChats(userId, remoteChats)
     }
 
-    suspend fun getChatDetails(id: UUID): ChatDetails {
-        return messagesService.getChat(id)
+    suspend fun refreshMessages(chatId: UUID) {
+        val messages = messagesService.getMessages(chatId)
+        database.insertMessages(chatId, messages)
     }
 
-    suspend fun getMessages(chatId: UUID): List<Message> {
-        return messagesService.getMessages(chatId)
+    fun observeMessages(chatId: UUID): Flow<List<Message>> {
+        return flow {
+            val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
+            emitAll(database.observeMessages(chatId, userId))
+        }
     }
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {

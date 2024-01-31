@@ -147,8 +147,16 @@ class Database(sqlDriver: SqlDriver) {
             }
     }
 
-    fun getChats(userId: UUID): List<SelectAllChats> {
-        return dbQuery.selectAllChats(userId).executeAsList()
+    suspend fun getChats(userId: UUID): List<SelectAllChats> {
+        return withContext(Dispatchers.IO) {
+            dbQuery.selectAllChats(userId).executeAsList()
+        }
+    }
+
+    suspend fun getChat(chatId: UUID): Chats {
+        return withContext(Dispatchers.IO) {
+            dbQuery.selectChat(chatId).executeAsOne()
+        }
     }
 
     suspend fun getChatParticipant(chatId: UUID, userId: UUID): Participants? {
@@ -190,6 +198,40 @@ class Database(sqlDriver: SqlDriver) {
                         authorId = lastMessage.authorId,
                         createdAt = lastMessage.createdAt,
                         content = lastMessage.content,
+                    )
+                }
+            }
+        }
+    }
+
+    fun observeMessages(chatId: UUID, userId: UUID): Flow<List<Message>> {
+        return dbQuery.selectMessages(chatId).asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { messages ->
+                messages.map {
+                    Message(
+                        id = it.id,
+                        isUserMessage = it.userId == userId,
+                        authorId = it.authorId,
+                        authorName = "${it.firstname} ${it.lastName}",
+                        authorCustomName = it.customName,
+                        createdAt = it.createdAt,
+                        content = it.content
+                    )
+                }
+            }
+    }
+
+    suspend fun insertMessages(chatId: UUID, messages: List<Message>) {
+        withContext(Dispatchers.IO) {
+            database.transaction {
+                messages.forEach {
+                    dbQuery.insertMessage(
+                        id = it.id,
+                        chatId = chatId,
+                        authorId = it.authorId,
+                        createdAt = it.createdAt,
+                        content = it.content,
                     )
                 }
             }

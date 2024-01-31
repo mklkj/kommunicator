@@ -64,6 +64,9 @@ insertChat:
 INSERT OR REPLACE INTO Chats(id, userId, customName, avatarUrl)
 VALUES(?, ?, ?, ?);
 
+selectChat:
+SELECT * FROM Chats WHERE id = ?;
+
 selectAllChats:
 SELECT
     Chat.id AS chatId, Chat.customName AS chatCustomName, Chat.avatarUrl,
@@ -114,3 +117,10 @@ CREATE TABLE Messages (
 insertMessage:
 INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content)
 VALUES(?, ?, ?, ?, ?);
+
+selectMessages:
+SELECT Messages.*, Participants.userId, Participants.firstname, Participants.lastName, Participants.customName, Participants.avatarUrl
+FROM Messages
+LEFT JOIN Participants ON Messages.authorId = Participants.id
+WHERE Messages.chatId = ?
+ORDER BY Messages.createdAt DESC;

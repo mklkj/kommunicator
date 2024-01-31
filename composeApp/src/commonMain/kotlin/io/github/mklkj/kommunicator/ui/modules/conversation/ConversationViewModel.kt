@@ -3,6 +3,8 @@ package io.github.mklkj.kommunicator.ui.modules.conversation
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
@@ -13,8 +15,14 @@ class ConversationViewModel(
 ) : BaseViewModel<ConversationState>(ConversationState()) {
 
     fun loadData(chatId: UUID) {
+        loadChatDetails(chatId)
+        observeMessages(chatId)
+        refreshChat(chatId)
+    }
+
+    private fun loadChatDetails(chatId: UUID) {
         launch("chat_load_$chatId", cancelExisting = false) {
-            runCatching { messagesRepository.getChatDetails(chatId) }
+            runCatching { messagesRepository.getChat(chatId) }
                 .onFailure { error ->
                     proceedError(error)
                     mutableState.update {
@@ -24,11 +32,38 @@ class ConversationViewModel(
                         )
                     }
                 }
-                .onSuccess { details ->
+                .onSuccess { chat ->
                     mutableState.update {
                         it.copy(
-                            details = details,
                             isLoading = false,
+                            chat = chat,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun observeMessages(chatId: UUID) {
+        launch("observe_messages", isFlowObserver = true) {
+            messagesRepository.observeMessages(chatId)
+                .onEach { messages ->
+                    mutableState.update {
+                        it.copy(messages = messages)
+                    }
+                }
+                .collect()
+        }
+    }
+
+    private fun refreshChat(chatId: UUID) {
+        launch("chat_refresh_$chatId", cancelExisting = false) {
+            runCatching { messagesRepository.refreshMessages(chatId) }
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message,
                         )
                     }
                 }
@@ -40,33 +75,6 @@ class ConversationViewModel(
             mutableState.update { it.copy(isLoading = true) }
             messagesRepository.sendMessage(chatId, message)
             mutableState.update { it.copy(isLoading = false) }
-
-            reloadMessages(chatId)
-        }
-    }
-
-    private fun reloadMessages(chatId: UUID) {
-        launch("reload_messages") {
-            runCatching { messagesRepository.getMessages(chatId) }
-                .onFailure { error ->
-                    proceedError(error)
-                    mutableState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = error.message,
-                        )
-                    }
-                }
-                .onSuccess { messages ->
-                    mutableState.update {
-                        it.copy(
-                            isLoading = false,
-                            details = it.details?.copy(
-                                messages = messages,
-                            )
-                        )
-                    }
-                }
         }
     }
 }

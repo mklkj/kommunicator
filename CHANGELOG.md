@@ -386,6 +386,12 @@ ostatniemu chcę łatwo obsłużyć wyświetlanie ostatniej wysłanej wiadomośc
 listy czatów, gdy pojawi się jakaś nowa wiadomość. W takiej architekturze baza danych będzie jedynym
 źródłem prawdy dla UI.
 
+Idąc za ciosem, dodałem jeszcze zapisywanie w lokalnej bazie załadowanych wiadomości po wejściu do
+chatu. Teraz zawsze pobiera się tam te 15 (jakoś tak) wiadomości i one zastępują te, istniejące
+na urządzeniu. Aplikacja jednak ładuje wiadomości tylko bezpośrednio z bazy (obserwuje zmiany na
+tabeli) i dzięki temu niezależnie od tego, czy request do API się akurat uda, czy nie, to zawsze
+wyświetlą się wiadomości zapisane w lokalnej bazie danych
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
