@@ -214,7 +214,8 @@ internal object ChatsScreen : Tab {
                     fontWeight = if (item.isUnread) FontWeight.Bold else null,
                 )
                 Spacer(Modifier.height(4.dp))
-                Row(
+
+                if (item.lastMessage != null) Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min)

@@ -123,7 +123,7 @@ class ChatsDao {
             ) messages on true
             LEFT JOIN aggregated_participants ON chats.id = aggregated_participants.chat_id
             LEFT JOIN chat_participants ON chat_participants.chat_id = chats.id
-            WHERE chat_participants.user_id = ?
+            WHERE chat_participants.user_id = ? AND messages.created_at IS NOT null
             ORDER BY messages.created_at DESC
         """
 
