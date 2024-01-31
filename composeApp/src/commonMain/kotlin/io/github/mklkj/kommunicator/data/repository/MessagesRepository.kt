@@ -7,6 +7,7 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatDetails
+import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -54,6 +55,10 @@ class MessagesRepository(
 
     suspend fun getChatDetails(id: UUID): ChatDetails {
         return messagesService.getChat(id)
+    }
+
+    suspend fun getMessages(chatId: UUID): List<Message> {
+        return messagesService.getMessages(chatId)
     }
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {

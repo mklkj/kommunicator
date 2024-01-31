@@ -40,7 +40,33 @@ class ConversationViewModel(
             mutableState.update { it.copy(isLoading = true) }
             messagesRepository.sendMessage(chatId, message)
             mutableState.update { it.copy(isLoading = false) }
-            loadData(chatId)
+
+            reloadMessages(chatId)
+        }
+    }
+
+    private fun reloadMessages(chatId: UUID) {
+        launch("reload_messages") {
+            runCatching { messagesRepository.getMessages(chatId) }
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message,
+                        )
+                    }
+                }
+                .onSuccess { messages ->
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            details = it.details?.copy(
+                                messages = messages,
+                            )
+                        )
+                    }
+                }
         }
     }
 }

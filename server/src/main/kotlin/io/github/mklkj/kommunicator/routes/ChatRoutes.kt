@@ -48,9 +48,17 @@ fun Route.chatRoutes() {
 
         call.respond(chat)
     }
+    get("/{id}/messages") {
+        val userId = call.principalId ?: error("Invalid JWT!")
+        // todo: add verification whether a given user can read messages from that chat!!!
+        val chatId = call.parameters["id"]?.toUUIDOrNull() ?: error("Invalid chat id")
+
+        call.respond(messageService.getMessages(chatId, userId))
+    }
     post("/{id}/messages") {
         val message = call.receive<MessageRequest>()
 
+        // todo: add verification whether a given user can write to that chat!!!
         messageService.saveMessage(
             MessageEntity(
                 id = message.id,
