@@ -11,6 +11,7 @@ import io.github.mklkj.kommunicator.data.models.MessageRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -37,7 +38,9 @@ class MessagesRepository(
             if (database.getChats(userId).isEmpty()) {
                 refreshChats()
             }
-            emitAll(database.observeChats(userId))
+            emitAll(database.observeChats(userId).map { chats ->
+                chats.sortedByDescending { it.lastMessage.createdAt }
+            })
         }
     }
 
@@ -56,6 +59,15 @@ class MessagesRepository(
     }
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {
+        val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
+        val authorId = database.getChatParticipant(chatId, userId)?.id
+            ?: error("Current user is not a participant in that chat!")
+
+        database.insertMessage(
+            chatId = chatId,
+            authorId = authorId,
+            messageRequest = message,
+        )
         messagesService.sendMessage(chatId, message)
     }
 }

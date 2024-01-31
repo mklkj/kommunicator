@@ -15,11 +15,13 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.Contact
 import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.data.models.MessageRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.uuid.UUID
 import kotlinx.uuid.sqldelight.UUIDStringAdapter
 import org.koin.core.annotation.Singleton
@@ -43,7 +45,11 @@ class Database(sqlDriver: SqlDriver) {
             authorIdAdapter = UUIDStringAdapter,
             createdAtAdapter = InstantStringAdapter,
         ),
-        ParticipantsAdapter = Participants.Adapter(UUIDStringAdapter)
+        ParticipantsAdapter = Participants.Adapter(
+            idAdapter = UUIDStringAdapter,
+            userIdAdapter = UUIDStringAdapter,
+            chatIdAdapter = UUIDStringAdapter,
+        )
     )
     private val dbQuery = database.appDatabaseQueries
 
@@ -70,17 +76,19 @@ class Database(sqlDriver: SqlDriver) {
             )
         }
 
-    fun insertUser(user: LocalUser) {
-        dbQuery.insertUser(
-            id = user.id,
-            email = user.email,
-            username = user.username,
-            token = user.token,
-            refreshToken = user.refreshToken,
-            firstName = user.firstName,
-            lastName = user.lastName,
-            avatarUrl = user.avatarUrl,
-        )
+    suspend fun insertUser(user: LocalUser) {
+        withContext(Dispatchers.IO) {
+            dbQuery.insertUser(
+                id = user.id,
+                email = user.email,
+                username = user.username,
+                token = user.token,
+                refreshToken = user.refreshToken,
+                firstName = user.firstName,
+                lastName = user.lastName,
+                avatarUrl = user.avatarUrl,
+            )
+        }
     }
 
     fun observeContacts(userId: UUID): Flow<List<LocalContact>> {
@@ -143,6 +151,12 @@ class Database(sqlDriver: SqlDriver) {
         return dbQuery.selectAllChats(userId).executeAsList()
     }
 
+    suspend fun getChatParticipant(chatId: UUID, userId: UUID): Participants? {
+        return withContext(Dispatchers.IO) {
+            dbQuery.selectParticipantByUserId(userId, chatId)
+        }.executeAsOneOrNull()
+    }
+
     suspend fun insertChats(userId: UUID, chats: List<Chat>) {
         withContext(Dispatchers.IO) {
             dbQuery.transaction {
@@ -155,14 +169,18 @@ class Database(sqlDriver: SqlDriver) {
                     )
                 }
 
-                chats.flatMap { it.participants }.forEach {
-                    dbQuery.insertParticipant(
-                        id = it.id,
-                        customName = it.customName,
-                        firstname = it.firstName,
-                        lastName = it.lastName,
-                        avatarUrl = it.avatarUrl,
-                    )
+                chats.forEach { chat ->
+                    chat.participants.forEach {
+                        dbQuery.insertParticipant(
+                            id = it.id,
+                            userId = it.userId,
+                            chatId = chat.id,
+                            customName = it.customName,
+                            firstname = it.firstName,
+                            lastName = it.lastName,
+                            avatarUrl = it.avatarUrl,
+                        )
+                    }
                 }
 
                 chats.map { it.id to it.lastMessage }.forEach { (chatId, lastMessage) ->
@@ -175,6 +193,18 @@ class Database(sqlDriver: SqlDriver) {
                     )
                 }
             }
+        }
+    }
+
+    suspend fun insertMessage(chatId: UUID, authorId: UUID, messageRequest: MessageRequest) {
+        withContext(Dispatchers.IO) {
+            dbQuery.insertMessage(
+                id = messageRequest.id,
+                chatId = chatId,
+                authorId = authorId,
+                createdAt = Clock.System.now(),
+                content = messageRequest.content,
+            )
         }
     }
 }

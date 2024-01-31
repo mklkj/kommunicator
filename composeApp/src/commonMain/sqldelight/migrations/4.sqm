@@ -1,0 +1,13 @@
+import kotlinx.uuid.UUID;
+
+DROP TABLE Participants;
+
+CREATE TABLE Participants(
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    userId TEXT AS UUID NOT NULL,
+    chatId TEXT AS UUID NOT NULL,
+    customName TEXT,
+    firstname TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    avatarUrl TEXT NOT NULL
+);

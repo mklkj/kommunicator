@@ -86,6 +86,8 @@ WHERE Chat.userId = ?;
 
 CREATE TABLE Participants(
     id TEXT AS UUID NOT NULL PRIMARY KEY,
+    userId TEXT AS UUID NOT NULL,
+    chatId TEXT AS UUID NOT NULL,
     customName TEXT,
     firstname TEXT NOT NULL,
     lastName TEXT NOT NULL,
@@ -93,9 +95,11 @@ CREATE TABLE Participants(
 );
 
 insertParticipant:
-INSERT OR REPLACE INTO Participants(id, customName, firstname, lastName, avatarUrl)
-VALUES(?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO Participants(id, userId, chatId, customName, firstname, lastName, avatarUrl)
+VALUES(?, ?, ?, ?, ?, ?, ?);
 
+selectParticipantByUserId:
+SELECT * FROM Participants WHERE userId = ? AND chatId = ?;
 
 -- MESSAGES
 
