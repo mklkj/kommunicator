@@ -374,6 +374,18 @@ porównywanie tych tablic — żeby dostać true, obie muszą mieć dodatkowo t�
 uniwersalnego sposobu na to (https://stackoverflow.com/q/12870105/6695449) ale ostatecznie zostałem
 przy zwykłym sortowaniem w `array_agg` + sortowaniem listy participantów przed bindowaniem.
 
+## Zapisywanie czatów i wiadomości na użytek offline (2024-01-31)
+
+Mocno łączy się to z problemem wyciągania czatów z listą participantów i ostatnią wiadomością.
+Tyle że tym razem trzeba to zrobić po stronie klienta. Nie mogłem użyć tego samego query i go
+ewentualnie przerobić, bo sqlite nie obsługuje lateral joina. Zrobiłem to więcej inaczej,
+przerabiając to https://stackoverflow.com/a/21460015/6695449.
+Oprócz tego standardowo — tworzenie tabeli na czaty, uczestników czatu i wiadomości w sqlite, potem
+zapisywanie wszystkiego, co dostałem z API i obserwowanie tych tabel na liście czatów. Dzięki temu
+ostatniemu chcę łatwo obsłużyć wyświetlanie ostatniej wysłanej wiadomości i automatyczne odświeżanie
+listy czatów, gdy pojawi się jakaś nowa wiadomość. W takiej architekturze baza danych będzie jedynym
+źródłem prawdy dla UI.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

@@ -57,7 +57,6 @@ import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
 import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
 import io.github.mklkj.kommunicator.ui.widgets.rememberPullRefreshState
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import nl.jacobras.humanreadable.HumanReadable
 
 internal object ChatsScreen : Tab {
@@ -207,7 +206,7 @@ internal object ChatsScreen : Tab {
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
-                    text = item.name ?: "Brak nazwy",
+                    text = item.customName ?: "Brak nazwy",
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -215,13 +214,13 @@ internal object ChatsScreen : Tab {
                 )
                 Spacer(Modifier.height(4.dp))
 
-                if (item.lastMessage != null) Row(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min)
                 ) {
                     Text(
-                        text = item.lastMessageAuthor + ": " + item.lastMessage,
+                        text = item.lastMessage.authorName + ": " + item.lastMessage.content,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -242,9 +241,7 @@ internal object ChatsScreen : Tab {
                         )
                     }
                     Text(
-                        text = HumanReadable.timeAgo(
-                            item.lastMessageTimestamp ?: Clock.System.now()
-                        ),
+                        text = HumanReadable.timeAgo(item.lastMessage.createdAt),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (item.isUnread) FontWeight.Bold else null,

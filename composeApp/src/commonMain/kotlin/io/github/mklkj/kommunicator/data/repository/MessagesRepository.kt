@@ -1,6 +1,5 @@
 package io.github.mklkj.kommunicator.data.repository
 
-import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalContact
@@ -32,7 +31,7 @@ class MessagesRepository(
         ).chatId
     }
 
-    fun observeChats(): Flow<List<Chats>> {
+    fun observeChats(): Flow<List<Chat>> {
         return flow {
             val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
             if (database.getChats(userId).isEmpty()) {
@@ -45,12 +44,7 @@ class MessagesRepository(
     suspend fun refreshChats() {
         val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
         val remoteChats = messagesService.getChats()
-        // todo
-//        database.insertChats(userId, remoteChats)
-    }
-
-    suspend fun getChats(): List<Chat> {
-        return messagesService.getChats()
+        database.insertChats(userId, remoteChats)
     }
 
     suspend fun getChatDetails(id: UUID): ChatDetails {

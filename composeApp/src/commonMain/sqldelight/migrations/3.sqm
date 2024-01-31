@@ -1,0 +1,25 @@
+import kotlinx.datetime.Instant;
+import kotlinx.uuid.UUID;
+
+CREATE TABLE Chats (
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    userId TEXT AS UUID NOT NULL,
+    customName TEXT,
+    avatarUrl TEXT NOT NULL
+);
+
+CREATE TABLE Participants(
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    customName TEXT,
+    firstname TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    avatarUrl TEXT NOT NULL
+);
+
+CREATE TABLE Messages (
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    chatId TEXT AS UUID NOT NULL,
+    authorId TEXT AS UUID NOT NULL,
+    createdAt TEXT AS Instant NOT NULL,
+    content TEXT NOT NULL
+);

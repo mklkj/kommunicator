@@ -4,6 +4,9 @@ import io.github.mklkj.kommunicator.data.exceptions.UserTokenExpiredException
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
 
@@ -15,42 +18,61 @@ class ChatsViewModel(
 
     init {
         loadData()
+        checkCurrentUser()
+    }
+
+    private fun checkCurrentUser() {
+        launch("check_current_user") {
+            runCatching { userRepository.getCurrentUser() }
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(isLoggedIn = error !is UserTokenExpiredException)
+                    }
+                }
+                .onSuccess { user ->
+                    mutableState.update {
+                        it.copy(userAvatarUrl = user.avatarUrl)
+                    }
+                }
+        }
     }
 
     private fun loadData() {
         launch("chats_load") {
-            runCatching {
-                val user = userRepository.getCurrentUser()
-                val chats = messagesRepository.getChats()
-                Pair(user, chats)
-            }
-                .onFailure { error ->
+            messagesRepository.observeChats()
+                .catch { error ->
                     proceedError(error)
                     mutableState.update {
                         it.copy(
                             error = error,
-                            isLoggedIn = error !is UserTokenExpiredException,
                             isLoading = false,
                         )
                     }
                 }
-                .onSuccess { (user, chats) ->
+                .onEach { chats ->
                     mutableState.update {
                         it.copy(
                             chats = chats,
                             isLoading = false,
                             error = null,
-                            userAvatarUrl = user.avatarUrl,
                         )
                     }
                 }
+                .collect()
         }
     }
 
     fun onRefresh() {
-        mutableState.update {
-            it.copy(isLoading = true)
+        launch("refresh_chats", cancelExisting = false) {
+            mutableState.update { it.copy(isLoading = true) }
+            runCatching { messagesRepository.refreshChats() }
+                .onFailure { error ->
+                    mutableState.update {
+                        it.copy(error = error)
+                    }
+                }
+            mutableState.update { it.copy(isLoading = false) }
         }
-        loadData()
     }
 }

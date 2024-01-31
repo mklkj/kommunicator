@@ -10,6 +10,7 @@ data class Message(
     val isUserMessage: Boolean,
     val authorId: UUID,
     val authorName: String,
-    val timestamp: Instant,
+    val authorCustomName: String?,
+    val createdAt: Instant,
     val content: String,
 )

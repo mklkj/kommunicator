@@ -7,17 +7,23 @@ import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.Messages
 import io.github.mklkj.kommunicator.Participants
+import io.github.mklkj.kommunicator.SelectAllChats
 import io.github.mklkj.kommunicator.Users
+import io.github.mklkj.kommunicator.data.db.adapters.InstantStringAdapter
 import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.db.entity.LocalUser
+import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.Contact
+import io.github.mklkj.kommunicator.data.models.Message
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import kotlinx.uuid.sqldelight.UUIDStringAdapter
 import org.koin.core.annotation.Singleton
+import kotlin.random.Random
 
 @Singleton
 class Database(sqlDriver: SqlDriver) {
@@ -31,7 +37,12 @@ class Database(sqlDriver: SqlDriver) {
         ),
         UsersAdapter = Users.Adapter(UUIDStringAdapter),
         ChatsAdapter = Chats.Adapter(UUIDStringAdapter, UUIDStringAdapter),
-        MessagesAdapter = Messages.Adapter(UUIDStringAdapter),
+        MessagesAdapter = Messages.Adapter(
+            idAdapter = UUIDStringAdapter,
+            chatIdAdapter = UUIDStringAdapter,
+            authorIdAdapter = UUIDStringAdapter,
+            createdAtAdapter = InstantStringAdapter,
+        ),
         ParticipantsAdapter = Participants.Adapter(UUIDStringAdapter)
     )
     private val dbQuery = database.appDatabaseQueries
@@ -100,19 +111,69 @@ class Database(sqlDriver: SqlDriver) {
             }
         }
 
-    fun observeChats(userId: UUID): Flow<List<Chats>> {
-        return dbQuery.selectAllChats(userId)
-            .asFlow().mapToList(Dispatchers.IO)
+    fun observeChats(userId: UUID): Flow<List<Chat>> {
+        return dbQuery.selectAllChats(userId).asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { chats ->
+                chats.map {
+                    Chat(
+                        id = it.chatId,
+                        customName = it.chatCustomName,
+                        avatarUrl = it.avatarUrl,
+
+                        isUnread = false,
+                        isActive = Random.nextBoolean(),
+                        participants = listOf(),
+
+                        lastMessage = Message(
+                            id = it.lastMessageId,
+                            isUserMessage = false,
+                            authorId = it.lastMessageAuthorId,
+                            authorName = "${it.firstname} ${it.lastName}",
+                            authorCustomName = it.lastMessageAuthorCustomName,
+                            createdAt = it.createdAt,
+                            content = it.content,
+                        ),
+                    )
+                }
+            }
     }
 
-    fun getChats(userId: UUID): List<Chats> {
+    fun getChats(userId: UUID): List<SelectAllChats> {
         return dbQuery.selectAllChats(userId).executeAsList()
     }
 
-    suspend fun insertChats(userId: UUID, chats: List<Chats>) {
+    suspend fun insertChats(userId: UUID, chats: List<Chat>) {
         withContext(Dispatchers.IO) {
             dbQuery.transaction {
-//                dbQuery.insertChat()
+                chats.forEach {
+                    dbQuery.insertChat(
+                        id = it.id,
+                        userId = userId,
+                        customName = it.customName,
+                        avatarUrl = it.avatarUrl,
+                    )
+                }
+
+                chats.flatMap { it.participants }.forEach {
+                    dbQuery.insertParticipant(
+                        id = it.id,
+                        customName = it.customName,
+                        firstname = it.firstName,
+                        lastName = it.lastName,
+                        avatarUrl = it.avatarUrl,
+                    )
+                }
+
+                chats.map { it.id to it.lastMessage }.forEach { (chatId, lastMessage) ->
+                    dbQuery.insertMessage(
+                        id = lastMessage.id,
+                        chatId = chatId,
+                        authorId = lastMessage.authorId,
+                        createdAt = lastMessage.createdAt,
+                        content = lastMessage.content,
+                    )
+                }
             }
         }
     }

@@ -19,25 +19,24 @@ class MessageService(
 
     suspend fun getMessages(chatId: UUID, userId: UUID): List<Message> {
         val participants = chatRepository.getParticipants(chatId)
-            .filterNot { it.userId == userId }
 
         return messageRepository.getMessages(chatId)
             .map { message ->
+                val participant = participants.find { it.userId == message.userId }
                 Message(
                     id = message.id,
                     isUserMessage = message.userId == userId,
                     authorId = message.userId,
+                    authorCustomName = participant?.customName,
                     authorName = when (message.userId) {
                         userId -> "You"
                         else -> {
-                            val participant = participants
-                                .find { it.userId == message.userId }
                             participant?.customName ?: participant?.let {
                                 "${it.userFirstName} ${it.userLastName}"
                             }
                         }
                     }.orEmpty(),
-                    timestamp = message.timestamp,
+                    createdAt = message.timestamp,
                     content = message.content,
                 )
             }

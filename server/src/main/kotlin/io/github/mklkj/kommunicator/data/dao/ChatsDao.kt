@@ -8,6 +8,7 @@ import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryEntity
+import io.github.mklkj.kommunicator.data.models.ChatSummaryLastMessageEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryParticipant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -92,6 +93,7 @@ class ChatsDao {
         val query = """
             WITH aggregated_participants as (
               SELECT chat_participants.chat_id, array_agg(array[
+                    chat_participants.id::text,
                     users.id::text,
                     chat_participants.custom_name,
                     users.first_name,
@@ -107,13 +109,18 @@ class ChatsDao {
                 chats.custom_name as custom_name,
                 messages.created_at as last_message_created_at,
                 messages.content as last_message_content,
-                messages.id as last_message_author_user_id,
+                messages.message_id as last_message_author_message_id,
+                messages.participant_id as last_message_author_participant_id,
                 messages.first_name as last_message_author_first_name,
                 messages.last_name as last_message_author_last_name,
+                messages.custom_name as last_message_author_custom_name,
                 participants
             FROM chats
             LEFT JOIN LATERAL(
-                SELECT messages.created_at, messages.content, users.id, users.first_name, users.last_name
+                SELECT
+                    messages.id as message_id, messages.created_at, messages.content,
+                    users.id as user_id, users.first_name, users.last_name,
+                    chat_participants.id as participant_id, chat_participants.custom_name
                 FROM messages
                 LEFT JOIN chat_participants ON chat_participants.chat_id = messages.chat_id AND chat_participants.user_id = messages.user_id
                 LEFT JOIN users ON users.id = chat_participants.user_id
@@ -135,21 +142,27 @@ class ChatsDao {
                     ChatsTable.id.columnType.readObject(rs, 1)!!
                 ) as UUID,
                 customName = ChatsTable.customName.columnType.readObject(rs, 2) as String?,
-                lastMessageCreatedAt = MessagesTable.createdAt.columnType.readObject(rs, 3)
-                    ?.let { MessagesTable.createdAt.columnType.valueFromDB(it) } as Instant?,
-                lastMessageContent = MessagesTable.content.columnType.readObject(rs, 4) as String?,
-                lastMessageAuthorId = (UsersTable.id.columnType.readObject(rs, 5))
-                    ?.let { UsersTable.id.columnType.valueFromDB(it) } as UUID?,
-                lastMessageAuthorFirstName = UsersTable.id.columnType.readObject(rs, 6) as String?,
-                lastMessageAuthorLastName = UsersTable.id.columnType.readObject(rs, 7) as String?,
-                participants = (rs.getArray(8).array as Array<*>).map {
+                lastMessage = ChatSummaryLastMessageEntity(
+                    createdAt = MessagesTable.createdAt.columnType.readObject(rs, 3)
+                        ?.let { MessagesTable.createdAt.columnType.valueFromDB(it) } as Instant,
+                    content = MessagesTable.content.columnType.readObject(rs, 4) as String,
+                    messageId = (MessagesTable.id.columnType.readObject(rs, 5))
+                        ?.let { MessagesTable.id.columnType.valueFromDB(it) } as UUID,
+                    authorId = (ChatParticipantsTable.id.columnType.readObject(rs, 6))
+                        ?.let { ChatParticipantsTable.id.columnType.valueFromDB(it) } as UUID,
+                    authorFirstName = UsersTable.id.columnType.readObject(rs, 7) as String,
+                    authorLastName = UsersTable.id.columnType.readObject(rs, 8) as String,
+                    authorCustomName = UsersTable.id.columnType.readObject(rs, 9) as String?,
+                ),
+                participants = (rs.getArray(10).array as Array<*>).map {
                     val row = it as Array<*>
                     ChatSummaryParticipant(
-                        userId = row[0].toString().toUUID(),
-                        customName = row[1]?.toString(),
-                        firstName = row[2].toString(),
-                        lastName = row[3].toString(),
-                        email = row[4].toString(),
+                        id = row[0].toString().toUUID(),
+                        userId = row[1].toString().toUUID(),
+                        customName = row[2]?.toString(),
+                        firstName = row[3].toString(),
+                        lastName = row[4].toString(),
+                        email = row[5].toString(),
                     )
                 },
             )

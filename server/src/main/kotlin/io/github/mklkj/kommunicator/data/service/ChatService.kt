@@ -30,38 +30,39 @@ class ChatService(
         val chat = chatRepository.getChat(chatId, userId) ?: return null
         val messages = messageRepository.getMessages(chatId)
         val participants = chatRepository.getParticipants(chatId)
-            .filterNot { it.userId == userId }
+        val notCurrentUserParticipants = participants.filterNot { it.userId == userId }
 
         return ChatDetails(
             id = chat.id,
             avatarUrl = "https://i.pravatar.cc/256?u=${chat.id}",
             name = chat.customName ?: buildString {
-                val name = participants.first().let {
+                val name = notCurrentUserParticipants.first().let {
                     it.customName ?: it.userFirstName
                 }
                 append(name)
             },
             messages = messages.map { message ->
+                val participant = participants.find { it.userId == message.userId }
                 Message(
                     id = message.id,
                     isUserMessage = message.userId == userId,
                     authorId = message.userId,
+                    authorCustomName = participant?.customName,
                     authorName = when (message.userId) {
                         userId -> "You"
                         else -> {
-                            val participant = participants
-                                .find { it.userId == message.userId }
                             participant?.customName ?: participant?.let {
                                 "${it.userFirstName} ${it.userLastName}"
                             } ?: chat.customName
                         }
                     }.orEmpty(),
-                    timestamp = message.timestamp,
+                    createdAt = message.timestamp,
                     content = message.content,
                 )
             },
             participants = participants.map {
                 ChatParticipant(
+                    id = it.id,
                     userId = it.userId,
                     customName = it.customName,
                     firstName = it.userFirstName,
@@ -74,36 +75,43 @@ class ChatService(
 
     suspend fun getChats(userId: UUID): List<Chat> {
         return chatRepository.getChats(userId).map { chat ->
-            val participants = chat.participants.filterNot { it.userId == userId }
+            val notCurrentUserParticipants = chat.participants.filterNot { it.userId == userId }
             Chat(
                 id = chat.id,
-                avatarUrl = when (participants.size) {
-                    1 -> "https://gravatar.com/avatar/${md5(participants.single().email)}"
+                avatarUrl = when (chat.participants.size) {
+                    2 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
                     else -> "https://i.pravatar.cc/256?u=${chat.id}"
                 },
                 isUnread = false,
                 isActive = false,
-                lastMessageTimestamp = chat.lastMessageCreatedAt,
-                lastMessage = chat.lastMessageContent,
-                lastMessageAuthor = chat.lastMessageAuthorFirstName,
-                name = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
-                    when (participants.size) {
-                        1 -> {
-                            append(participants.single().firstName)
+                lastMessage = Message(
+                    id = chat.lastMessage.messageId,
+                    isUserMessage = chat.lastMessage.authorId == userId,
+                    authorId = chat.lastMessage.authorId,
+                    authorName = "${chat.lastMessage.authorFirstName} ${chat.lastMessage.authorLastName}",
+                    authorCustomName = chat.lastMessage.authorCustomName,
+                    createdAt = chat.lastMessage.createdAt,
+                    content = chat.lastMessage.content,
+                ),
+                customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
+                    when (chat.participants.size) {
+                        2 -> {
+                            append(notCurrentUserParticipants.single().firstName)
                             append(" ")
-                            append(participants.single().lastName)
+                            append(notCurrentUserParticipants.single().lastName)
                         }
 
                         else -> {
-                            val names = participants.joinToString(", ") {
+                            val names = chat.participants.joinToString(", ") {
                                 "${it.firstName} ${it.lastName}"
                             }
                             append(names)
                         }
                     }
                 },
-                participants = participants.map {
+                participants = chat.participants.map {
                     ChatParticipant(
+                        id = it.id,
                         userId = it.userId,
                         customName = it.customName,
                         firstName = it.firstName,

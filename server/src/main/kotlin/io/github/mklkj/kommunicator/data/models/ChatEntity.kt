@@ -11,15 +11,22 @@ data class ChatEntity(
 data class ChatSummaryEntity(
     val id: UUID,
     val customName: String?,
-    val lastMessageCreatedAt: Instant?,
-    val lastMessageContent: String?,
-    val lastMessageAuthorId: UUID?,
-    val lastMessageAuthorFirstName: String?,
-    val lastMessageAuthorLastName: String?,
+    val lastMessage: ChatSummaryLastMessageEntity,
     val participants: List<ChatSummaryParticipant>,
 )
 
+data class ChatSummaryLastMessageEntity(
+    val messageId: UUID,
+    val createdAt: Instant,
+    val content: String,
+    val authorId: UUID,
+    val authorFirstName: String,
+    val authorLastName: String,
+    val authorCustomName: String?,
+)
+
 data class ChatSummaryParticipant(
+    val id: UUID,
     val userId: UUID,
     val email: String,
     val customName: String?,

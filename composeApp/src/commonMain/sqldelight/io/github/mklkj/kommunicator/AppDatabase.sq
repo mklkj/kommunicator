@@ -1,4 +1,5 @@
 import kotlin.Boolean;
+import kotlinx.datetime.Instant;
 import kotlinx.uuid.UUID;
 
 -- USERS
@@ -55,34 +56,57 @@ SELECT Contacts.* FROM Contacts WHERE userId = ?;
 CREATE TABLE Chats (
     id TEXT AS UUID NOT NULL PRIMARY KEY,
     userId TEXT AS UUID NOT NULL,
-    customName TEXT
+    customName TEXT,
+    avatarUrl TEXT NOT NULL
 );
 
 insertChat:
-INSERT OR REPLACE INTO Chats(id, userId, customName)
-VALUES(?, ?, ?);
+INSERT OR REPLACE INTO Chats(id, userId, customName, avatarUrl)
+VALUES(?, ?, ?, ?);
 
 selectAllChats:
-SELECT Chats.* FROM Chats WHERE userId = ?;
-
--- MESSAGES
-
-CREATE TABLE Messages (
-    id TEXT AS UUID NOT NULL PRIMARY KEY
-    -- TODO
-);
-
-insertMessage:
-INSERT OR REPLACE INTO Messages(id)
-VALUES(?);
+SELECT
+    Chat.id AS chatId, Chat.customName AS chatCustomName, Chat.avatarUrl,
+    Messages.id AS lastMessageId, Messages.authorId, Messages.createdAt, Messages.content,
+    Participants.id AS lastMessageAuthorId, Participants.avatarUrl, Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName
+FROM (
+    SELECT Chats.*, (
+            SELECT id
+            FROM Messages
+            WHERE Chats.id = Messages.chatId
+            ORDER BY createdAt DESC
+        ) AS messageId
+    FROM Chats
+) Chat
+JOIN Messages ON Chat.messageId = Messages.id
+JOIN Participants ON Participants.id = Messages.authorId
+WHERE Chat.userId = ?;
 
 -- PARTICIPANTS
 
 CREATE TABLE Participants(
-    id TEXT AS UUID NOT NULL PRIMARY KEY
-    -- TODO
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    customName TEXT,
+    firstname TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    avatarUrl TEXT NOT NULL
 );
 
-insertParticipants:
-INSERT OR REPLACE INTO Participants(id)
-VALUES(?);
+insertParticipant:
+INSERT OR REPLACE INTO Participants(id, customName, firstname, lastName, avatarUrl)
+VALUES(?, ?, ?, ?, ?);
+
+
+-- MESSAGES
+
+CREATE TABLE Messages (
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    chatId TEXT AS UUID NOT NULL,
+    authorId TEXT AS UUID NOT NULL,
+    createdAt TEXT AS Instant NOT NULL,
+    content TEXT NOT NULL
+);
+
+insertMessage:
+INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content)
+VALUES(?, ?, ?, ?, ?);
