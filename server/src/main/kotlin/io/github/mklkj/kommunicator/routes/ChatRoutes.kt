@@ -2,8 +2,6 @@ package io.github.mklkj.kommunicator.routes
 
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatCreateResponse
-import io.github.mklkj.kommunicator.data.models.ChatDetails
-import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageEntity
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.service.ChatService
@@ -42,44 +40,13 @@ fun Route.chatRoutes() {
         call.respond(HttpStatusCode.Created, ChatCreateResponse(createdChatId))
     }
     get("/{id}") {
-        val chat = chatService.getChat(
-            chatId = call.parameters["id"]?.toUUIDOrNull() ?: error("Invalid chat id"),
-            userId = call.principalId ?: error("Invalid JWT"),
-        ) ?: return@get call.response.status(HttpStatusCode.NotFound)
+        val userId = call.principalId ?: error("Invalid JWT!")
+        val chatId = call.parameters["id"]?.toUUIDOrNull() ?: error("Invalid chat id")
 
-        val currentUserId = call.principalId
-        val chatMessages = messageService.getMessages(chat.id)
-        val participants = chat.participants
+        val chat = chatService.getChat(chatId = chatId, userId = userId)
+            ?: return@get call.response.status(HttpStatusCode.NotFound)
 
-        call.respond(
-            ChatDetails(
-                name = chat.name ?: buildString {
-                    val name = chat.participants.first().let {
-                        it.customName ?: it.firstName
-                    }
-                    append(name)
-                },
-                messages = chatMessages.map { message ->
-                    Message(
-                        id = message.id,
-                        isUserMessage = message.userId == currentUserId,
-                        authorId = message.userId,
-                        authorName = when (message.userId) {
-                            currentUserId -> "You"
-                            else -> {
-                                val participant = participants
-                                    .find { it.userId == message.userId }
-                                participant?.customName ?: participant?.let {
-                                    "${it.firstName} ${it.lastName}"
-                                } ?: chat.name
-                            }
-                        }.orEmpty(),
-                        timestamp = message.timestamp,
-                        content = message.content,
-                    )
-                },
-            )
-        )
+        call.respond(chat)
     }
     post("/{id}/messages") {
         val message = call.receive<MessageRequest>()

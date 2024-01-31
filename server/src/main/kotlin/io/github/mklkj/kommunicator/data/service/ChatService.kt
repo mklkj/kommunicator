@@ -2,7 +2,9 @@ package io.github.mklkj.kommunicator.data.service
 
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
+import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.ChatParticipant
+import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.repository.ChatRepository
 import io.github.mklkj.kommunicator.data.repository.MessageRepository
 import io.github.mklkj.kommunicator.utils.md5
@@ -24,20 +26,40 @@ class ChatService(
         return chatRepository.createChat(request)
     }
 
-    suspend fun getChat(chatId: UUID, userId: UUID): Chat? {
+    suspend fun getChat(chatId: UUID, userId: UUID): ChatDetails? {
         val chat = chatRepository.getChat(chatId, userId) ?: return null
-        val lastMessage = messageRepository.getLastMessage(chatId)
+        val messages = messageRepository.getMessages(chatId)
         val participants = chatRepository.getParticipants(chatId)
             .filterNot { it.userId == userId }
-        return Chat(
+
+        return ChatDetails(
             id = chat.id,
-            avatarUrl = "https://duckduckgo.com/?q=vituperatoribus",
-            isUnread = false,
-            isActive = false,
-            lastMessageTimestamp = lastMessage?.timestamp,
-            lastMessage = lastMessage?.content,
-            lastMessageAuthor = lastMessage?.authorFirstName,
-            name = chat.customName,
+            avatarUrl = "https://i.pravatar.cc/256?u=${chat.id}",
+            name = chat.customName ?: buildString {
+                val name = participants.first().let {
+                    it.customName ?: it.userFirstName
+                }
+                append(name)
+            },
+            messages = messages.map { message ->
+                Message(
+                    id = message.id,
+                    isUserMessage = message.userId == userId,
+                    authorId = message.userId,
+                    authorName = when (message.userId) {
+                        userId -> "You"
+                        else -> {
+                            val participant = participants
+                                .find { it.userId == message.userId }
+                            participant?.customName ?: participant?.let {
+                                "${it.userFirstName} ${it.userLastName}"
+                            } ?: chat.customName
+                        }
+                    }.orEmpty(),
+                    timestamp = message.timestamp,
+                    content = message.content,
+                )
+            },
             participants = participants.map {
                 ChatParticipant(
                     userId = it.userId,
