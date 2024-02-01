@@ -392,6 +392,12 @@ na urządzeniu. Aplikacja jednak ładuje wiadomości tylko bezpośrednio z bazy 
 tabeli) i dzięki temu niezależnie od tego, czy request do API się akurat uda, czy nie, to zawsze
 wyświetlą się wiadomości zapisane w lokalnej bazie danych
 
+## Poprawki wizualne (2024-02-02)
+
+Bardzo denerwował mnie snackbar i FAB rysowany zbyt wysoko, tak jakby dolny inset został dwa razy
+dodany. Po zmarnowaniu ponad godziny znalazłem rozwiązanie:
+https://stackoverflow.com/a/77361483/6695449.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

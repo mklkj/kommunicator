@@ -41,7 +41,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
-import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import kotlinx.uuid.UUID
 
 class ConversationScreen(private val chatId: UUID) : Screen {
@@ -87,7 +87,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     reverseLayout = true,
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(state.messages) {
+                    items(state.messages, key = { it.id.toString() }) {
                         ChatMessage(it)
                     }
                 }

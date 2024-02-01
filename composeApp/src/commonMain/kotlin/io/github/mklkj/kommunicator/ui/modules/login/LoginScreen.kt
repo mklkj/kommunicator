@@ -36,7 +36,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.ui.modules.homescreen.HomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.TextInput
-import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 
 class LoginScreen : Screen {
 

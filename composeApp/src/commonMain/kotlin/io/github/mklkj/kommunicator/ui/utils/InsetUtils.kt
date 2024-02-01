@@ -1,4 +1,4 @@
-package io.github.mklkj.kommunicator.ui.widgets
+package io.github.mklkj.kommunicator.ui.utils
 
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues

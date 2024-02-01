@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -52,6 +54,7 @@ import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
 import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
@@ -85,6 +88,21 @@ internal object ChatsScreen : Tab {
         val scope = rememberCoroutineScope()
         val pullRefreshState = rememberPullRefreshState(state.isLoading, viewModel::onRefresh)
 
+        LaunchedEffect(state.error) {
+            if (state.error != null) {
+                scope.launch {
+                    val action = snackbarHostState.showSnackbar(
+                        message = state.error?.message.toString(),
+                        actionLabel = "Retry",
+                        duration = SnackbarDuration.Short
+                    )
+                    if (action == SnackbarResult.ActionPerformed) {
+                        viewModel.onRefresh()
+                    }
+                }
+            }
+        }
+
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
@@ -108,27 +126,14 @@ internal object ChatsScreen : Tab {
                     },
                     modifier = Modifier.height(80.dp)
                 )
-            }
+            },
+            contentWindowInsets = WindowInsets(0.dp)
         ) { paddingValues ->
-            LaunchedEffect(state.error) {
-                if (state.error != null) {
-                    scope.launch {
-                        val action = snackbarHostState.showSnackbar(
-                            message = state.error?.message.toString(),
-                            actionLabel = "Retry",
-                        )
-                        if (action == SnackbarResult.ActionPerformed) {
-                            viewModel.onRefresh()
-                        }
-                    }
-                }
-            }
-
             Box(
                 modifier = Modifier
                     .pullRefresh(pullRefreshState)
+                    .scaffoldPadding(paddingValues)
                     .fillMaxSize()
-                    .padding(paddingValues)
             ) {
                 when {
                     !state.isLoggedIn -> navigator.replaceAll(WelcomeScreen)
@@ -158,7 +163,7 @@ internal object ChatsScreen : Tab {
                     }
 
                     else -> LazyColumn(Modifier.fillMaxSize()) {
-                        items(state.chats) { chat ->
+                        items(state.chats, key = { it.id.toString() }) { chat ->
                             ChatItem(
                                 item = chat,
                                 onClick = { navigator.push(ConversationScreen(it.id)) },

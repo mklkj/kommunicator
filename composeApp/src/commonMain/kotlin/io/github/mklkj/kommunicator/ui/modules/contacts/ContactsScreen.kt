@@ -2,11 +2,11 @@ package io.github.mklkj.kommunicator.ui.modules.contacts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -50,6 +50,7 @@ import io.github.mklkj.kommunicator.ui.modules.contacts.add.ContactAddScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
 import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
@@ -80,6 +81,19 @@ internal object ContactsScreen : Tab {
         val pullRefreshState = rememberPullRefreshState(state.isLoading, viewModel::onRefresh)
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
+        LaunchedEffect(state.error) {
+            if (state.error != null) {
+                scope.launch {
+                    val action = snackbarHostState.showSnackbar(
+                        message = state.error?.message.toString(),
+                        actionLabel = "Retry",
+                    )
+                    if (action == SnackbarResult.ActionPerformed) {
+                        viewModel.onRefresh()
+                    }
+                }
+            }
+        }
 
         if (state.createdChat != null) {
             navigator.push(ConversationScreen(state.createdChat!!))
@@ -94,24 +108,12 @@ internal object ContactsScreen : Tab {
                 }
             },
             floatingActionButtonPosition = FabPosition.End,
-        ) {
-            LaunchedEffect(state.error) {
-                if (state.error != null) {
-                    scope.launch {
-                        val action = snackbarHostState.showSnackbar(
-                            message = state.error?.message.toString(),
-                            actionLabel = "Retry",
-                        )
-                        if (action == SnackbarResult.ActionPerformed) {
-                            viewModel.onRefresh()
-                        }
-                    }
-                }
-            }
-
+            contentWindowInsets = WindowInsets(0.dp)
+        ) { paddingValues ->
             Box(
                 modifier = Modifier
                     .pullRefresh(pullRefreshState)
+                    .scaffoldPadding(paddingValues)
                     .fillMaxSize()
             ) {
                 when {
@@ -138,9 +140,8 @@ internal object ContactsScreen : Tab {
 
                     else -> LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(space = 8.dp),
                     ) {
-                        items(state.contacts) { contact ->
+                        items(state.contacts, key = { it.id.toString() }) { contact ->
                             ContactItem(
                                 item = contact,
                                 onClick = { viewModel.onCreateChat(it) },

@@ -15,7 +15,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import io.github.mklkj.kommunicator.ui.modules.chats.ChatsScreen
 import io.github.mklkj.kommunicator.ui.modules.contacts.ContactsScreen
-import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 
 object HomeScreen : Screen {
 

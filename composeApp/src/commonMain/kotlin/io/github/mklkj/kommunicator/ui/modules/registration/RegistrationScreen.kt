@@ -50,7 +50,7 @@ import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.noRippleClickable
 import io.github.mklkj.kommunicator.ui.widgets.RadioButtonWithLabel
 import io.github.mklkj.kommunicator.ui.widgets.TextInput
-import io.github.mklkj.kommunicator.ui.widgets.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.utils.getMillis
 import io.github.mklkj.kommunicator.utils.now
 import io.github.mklkj.kommunicator.utils.toLocalDate
