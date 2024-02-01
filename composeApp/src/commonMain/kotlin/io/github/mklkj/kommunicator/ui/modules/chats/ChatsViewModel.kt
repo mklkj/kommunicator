@@ -19,6 +19,7 @@ class ChatsViewModel(
     init {
         loadData()
         checkCurrentUser()
+        onRefresh()
     }
 
     private fun checkCurrentUser() {
