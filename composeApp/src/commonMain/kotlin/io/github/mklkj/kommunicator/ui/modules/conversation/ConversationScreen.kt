@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -66,6 +67,11 @@ class ConversationScreen(private val chatId: UUID) : Screen {
         navigateUp: () -> Unit,
     ) {
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val chatListState = rememberLazyListState()
+
+        LaunchedEffect(state.messages) {
+            chatListState.animateScrollToItem(0)
+        }
 
         Scaffold(
             topBar = {
@@ -84,6 +90,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
         ) { paddingValues ->
             Column(Modifier.scaffoldPadding(paddingValues)) {
                 LazyColumn(
+                    state = chatListState,
                     reverseLayout = true,
                     modifier = Modifier.weight(1f)
                 ) {

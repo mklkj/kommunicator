@@ -398,6 +398,11 @@ Bardzo denerwował mnie snackbar i FAB rysowany zbyt wysoko, tak jakby dolny ins
 dodany. Po zmarnowaniu ponad godziny znalazłem rozwiązanie:
 https://stackoverflow.com/a/77361483/6695449.
 
+Trafiłem też na buga w wiadomościach - przez dodanie key do widoków teraz lazy column rozpoznaje
+które itemy są nowe a które nie i lista się sama przestała przesuwać. Dodałem na te potrzeby więc
+taki kod jak tu https://stackoverflow.com/a/77231790/6695449, który animuje scroll to najnowszej
+wiadomości.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
