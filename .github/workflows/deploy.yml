@@ -19,6 +19,13 @@ jobs:
                 envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
                 envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
                 envkey_JWT_SECRET: ${{ secrets.JWT_SECRET }}
+                envkey_GOOGLE_APPLICATION_CREDENTIALS: "kommunicator-gac.json"
+            - name: Create GAC file
+              uses: timheuer/base64-to-file@v1
+              with:
+                  fileName: "kommunicator-gac.json"
+                  fileDir: "./"
+                  encodedString: ${{ secrets.GAC_CONTENT }}
             - uses: alex-ac/github-action-ssh-docker-compose@master
               name: Docker-Compose Remote Deployment
               with:

@@ -4,6 +4,7 @@ import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ChatsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ContactsTable
 import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
+import io.github.mklkj.kommunicator.data.dao.tables.UserPushTokensTable
 import io.github.mklkj.kommunicator.data.dao.tables.UserTokensTable
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import org.flywaydb.core.Flyway
@@ -22,6 +23,7 @@ class DatabaseFactory {
         ContactsTable,
         ChatsTable,
         ChatParticipantsTable,
+        UserPushTokensTable,
     )
 
     fun init() {

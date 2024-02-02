@@ -1,4 +1,4 @@
-package io.github.mklkj.kommunicator.data.dao
+package io.github.mklkj.kommunicator.utils
 
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction

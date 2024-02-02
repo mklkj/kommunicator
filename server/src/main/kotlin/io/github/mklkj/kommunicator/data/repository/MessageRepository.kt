@@ -17,4 +17,8 @@ class MessageRepository(
     suspend fun getMessages(chatId: UUID): List<MessageEntity> {
         return messagesDao.getMessages(chatId)
     }
+
+    suspend fun getMessage(messageId: UUID): MessageEntity {
+        return messagesDao.getMessage(messageId)
+    }
 }

@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.spring.security.crypto)
     implementation(libs.commons.logging)
 
+    implementation(libs.firebase.admin)
+
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
 }

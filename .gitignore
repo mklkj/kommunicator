@@ -11,3 +11,4 @@ project.xcworkspace
 xcuserdata
 iosApp/Pods
 .env
+kommunicator-*.json

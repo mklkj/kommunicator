@@ -16,7 +16,7 @@ Podstawowe funkcjonalności komunikatora:
 - [x] wysyłanie i odbieranie wiadomości tekstowych
 - [ ] statusy (odczytana wiadomość, pisanie)
 - [x] historia wiadomości dostępna offline
-- [ ] powiadomienia push 
+- [x] powiadomienia push 
 
 ## Uruchomienie projektu
 

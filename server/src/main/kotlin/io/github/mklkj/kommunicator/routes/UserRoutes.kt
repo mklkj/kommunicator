@@ -1,12 +1,14 @@
 package io.github.mklkj.kommunicator.routes
 
 import io.github.mklkj.kommunicator.data.exceptions.AlreadyExist
+import io.github.mklkj.kommunicator.data.models.PushTokenRequest
 import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
 import io.github.mklkj.kommunicator.utils.extractPrincipalUsername
 import io.github.mklkj.kommunicator.utils.md5
+import io.github.mklkj.kommunicator.utils.principalId
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
@@ -45,6 +47,13 @@ fun Route.userRoutes() {
             call.respond(
                 message = users.map(User::toResponse)
             )
+        }
+
+        post("/pushToken") {
+            val userId = call.principalId ?: error("Invalid JWT!")
+            val pushTokenRequest = call.receive<PushTokenRequest>()
+            userService.savePushToken(pushTokenRequest, userId)
+            call.respond(HttpStatusCode.NoContent)
         }
     }
     authenticate("another-auth") {

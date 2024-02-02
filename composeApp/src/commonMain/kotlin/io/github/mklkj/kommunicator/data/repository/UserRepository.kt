@@ -1,17 +1,23 @@
 package io.github.mklkj.kommunicator.data.repository
 
+import com.mmk.kmpnotifier.notification.NotifierManager
 import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import io.github.mklkj.kommunicator.data.models.LoginRequest
+import io.github.mklkj.kommunicator.data.models.PushTokenRequest
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.ui.modules.registration.RegistrationCredentials
+import io.github.mklkj.kommunicator.ui.utils.PlatformInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.plugins.plugin
 import io.ktor.http.HttpStatusCode
+import io.ktor.util.hex
+import io.ktor.util.sha1
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +31,7 @@ class UserRepository(
     private val userService: UserService,
     private val database: Database,
     private val httpClient: HttpClient,
+    private val platformInfo: PlatformInfo,
 ) {
 
     suspend fun registerUser(credentials: RegistrationCredentials) {
@@ -99,6 +106,20 @@ class UserRepository(
             )
         )
         invalidateBearerTokens()
+
+        sendPushToken(NotifierManager.getPushNotifier().getToken(), isFromLogin = true)
+    }
+
+    suspend fun sendPushToken(pushToken: String?, isFromLogin: Boolean = false) {
+        if (database.getCurrentUser() == null && !isFromLogin) return
+
+        userService.sendPushToken(
+            PushTokenRequest(
+                token = pushToken ?: return,
+                deviceIdHash = hex(sha1((platformInfo.deviceId.orEmpty()).toByteArray())),
+                deviceName = platformInfo.deviceName,
+            )
+        )
     }
 
     /**

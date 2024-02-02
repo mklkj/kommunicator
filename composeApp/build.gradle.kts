@@ -33,6 +33,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
+            export(libs.kmpnotifier)
             baseName = "ComposeApp"
             isStatic = true
             linkerOpts += "-ld64"
@@ -88,6 +89,8 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.json)
             implementation(libs.ktor.client.logging)
+
+            api(libs.kmpnotifier)
 
             implementation(project.dependencies.platform(libs.koin.annotations.bom))
             implementation(libs.koin.core)

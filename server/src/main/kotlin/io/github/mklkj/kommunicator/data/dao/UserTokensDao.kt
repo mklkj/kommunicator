@@ -2,6 +2,7 @@ package io.github.mklkj.kommunicator.data.dao
 
 import io.github.mklkj.kommunicator.data.dao.tables.UserTokensTable
 import io.github.mklkj.kommunicator.data.models.UserTokenEntity
+import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID

@@ -1,12 +1,16 @@
 package io.github.mklkj.kommunicator.data.dao
 
 import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
+import io.github.mklkj.kommunicator.data.dao.tables.UserPushTokensTable
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
+import io.github.mklkj.kommunicator.data.models.UserPushTokenEntity
+import io.github.mklkj.kommunicator.utils.dbQuery
 import io.github.mklkj.kommunicator.utils.md5
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 import org.koin.core.annotation.Singleton
 
@@ -38,5 +42,22 @@ class ChatParticipantsDao {
             .limit(15)
             // todo: pagination
             .map(::resultRowToParticipant)
+    }
+
+    suspend fun getChatParticipantsPushTokens(
+        chatId: UUID,
+        userId: UUID,
+    ): List<UserPushTokenEntity> = dbQuery {
+        ChatParticipantsTable
+            .join(
+                onColumn = ChatParticipantsTable.userId,
+                otherTable = UserPushTokensTable,
+                otherColumn = UserPushTokensTable.userId,
+                joinType = JoinType.LEFT
+            )
+            .select { (ChatParticipantsTable.chatId eq chatId) and (ChatParticipantsTable.userId neq userId) and (UserPushTokensTable.token.isNotNull()) }
+            .map {
+                UserPushTokenEntity(it[UserPushTokensTable.token])
+            }
     }
 }

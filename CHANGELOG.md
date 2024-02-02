@@ -392,16 +392,49 @@ na urządzeniu. Aplikacja jednak ładuje wiadomości tylko bezpośrednio z bazy 
 tabeli) i dzięki temu niezależnie od tego, czy request do API się akurat uda, czy nie, to zawsze
 wyświetlą się wiadomości zapisane w lokalnej bazie danych
 
-## Poprawki wizualne (2024-02-02)
+## Poprawki wizualne, powiadomienia push (2024-02-02)
 
 Bardzo denerwował mnie snackbar i FAB rysowany zbyt wysoko, tak jakby dolny inset został dwa razy
 dodany. Po zmarnowaniu ponad godziny znalazłem rozwiązanie:
 https://stackoverflow.com/a/77361483/6695449.
 
-Trafiłem też na buga w wiadomościach - przez dodanie key do widoków teraz lazy column rozpoznaje
-które itemy są nowe a które nie i lista się sama przestała przesuwać. Dodałem na te potrzeby więc
+Trafiłem też na buga w wiadomościach — przez dodanie key do widoków teraz lazy column rozpoznaje,
+które itemy są nowe, a które nie i lista się sama przestała przesuwać. Dodałem na te potrzeby więc
 taki kod jak tu https://stackoverflow.com/a/77231790/6695449, który animuje scroll to najnowszej
 wiadomości.
+
+Nadchodzi kolejny ważny w historii tego projektu moment — powiadomienia push. Idę trochę na
+łatwiznę, bo zamiast ręcznie implementować wszystko na obu platformach, wykorzystam bibliotekę
+https://github.com/mirzemehdi/KMPNotifier. Na razie wydaje się wystarczająca, jeśli nie będzie,
+to wtedy faktycznie trzeba będzie zrobić wszystko ręcznie.
+
+Jak to ma działać — przede wszystkim apki mają dostawać z Firebase'a tokeny. Te tokeny mają wysyłać
+(jak user się zaloguje albo token się zmieni) urządzenia poszczególnych użytkowników. Tokeny będą
+przechowywane w bazie danych w osobnej tabeli. W momencie wysłania wiadomości przez jednego
+użytkonika serwer będzie wyciągać z bazy wszystkie tokeny wszystkich (oprócz wysyłającego) userów
+biorących udział w czacie i wyśle im wiadomość z informacją, że wysyłający wysłał wiadomość.
+
+Idąc po kolei, to najpierw trzeba było określić strukturę tabeli. Token może mieć różną długość
+https://stackoverflow.com/a/39964597/6695449, więc dałem 200. Doszły jeszcze kolumny z id urządzenia
+(dzięki czemu przy zmianie tokenu nie będą zostawały stare). Dałem też kolumnę na nazwę urządzenia,
+żeby się dało tokeny łatwo zidentyfikować.
+
+Potem integracja z Firebase Admin SDK. Robimy według
+instrukcji https://firebase.google.com/docs/admin/setup/. Do zmiennej środowiskowej
+GOOGLE_APPLICATION_CREDENTIALS wsadzamy ścieżkę do pliku .json z credentialami (muszę dodać do gh
+actions z deployem). Następnie implementujemy wysyłanie wiadomości do wielu userów według wzoru:
+https://firebase.google.com/docs/cloud-messaging/send-message#send-messages-to-multiple-devices.
+
+W części klienckiej trzeba podpiąć biblioteki, pododawać w kilku miejscach wysyłanie tokenu, tak jak
+https://proandroiddev.com/how-to-implement-push-notification-in-kotlin-multiplatform-5006ff20f76c.
+Jak zwykle problemy sprawiał iOS. W ogóle okazało się, że Firebase był źle zainicjowany (a właściwie
+wcale nie był) na iOS. Tak jakby przez to, że inicjalizacja była zrobiona w kotlinie, to nie
+działało. Robiąc tak, jak w artykule (tj. bezpośrednio w AppDelegate.swift) wszystko nagle zaczęło
+działać. Przed wszystko mam na myśli generowanie tokena. Biblioteka Notifier zgłaszała błąd, że
+nie została zainicjowana (ją też próbowałem inicjować z kodu w kotlinie).
+
+Po zrobieniu tego wszystkiego otrzymałem pierwsze powiadomienie na Androidzie :tada: Jednak
+powiadomienia na iOS dalej nie działają i nie wiem dlaczego. Możliwe, że trzeba skonfigurować APNs.
 
 ## Materiały
 

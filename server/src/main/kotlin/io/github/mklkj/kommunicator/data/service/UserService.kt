@@ -1,12 +1,13 @@
 package io.github.mklkj.kommunicator.data.service
 
 import io.github.mklkj.kommunicator.data.exceptions.AlreadyExist
+import io.github.mklkj.kommunicator.data.models.PushTokenRequest
 import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserTokenEntity
+import io.github.mklkj.kommunicator.data.repository.PushTokenRepository
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.routes.createRefreshToken
-import io.github.mklkj.kommunicator.routes.toResponse
 import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaInstant
 import kotlinx.uuid.UUID
@@ -20,6 +21,7 @@ import kotlin.time.toKotlinDuration
 @Singleton
 class UserService(
     private val userRepository: UserRepository,
+    private val pushTokenRepository: PushTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
 ) {
@@ -87,5 +89,9 @@ class UserService(
 
     private suspend fun deleteTokenInfo(tokenId: UUID) {
         userRepository.removeTokenInfo(tokenId)
+    }
+
+    suspend fun savePushToken(pushTokenRequest: PushTokenRequest, userId: UUID) {
+        pushTokenRepository.savePushToken(pushTokenRequest, userId)
     }
 }

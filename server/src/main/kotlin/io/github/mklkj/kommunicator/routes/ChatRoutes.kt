@@ -6,6 +6,7 @@ import io.github.mklkj.kommunicator.data.models.MessageEntity
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.service.ChatService
 import io.github.mklkj.kommunicator.data.service.MessageService
+import io.github.mklkj.kommunicator.data.service.NotificationService
 import io.github.mklkj.kommunicator.utils.principalId
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
@@ -23,6 +24,7 @@ import org.koin.ktor.ext.inject
 fun Route.chatRoutes() {
     val chatService by inject<ChatService>()
     val messageService by inject<MessageService>()
+    val notificationService by inject<NotificationService>()
 
     get {
         val userId = call.principalId ?: error("Invalid JWT!")
@@ -56,18 +58,21 @@ fun Route.chatRoutes() {
         call.respond(messageService.getMessages(chatId, userId))
     }
     post("/{id}/messages") {
+        val userId = call.principalId ?: error("Invalid JWT token")
+        val chatId = call.parameters.getOrFail("id").toUUID()
         val message = call.receive<MessageRequest>()
 
         // todo: add verification whether a given user can write to that chat!!!
         messageService.saveMessage(
             MessageEntity(
                 id = message.id,
-                chatId = call.parameters.getOrFail("id").toUUID(),
-                userId = call.principalId ?: error("Invalid JWT token"),
+                chatId = chatId,
+                userId = userId,
                 timestamp = Clock.System.now(),
-                content = message.content
+                content = message.content,
             )
         )
+        notificationService.notifyParticipants(chatId, message.id, userId)
 
         call.respond(message = HttpStatusCode.Created)
     }

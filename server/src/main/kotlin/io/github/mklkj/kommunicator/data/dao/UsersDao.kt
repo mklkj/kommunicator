@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.data.dao
 import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
+import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID

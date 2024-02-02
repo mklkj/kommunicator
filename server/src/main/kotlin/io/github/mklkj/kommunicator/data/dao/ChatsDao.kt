@@ -10,6 +10,7 @@ import io.github.mklkj.kommunicator.data.models.ChatEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryLastMessageEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryParticipant
+import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant

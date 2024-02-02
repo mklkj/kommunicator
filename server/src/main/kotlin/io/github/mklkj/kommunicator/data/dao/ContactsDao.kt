@@ -4,6 +4,7 @@ import io.github.mklkj.kommunicator.data.dao.tables.ContactsTable
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.ContactEntity
 import io.github.mklkj.kommunicator.data.models.ContactsEntityWithContactUserEntity
+import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID

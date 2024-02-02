@@ -7,6 +7,7 @@ import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import io.github.mklkj.kommunicator.data.models.LoginRequest
 import io.github.mklkj.kommunicator.data.models.LoginResponse
+import io.github.mklkj.kommunicator.data.models.PushTokenRequest
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import kotlinx.uuid.UUID
@@ -24,4 +25,7 @@ interface UserService {
 
     @POST("/api/auth")
     suspend fun getToken(@Body body: LoginRequest): LoginResponse
+
+    @POST("/api/user/pushToken")
+    suspend fun sendPushToken(@Body body: PushTokenRequest)
 }
