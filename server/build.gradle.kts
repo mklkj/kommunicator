@@ -56,6 +56,14 @@ dependencies {
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
 }
+
+// https://github.com/google/guava/issues/6642#issuecomment-1656576682
+configurations.all {
+    resolutionStrategy.capabilitiesResolution.withCapability("com.google.guava:listenablefuture") {
+        select("com.google.guava:guava:0")
+    }
+}
+
 tasks {
     named<ShadowJar>("shadowJar") {
         mergeServiceFiles()
