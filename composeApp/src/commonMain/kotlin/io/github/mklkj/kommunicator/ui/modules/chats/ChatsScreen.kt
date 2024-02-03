@@ -225,7 +225,7 @@ internal object ChatsScreen : Tab {
                         .height(IntrinsicSize.Min)
                 ) {
                     Text(
-                        text = item.lastMessage.authorName + ": " + item.lastMessage.content,
+                        text = item.lastMessage?.authorName + ": " + item.lastMessage?.content,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -246,7 +246,7 @@ internal object ChatsScreen : Tab {
                         )
                     }
                     Text(
-                        text = HumanReadable.timeAgo(item.lastMessage.createdAt),
+                        text = item.lastMessage?.createdAt?.let { HumanReadable.timeAgo(it) }.orEmpty(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (item.isUnread) FontWeight.Bold else null,

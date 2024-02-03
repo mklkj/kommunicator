@@ -153,9 +153,9 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 
-    suspend fun getChat(chatId: UUID): Chats {
+    suspend fun getChat(chatId: UUID): Chats? {
         return withContext(Dispatchers.IO) {
-            dbQuery.selectChat(chatId).executeAsOne()
+            dbQuery.selectChat(chatId).executeAsOneOrNull()
         }
     }
 
@@ -191,15 +191,19 @@ class Database(sqlDriver: SqlDriver) {
                     }
                 }
 
-                chats.map { it.id to it.lastMessage }.forEach { (chatId, lastMessage) ->
-                    dbQuery.insertMessage(
-                        id = lastMessage.id,
-                        chatId = chatId,
-                        authorId = lastMessage.authorId,
-                        createdAt = lastMessage.createdAt,
-                        content = lastMessage.content,
-                    )
-                }
+                chats
+                    .map { it.id to it.lastMessage }
+                    .forEach { (chatId, lastMessage) ->
+                        lastMessage?.let {
+                            dbQuery.insertMessage(
+                                id = lastMessage.id,
+                                chatId = chatId,
+                                authorId = lastMessage.authorId,
+                                createdAt = lastMessage.createdAt,
+                                content = lastMessage.content,
+                            )
+                        }
+                    }
             }
         }
     }

@@ -2,11 +2,9 @@ package io.github.mklkj.kommunicator.data.service
 
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
-import io.github.mklkj.kommunicator.data.models.ChatDetails
 import io.github.mklkj.kommunicator.data.models.ChatParticipant
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.repository.ChatRepository
-import io.github.mklkj.kommunicator.data.repository.MessageRepository
 import io.github.mklkj.kommunicator.utils.md5
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
@@ -14,7 +12,6 @@ import org.koin.core.annotation.Singleton
 @Singleton
 class ChatService(
     private val chatRepository: ChatRepository,
-    private val messageRepository: MessageRepository,
 ) {
 
     suspend fun addChat(request: ChatCreateRequest): UUID {
@@ -26,40 +23,36 @@ class ChatService(
         return chatRepository.createChat(request)
     }
 
-    suspend fun getChat(chatId: UUID, userId: UUID): ChatDetails? {
+    suspend fun getChat(chatId: UUID, userId: UUID): Chat? {
         val chat = chatRepository.getChat(chatId, userId) ?: return null
-        val messages = messageRepository.getMessages(chatId)
         val participants = chatRepository.getParticipants(chatId)
         val notCurrentUserParticipants = participants.filterNot { it.userId == userId }
 
-        return ChatDetails(
+        return Chat(
             id = chat.id,
-            avatarUrl = "https://i.pravatar.cc/256?u=${chat.id}",
-            name = chat.customName ?: buildString {
-                val name = notCurrentUserParticipants.first().let {
-                    it.customName ?: it.userFirstName
-                }
-                append(name)
+            avatarUrl = when (notCurrentUserParticipants.size) {
+                1 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
+                else -> "https://i.pravatar.cc/256?u=${chat.id}"
             },
-            messages = messages.map { message ->
-                val participant = participants.find { it.userId == message.userId }
-                Message(
-                    id = message.id,
-                    isUserMessage = message.userId == userId,
-                    authorId = message.userId,
-                    authorCustomName = participant?.customName,
-                    authorName = when (message.userId) {
-                        userId -> "You"
-                        else -> {
-                            participant?.customName ?: participant?.let {
-                                "${it.userFirstName} ${it.userLastName}"
-                            } ?: chat.customName
+            customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
+                when (notCurrentUserParticipants.size) {
+                    1 -> notCurrentUserParticipants.single().let {
+                        append(it.userFirstName)
+                        append(" ")
+                        append(it.userLastName)
+                    }
+
+                    else -> {
+                        val names = notCurrentUserParticipants.joinToString(", ") {
+                            "${it.userFirstName} ${it.userLastName}"
                         }
-                    }.orEmpty(),
-                    createdAt = message.timestamp,
-                    content = message.content,
-                )
+                        append(names)
+                    }
+                }
             },
+            isUnread = false,
+            isActive = false,
+            lastMessage = null,
             participants = participants.map {
                 ChatParticipant(
                     id = it.id,
@@ -69,7 +62,7 @@ class ChatService(
                     lastName = it.userLastName,
                     avatarUrl = it.userAvatarUrl
                 )
-            }
+            },
         )
     }
 
@@ -78,8 +71,8 @@ class ChatService(
             val notCurrentUserParticipants = chat.participants.filterNot { it.userId == userId }
             Chat(
                 id = chat.id,
-                avatarUrl = when (chat.participants.size) {
-                    2 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
+                avatarUrl = when (notCurrentUserParticipants.size) {
+                    1 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
                     else -> "https://i.pravatar.cc/256?u=${chat.id}"
                 },
                 isUnread = false,
@@ -94,15 +87,15 @@ class ChatService(
                     content = chat.lastMessage.content,
                 ),
                 customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
-                    when (chat.participants.size) {
-                        2 -> {
+                    when (notCurrentUserParticipants.size) {
+                        1 -> {
                             append(notCurrentUserParticipants.single().firstName)
                             append(" ")
                             append(notCurrentUserParticipants.single().lastName)
                         }
 
                         else -> {
-                            val names = chat.participants.joinToString(", ") {
+                            val names = notCurrentUserParticipants.joinToString(", ") {
                                 "${it.firstName} ${it.lastName}"
                             }
                             append(names)

@@ -10,7 +10,7 @@ data class Chat(
     val isUnread: Boolean,
     val isActive: Boolean,
     val participants: List<ChatParticipant>,
-    val lastMessage: Message,
+    val lastMessage: Message?,
     val customName: String?,
 )
 

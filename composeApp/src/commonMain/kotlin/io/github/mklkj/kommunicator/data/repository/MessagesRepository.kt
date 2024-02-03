@@ -39,13 +39,21 @@ class MessagesRepository(
                 refreshChats()
             }
             emitAll(database.observeChats(userId).map { chats ->
-                chats.sortedByDescending { it.lastMessage.createdAt }
+                chats.sortedByDescending { it.lastMessage?.createdAt }
             })
         }
     }
 
     suspend fun getChat(chatId: UUID): Chats {
-        return database.getChat(chatId)
+        val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
+
+        val chat = database.getChat(chatId)
+        if (chat == null) {
+            val remoteChat = messagesService.getChat(chatId)
+            database.insertChats(userId, listOf(remoteChat))
+            return requireNotNull(database.getChat(chatId))
+        }
+        return chat
     }
 
     suspend fun refreshChats() {
