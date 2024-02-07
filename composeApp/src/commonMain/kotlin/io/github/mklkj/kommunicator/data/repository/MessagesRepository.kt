@@ -1,5 +1,6 @@
 package io.github.mklkj.kommunicator.data.repository
 
+import io.github.mklkj.kommunicator.BuildKonfig
 import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.db.Database
@@ -8,6 +9,12 @@ import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.client.request.host
+import io.ktor.client.request.port
+import io.ktor.http.URLBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -18,6 +25,7 @@ import org.koin.core.annotation.Singleton
 @Singleton
 class MessagesRepository(
     private val messagesService: MessagesService,
+    private val httpClient: HttpClient,
     private val database: Database,
 ) {
 
@@ -79,11 +87,24 @@ class MessagesRepository(
         val authorId = database.getChatParticipant(chatId, userId)?.id
             ?: error("Current user is not a participant in that chat!")
 
-        database.insertMessage(
+        database.insertUserMessage(
             chatId = chatId,
             authorId = authorId,
             messageRequest = message,
         )
         messagesService.sendMessage(chatId, message)
+    }
+
+    suspend fun getChatSession(chatId: UUID): DefaultClientWebSocketSession {
+        val session = httpClient.webSocketSession("/ws/chats/$chatId/messages") {
+            val url = URLBuilder(BuildKonfig.BASE_URL)
+            host = url.host
+            port = url.port
+        }
+        return session
+    }
+
+    suspend fun handleReceivedMessage(chatId: UUID, message: Message) {
+        database.insertIncomingMessage(chatId, message)
     }
 }

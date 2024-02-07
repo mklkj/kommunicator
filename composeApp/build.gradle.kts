@@ -46,7 +46,7 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation(libs.ktor.client.android)
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android)
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.5.0"))
@@ -87,8 +87,9 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.json)
+            implementation(libs.ktor.json)
             implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.ws)
 
             api(libs.kmpnotifier)
 

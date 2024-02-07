@@ -25,8 +25,8 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotiation)
-    implementation(libs.ktor.server.json)
-
+    implementation(libs.ktor.json)
+    implementation(libs.ktor.server.ws)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.java.jwt)

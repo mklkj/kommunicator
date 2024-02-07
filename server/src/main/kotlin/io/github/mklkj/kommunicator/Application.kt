@@ -4,6 +4,7 @@ import io.github.mklkj.kommunicator.plugins.configureDependencyInjection
 import io.github.mklkj.kommunicator.plugins.configureRouting
 import io.github.mklkj.kommunicator.plugins.configureSecurity
 import io.github.mklkj.kommunicator.plugins.configureSerialization
+import io.github.mklkj.kommunicator.plugins.configureWebSockets
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -21,5 +22,6 @@ fun Application.module() {
     configureDependencyInjection()
     configureSerialization()
     configureSecurity()
+    configureWebSockets()
     configureRouting()
 }

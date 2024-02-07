@@ -242,7 +242,20 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 
-    suspend fun insertMessage(chatId: UUID, authorId: UUID, messageRequest: MessageRequest) {
+    suspend fun insertIncomingMessage(chatId: UUID, message: Message) {
+        withContext(Dispatchers.IO) {
+            dbQuery.insertMessage(
+                id = message.id,
+                chatId = chatId,
+                authorId = message.authorId,
+                createdAt = message.createdAt,
+                content = message.content,
+            )
+        }
+
+    }
+
+    suspend fun insertUserMessage(chatId: UUID, authorId: UUID, messageRequest: MessageRequest) {
         withContext(Dispatchers.IO) {
             dbQuery.insertMessage(
                 id = messageRequest.id,
