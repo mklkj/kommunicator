@@ -29,6 +29,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.serialization.WebsocketContentConverter
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -43,6 +44,7 @@ val commonModule = module {
             useAlternativeNames = false
         }
     }
+    single<WebsocketContentConverter> { KotlinxWebsocketSerializationConverter(get<Json>()) }
     single {
         HttpClient {
             expectSuccess = true
@@ -58,7 +60,7 @@ val commonModule = module {
                 json(get())
             }
             install(WebSockets) {
-                contentConverter = KotlinxWebsocketSerializationConverter(get<Json>())
+                contentConverter = get()
             }
             install(Auth) {
                 val database = get<Database>()

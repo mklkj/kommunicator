@@ -83,6 +83,11 @@ class MessagesRepository(
     }
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {
+        saveMessageToSend(chatId, message)
+        messagesService.sendMessage(chatId, message)
+    }
+
+    suspend fun saveMessageToSend(chatId: UUID, message: MessageRequest) {
         val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
         val authorId = database.getChatParticipant(chatId, userId)?.id
             ?: error("Current user is not a participant in that chat!")
@@ -92,7 +97,6 @@ class MessagesRepository(
             authorId = authorId,
             messageRequest = message,
         )
-        messagesService.sendMessage(chatId, message)
     }
 
     suspend fun getChatSession(chatId: UUID): DefaultClientWebSocketSession {
