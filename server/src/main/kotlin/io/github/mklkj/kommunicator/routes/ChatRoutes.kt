@@ -86,21 +86,28 @@ fun Route.chatRoutes() {
         )
         messageService.saveMessage(entity)
 
-        chatConnections.getConnections(chatId).forEach {
-            println("Notify user: ${it.userId}")
-            it.session.sendSerialized(
-                Message(
-                    id = entity.id,
-                    isUserMessage = false,
-                    authorId = userId,
-                    authorName = entity.firstName.orEmpty(), // todo
-                    authorCustomName = entity.author,
-                    createdAt = entity.timestamp,
-                    content = entity.content,
+        val connections = chatConnections.getConnections(chatId)
+        connections
+            .filterNot { it.userId == userId }
+            .forEach {
+                println("Notify user: ${it.userId}")
+                it.session.sendSerialized(
+                    Message(
+                        id = entity.id,
+                        isUserMessage = false,
+                        authorId = userId,
+                        authorName = entity.firstName.orEmpty(), // todo
+                        authorCustomName = entity.author,
+                        createdAt = entity.timestamp,
+                        content = entity.content,
+                    )
                 )
-            )
-        }
-        notificationService.notifyParticipants(chatId, message.id, userId)
+            }
+        notificationService.notifyParticipants(
+            chatId = chatId,
+            messageId = message.id,
+            alreadyNotifiedUsers = connections.map { it.userId },
+        )
 
         call.respond(message = HttpStatusCode.Created)
     }
@@ -136,14 +143,16 @@ fun Route.chatWebsockets() {
                         content = message.content,
                     )
                     messageService.saveMessage(entity)
-                    chatConnections.getConnections(chatId)
-//                    .filterNot { it.userId == userId }
+
+                    val connections = chatConnections.getConnections(chatId)
+                    connections
+                        .filterNot { it.userId == userId }
                         .forEach {
                             println("Notify user: ${it.userId}")
                             it.session.sendSerialized(
                                 Message(
                                     id = entity.id,
-                                    isUserMessage = false,
+                                    isUserMessage = entity.chatId == it.userId,
                                     authorId = userId,
                                     authorName = entity.firstName.orEmpty(), // todo
                                     authorCustomName = entity.author,
@@ -153,7 +162,11 @@ fun Route.chatWebsockets() {
                             )
                         }
                     // todo: add to some queue?
-                    notificationService.notifyParticipants(chatId, message.id, userId)
+                    notificationService.notifyParticipants(
+                        chatId = chatId,
+                        messageId = message.id,
+                        alreadyNotifiedUsers = connections.map { it.userId },
+                    )
                 }
                 .collect()
         } catch (e: Throwable) {

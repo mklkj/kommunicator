@@ -46,7 +46,6 @@ class ChatParticipantsDao {
 
     suspend fun getChatParticipantsPushTokens(
         chatId: UUID,
-        userId: UUID,
     ): List<UserPushTokenEntity> = dbQuery {
         ChatParticipantsTable
             .join(
@@ -55,9 +54,12 @@ class ChatParticipantsDao {
                 otherColumn = UserPushTokensTable.userId,
                 joinType = JoinType.LEFT
             )
-            .select { (ChatParticipantsTable.chatId eq chatId) and (ChatParticipantsTable.userId neq userId) and (UserPushTokensTable.token.isNotNull()) }
+            .select { (ChatParticipantsTable.chatId eq chatId) and (UserPushTokensTable.token.isNotNull()) }
             .map {
-                UserPushTokenEntity(it[UserPushTokensTable.token])
+                UserPushTokenEntity(
+                    userId = it[ChatParticipantsTable.userId],
+                    token = it[UserPushTokensTable.token],
+                )
             }
     }
 }

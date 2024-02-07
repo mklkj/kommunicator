@@ -26,10 +26,16 @@ class NotificationService(
         )
     }
 
-    suspend fun notifyParticipants(chatId: UUID, messageId: UUID, userId: UUID) {
-        val chatParticipants = chatRepository.getChatParticipantsPushTokens(chatId, userId)
+    suspend fun notifyParticipants(
+        chatId: UUID,
+        messageId: UUID,
+        alreadyNotifiedUsers: List<UUID>
+    ) {
+        val chatParticipants = chatRepository.getChatParticipantsPushTokens(chatId)
 
-        val registrationTokens = chatParticipants.map { it.token }
+        val registrationTokens = chatParticipants
+            .filterNot { it.userId in alreadyNotifiedUsers }
+            .map { it.token }
         if (registrationTokens.isEmpty()) {
             return println("There is no user to notify (lack of push tokens)")
         }

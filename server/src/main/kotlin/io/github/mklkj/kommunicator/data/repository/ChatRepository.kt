@@ -2,13 +2,11 @@ package io.github.mklkj.kommunicator.data.repository
 
 import io.github.mklkj.kommunicator.data.dao.ChatParticipantsDao
 import io.github.mklkj.kommunicator.data.dao.ChatsDao
-import io.github.mklkj.kommunicator.data.dao.UserPushTokensDao
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatEntity
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryEntity
 import io.github.mklkj.kommunicator.data.models.UserPushTokenEntity
-import io.github.mklkj.kommunicator.data.models.UserTokenEntity
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -38,7 +36,7 @@ class ChatRepository(
         return chatsDao.getChats(userId)
     }
 
-    suspend fun getChatParticipantsPushTokens(chatId: UUID, userId: UUID): List<UserPushTokenEntity> {
-        return chatParticipantsDao.getChatParticipantsPushTokens(chatId, userId)
+    suspend fun getChatParticipantsPushTokens(chatId: UUID): List<UserPushTokenEntity> {
+        return chatParticipantsDao.getChatParticipantsPushTokens(chatId)
     }
 }
