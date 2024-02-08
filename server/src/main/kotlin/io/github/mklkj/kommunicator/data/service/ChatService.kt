@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.data.service
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatParticipant
+import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.repository.ChatRepository
 import io.github.mklkj.kommunicator.utils.md5
@@ -21,6 +22,10 @@ class ChatService(
         }
 
         return chatRepository.createChat(request)
+    }
+
+    suspend fun getParticipants(chatId: UUID): List<ChatParticipantEntity> {
+        return chatRepository.getParticipants(chatId)
     }
 
     suspend fun getChat(chatId: UUID, userId: UUID): Chat? {
@@ -80,9 +85,10 @@ class ChatService(
                 lastMessage = Message(
                     id = chat.lastMessage.messageId,
                     isUserMessage = chat.lastMessage.authorId == userId,
-                    authorId = chat.lastMessage.authorId,
-                    authorName = "${chat.lastMessage.authorFirstName} ${chat.lastMessage.authorLastName}",
-                    authorCustomName = chat.lastMessage.authorCustomName,
+                    participantId = chat.lastMessage.authorId,
+                    participantFirstName = chat.lastMessage.authorFirstName,
+                    participantLastName = chat.lastMessage.authorLastName,
+                    participantCustomName = chat.lastMessage.authorCustomName,
                     createdAt = chat.lastMessage.createdAt,
                     content = chat.lastMessage.content,
                 ),

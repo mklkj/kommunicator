@@ -136,9 +136,10 @@ class Database(sqlDriver: SqlDriver) {
                         lastMessage = Message(
                             id = it.lastMessageId,
                             isUserMessage = false,
-                            authorId = it.lastMessageAuthorId,
-                            authorName = "${it.firstname} ${it.lastName}",
-                            authorCustomName = it.lastMessageAuthorCustomName,
+                            participantId = it.lastMessageAuthorId,
+                            participantFirstName = it.firstname,
+                            participantLastName = it.lastName,
+                            participantCustomName = it.lastMessageAuthorCustomName,
                             createdAt = it.createdAt,
                             content = it.content,
                         ),
@@ -198,7 +199,7 @@ class Database(sqlDriver: SqlDriver) {
                             dbQuery.insertMessage(
                                 id = lastMessage.id,
                                 chatId = chatId,
-                                authorId = lastMessage.authorId,
+                                authorId = lastMessage.participantId,
                                 createdAt = lastMessage.createdAt,
                                 content = lastMessage.content,
                             )
@@ -216,9 +217,10 @@ class Database(sqlDriver: SqlDriver) {
                     Message(
                         id = it.id,
                         isUserMessage = it.userId == userId,
-                        authorId = it.authorId,
-                        authorName = "${it.firstname} ${it.lastName}",
-                        authorCustomName = it.customName,
+                        participantId = it.authorId,
+                        participantFirstName = it.firstname.orEmpty(),
+                        participantLastName = it.lastName.orEmpty(),
+                        participantCustomName = it.customName,
                         createdAt = it.createdAt,
                         content = it.content
                     )
@@ -233,7 +235,7 @@ class Database(sqlDriver: SqlDriver) {
                     dbQuery.insertMessage(
                         id = it.id,
                         chatId = chatId,
-                        authorId = it.authorId,
+                        authorId = it.participantId,
                         createdAt = it.createdAt,
                         content = it.content,
                     )
@@ -247,7 +249,7 @@ class Database(sqlDriver: SqlDriver) {
             dbQuery.insertMessage(
                 id = message.id,
                 chatId = chatId,
-                authorId = message.authorId,
+                authorId = message.participantId,
                 createdAt = message.createdAt,
                 content = message.content,
             )

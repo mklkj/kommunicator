@@ -75,6 +75,7 @@ fun Route.chatRoutes() {
         val userId = call.principalId ?: error("Invalid JWT token")
         val chatId = call.parameters.getOrFail("id").toUUID()
         val message = call.receive<MessageRequest>()
+        val participants = chatService.getParticipants(chatId)
 
         // todo: add verification whether a given user can write to that chat!!!
         val entity = MessageEntity(
@@ -94,10 +95,13 @@ fun Route.chatRoutes() {
                 it.session.sendSerialized(
                     Message(
                         id = entity.id,
-                        isUserMessage = false,
-                        authorId = userId,
-                        authorName = entity.firstName.orEmpty(), // todo
-                        authorCustomName = entity.author,
+                        isUserMessage = it.userId == userId,
+                        participantId = participants.single { participant ->
+                            it.userId == participant.userId
+                        }.id,
+                        participantFirstName = entity.firstName.orEmpty(), // todo
+                        participantLastName = entity.lastName.orEmpty(), // todo
+                        participantCustomName = entity.author,
                         createdAt = entity.timestamp,
                         content = entity.content,
                     )
@@ -114,6 +118,7 @@ fun Route.chatRoutes() {
 }
 
 fun Route.chatWebsockets() {
+    val chatService by inject<ChatService>()
     val messageService by inject<MessageService>()
     val notificationService by inject<NotificationService>()
     val chatConnections by inject<ChatConnections>()
@@ -121,8 +126,8 @@ fun Route.chatWebsockets() {
     webSocket("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
         val chatId = call.parameters.getOrFail("id").toUUID()
+        val participants = chatService.getParticipants(chatId)
 
-        println("Adding user!")
         val thisConnection = Connection(this, userId)
 
         chatConnections.addConnection(chatId, thisConnection)
@@ -152,10 +157,13 @@ fun Route.chatWebsockets() {
                             it.session.sendSerialized(
                                 Message(
                                     id = entity.id,
-                                    isUserMessage = entity.chatId == it.userId,
-                                    authorId = userId,
-                                    authorName = entity.firstName.orEmpty(), // todo
-                                    authorCustomName = entity.author,
+                                    isUserMessage = it.userId == userId,
+                                    participantId = participants.single { participant ->
+                                        userId == participant.userId
+                                    }.id,
+                                    participantFirstName = entity.firstName.orEmpty(), // todo
+                                    participantLastName = entity.lastName.orEmpty(), // todo
+                                    participantCustomName = entity.author,
                                     createdAt = entity.timestamp,
                                     content = entity.content,
                                 )

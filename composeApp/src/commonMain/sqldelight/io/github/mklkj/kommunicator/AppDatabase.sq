@@ -119,7 +119,7 @@ INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content)
 VALUES(?, ?, ?, ?, ?);
 
 selectMessages:
-SELECT Messages.*, Participants.userId, Participants.firstname, Participants.lastName, Participants.customName, Participants.avatarUrl
+SELECT Messages.*, Participants.userId AS userId, Participants.firstname, Participants.lastName, Participants.customName, Participants.avatarUrl
 FROM Messages
 LEFT JOIN Participants ON Messages.authorId = Participants.id
 WHERE Messages.chatId = ?

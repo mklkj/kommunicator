@@ -225,7 +225,7 @@ internal object ChatsScreen : Tab {
                         .height(IntrinsicSize.Min)
                 ) {
                     Text(
-                        text = item.lastMessage?.authorName + ": " + item.lastMessage?.content,
+                        text = item.lastMessage?.participantFirstName + ": " + item.lastMessage?.content,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

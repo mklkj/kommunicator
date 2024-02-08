@@ -26,16 +26,10 @@ class MessageService(
                 Message(
                     id = message.id,
                     isUserMessage = message.userId == userId,
-                    authorId = participant.id,
-                    authorCustomName = participant.customName,
-                    authorName = when (message.userId) {
-                        userId -> "You"
-                        else -> {
-                            participant.customName ?: participant.let {
-                                "${it.userFirstName} ${it.userLastName}"
-                            }
-                        }
-                    },
+                    participantId = participant.id,
+                    participantCustomName = participant.customName,
+                    participantFirstName = participant.userFirstName,
+                    participantLastName = participant.userLastName,
                     createdAt = message.timestamp,
                     content = message.content,
                 )

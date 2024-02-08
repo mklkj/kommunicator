@@ -11,4 +11,5 @@ data class MessageEntity(
     val content: String,
     val author: String? = null,
     val firstName: String? = null,
+    val lastName: String? = null,
 )

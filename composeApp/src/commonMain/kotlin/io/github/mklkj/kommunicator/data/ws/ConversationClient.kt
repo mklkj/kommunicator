@@ -47,7 +47,7 @@ class ConversationClient(
             if (frame !is Frame.Text) continue
 
             val message = frame.getDeserialized<Message>(websocketConverter)
-            Logger.withTag(TAG).i("Receive message from: ${message.authorId}")
+            Logger.withTag(TAG).i("Receive message from: ${message.participantId}")
             messagesRepository.handleReceivedMessage(chatId ?: return, message)
         }
     }

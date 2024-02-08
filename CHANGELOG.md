@@ -436,6 +436,30 @@ nie została zainicjowana (ją też próbowałem inicjować z kodu w kotlinie).
 Po zrobieniu tego wszystkiego otrzymałem pierwsze powiadomienie na Androidzie :tada: Jednak
 powiadomienia na iOS dalej nie działają i nie wiem dlaczego. Możliwe, że trzeba skonfigurować APNs.
 
+## Websockets (2024-02-06/07)
+
+Bardzo fajna rzecz, ale jak coś nie działa to ciężko się połapać. Ale udało się, połapałem się.
+
+Ktor ma wersję websocketów dla clienta i servera (w zasadzie to ten sam `common code`).
+Na początek wzorujemy się tym https://github.com/ktorio/ktor-websockets-chat-sample/tree/final, bo
+do tego linkuje dokumentacja. Jest tam też przykład operowania wieloma sesjami (który jest też
+opisany tutaj: https://ktor.io/docs/websocket.html#handle-multiple-session), którym się mocno
+zainspirowałem.
+
+Mocno się zatrzymałem na etapie odbierania wiadomości, bo przez niedokładne przeczytanie
+dokumentacji i zaimplementowanie tego "na oko" miałem sytuację, gdzie wysyłane wiadomości były
+odbierane po drugiej stronie dopiero jako co drugie, albo nawet w pewnym momencie — co czwarte.
+Jak się okazało to przez to, że dokumentacja (czy bardziej przykłady) mówi o dwóch sposobach na
+odbieranie danych: jeden to pętla `for` na kanale (zmiennej) `incoming` i w środku odczytywanie
+z frame, a druga to brak żadnej pętli albo pętla `while(true)` i użycie `receiveDeserialized()`
+(https://ktor.io/docs/websocket-client-serialization.html#receive_data). Przechodząc do rzeczy:
+pierwsze od razu "odbiera" dane i w `frame` jest już gotowa do obróbki wiadomość; w drugim pętla
+sobie działa tak jak zawsze, a w środku metoda `receiveDeserialized()` odbiera i jednocześnie
+obrabia (deserializuje) dane. Jeśli się to połączy, to jakby kod będzie próbował dwa razy częściej
+odbierać wiadomości niż potrzeba. Uświadomiłem to sobie dopiero jak trafiłem na ten ticket:
+https://youtrack.jetbrains.com/issue/KTOR-4452. Ostatecznie zrobiłem swoją metodę pomocniczą,
+działającą podobnie do `receiveDeserialized()` z pominięciem wywołania `receive()` w środku.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
