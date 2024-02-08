@@ -49,7 +49,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android)
-            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.5.0"))
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.1"))
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -60,6 +60,9 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            // workaround https://github.com/JetBrains/compose-multiplatform/issues/4157
+            //noinspection UseTomlInstead
+            implementation("org.jetbrains.compose.material3:material3:1.6.0-beta02")
             implementation(compose.materialIconsExtended)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
@@ -79,7 +82,7 @@ kotlin {
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines)
             implementation(libs.kotlinx.uuid.sqldelight)
-            // https://github.com/cashapp/sqldelight/issues/4357#issuecomment-1839905700
+            // workaround https://github.com/cashapp/sqldelight/issues/4357#issuecomment-1839905700
             //noinspection UseTomlInstead
             implementation("co.touchlab:stately-common:2.0.5")
 

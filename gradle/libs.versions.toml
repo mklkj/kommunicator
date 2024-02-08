@@ -22,10 +22,11 @@ kotlinxSerializationJson = "1.6.2"
 ktor = "2.3.7"
 androidx-lifecycle = "2.7.0"
 logback = "1.4.14"
-compose = "1.5.4"
+compose = "1.6.0-dev1409"
+compose-android = "1.6.1"
 compose-plugin = "1.5.12"
 compose-compiler = "1.5.8"
-agp = "8.2.1"
+agp = "8.2.2"
 android-minSdk = "24"
 android-compileSdk = "34"
 android-targetSdk = "34"
@@ -85,9 +86,9 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-ws = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 ktorfit = { module = "de.jensklingenberg.ktorfit:ktorfit-lib-light", version.ref = "ktorfit" }
 ktorfit-ksp = { module = "de.jensklingenberg.ktorfit:ktorfit-ksp", version.ref = "ktorfit" }
-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-android" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-android" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-android" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
@@ -96,7 +97,6 @@ sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sq
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-ios = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
-sqldelight-test = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
 voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
@@ -115,7 +115,7 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version = "0.15.1" }
-gms = { id = "com.google.gms.google-services", version = "4.4.0" }
+gms = { id = "com.google.gms.google-services", version = "4.4.1" }
 crashlytics = { id = "com.google.firebase.crashlytics", version = "2.9.9" }
 crashlyticslink = { id = "co.touchlab.crashkios.crashlyticslink", version = "0.8.5" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

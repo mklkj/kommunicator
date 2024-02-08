@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,8 +35,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.ui.modules.homescreen.HomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
-import io.github.mklkj.kommunicator.ui.widgets.TextInput
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.widgets.TextInput
 
 class LoginScreen : Screen {
 
@@ -56,7 +56,7 @@ class LoginScreen : Screen {
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
                             )
                         }

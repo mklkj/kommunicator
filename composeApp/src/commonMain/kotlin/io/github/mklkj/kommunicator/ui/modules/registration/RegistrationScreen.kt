@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
@@ -48,9 +49,9 @@ import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.noRippleClickable
+import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.RadioButtonWithLabel
 import io.github.mklkj.kommunicator.ui.widgets.TextInput
-import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.utils.getMillis
 import io.github.mklkj.kommunicator.utils.now
 import io.github.mklkj.kommunicator.utils.toLocalDate
@@ -77,7 +78,7 @@ class RegistrationScreen : Screen {
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
                             )
                         }
@@ -236,6 +237,15 @@ class RegistrationScreen : Screen {
             yearRange = LocalDate.now().minus(DatePeriod(13)).let {
                 it.minus(DatePeriod(100)).year..it.year
             },
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    return utcTimeMillis.toLocalDate().periodUntil(LocalDate.now()).years >= 13
+                }
+
+                override fun isSelectableYear(year: Int): Boolean {
+                    return (LocalDate.now().year - year) >= 13
+                }
+            }
         )
         if (isDatePickerShown) {
             DatePickerDialog(
@@ -259,10 +269,7 @@ class RegistrationScreen : Screen {
                 DatePicker(
                     state = datePickerState,
                     modifier = Modifier,
-                    dateFormatter = DatePickerFormatter(),
-                    dateValidator = {
-                        it.toLocalDate().periodUntil(LocalDate.now()).years >= 13
-                    },
+                    dateFormatter = DatePickerDefaults.dateFormatter(),
                     showModeToggle = true,
                 )
             }
