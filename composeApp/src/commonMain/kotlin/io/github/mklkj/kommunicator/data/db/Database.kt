@@ -10,11 +10,12 @@ import io.github.mklkj.kommunicator.Participants
 import io.github.mklkj.kommunicator.SelectAllChats
 import io.github.mklkj.kommunicator.Users
 import io.github.mklkj.kommunicator.data.db.adapters.InstantStringAdapter
-import io.github.mklkj.kommunicator.data.db.entity.LocalContact
-import io.github.mklkj.kommunicator.data.db.entity.LocalUser
+import io.github.mklkj.kommunicator.data.db.entity.LocalChat
+import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.Contact
 import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -53,12 +54,12 @@ class Database(sqlDriver: SqlDriver) {
     )
     private val dbQuery = database.appDatabaseQueries
 
-    fun getAllUsers(): Flow<List<LocalUser>> {
-        return dbQuery.selectAllUsers(::mapUserSelecting).asFlow().mapToList(Dispatchers.IO)
+    fun getAllUsers(): Flow<List<Users>> {
+        return dbQuery.selectAllUsers().asFlow().mapToList(Dispatchers.IO)
     }
 
-    suspend fun getCurrentUser(): LocalUser? = withContext(Dispatchers.IO) {
-        dbQuery.selectAllUsers(::mapUserSelecting).executeAsOneOrNull()
+    suspend fun getCurrentUser(): Users? = withContext(Dispatchers.IO) {
+        dbQuery.selectAllUsers().executeAsOneOrNull()
     }
 
     suspend fun deleteCurrentUser() = withContext(Dispatchers.IO) {
@@ -76,7 +77,7 @@ class Database(sqlDriver: SqlDriver) {
             )
         }
 
-    suspend fun insertUser(user: LocalUser) {
+    suspend fun insertUser(user: Users) {
         withContext(Dispatchers.IO) {
             dbQuery.insertUser(
                 id = user.id,
@@ -91,13 +92,12 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 
-    fun observeContacts(userId: UUID): Flow<List<LocalContact>> {
-        return dbQuery.selectAllContacts(userId, ::mapContactSelecting)
-            .asFlow().mapToList(Dispatchers.IO)
+    fun observeContacts(userId: UUID): Flow<List<Contacts>> {
+        return dbQuery.selectAllContacts(userId).asFlow().mapToList(Dispatchers.IO)
     }
 
-    fun getContacts(userId: UUID): List<LocalContact> {
-        return dbQuery.selectAllContacts(userId, ::mapContactSelecting).executeAsList()
+    fun getContacts(userId: UUID): List<Contacts> {
+        return dbQuery.selectAllContacts(userId).executeAsList()
     }
 
     suspend fun insertContacts(userId: UUID, contacts: List<Contact>) =
@@ -119,12 +119,12 @@ class Database(sqlDriver: SqlDriver) {
             }
         }
 
-    fun observeChats(userId: UUID): Flow<List<Chat>> {
+    fun observeChats(userId: UUID): Flow<List<LocalChat>> {
         return dbQuery.selectAllChats(userId).asFlow()
             .mapToList(Dispatchers.IO)
             .map { chats ->
                 chats.map {
-                    Chat(
+                    LocalChat(
                         id = it.chatId,
                         customName = it.chatCustomName,
                         avatarUrl = it.avatarUrl,
@@ -133,15 +133,15 @@ class Database(sqlDriver: SqlDriver) {
                         isActive = Random.nextBoolean(),
                         participants = listOf(),
 
-                        lastMessage = Message(
+                        lastMessage = LocalMessage(
                             id = it.lastMessageId,
-                            isUserMessage = false,
-                            participantId = it.lastMessageAuthorId,
-                            participantFirstName = it.firstname,
-                            participantLastName = it.lastName,
-                            participantCustomName = it.lastMessageAuthorCustomName,
+                            isUserMessage = userId == it.lastMessageAuthorId, // todo
+                            authorId = it.lastMessageAuthorId,
+                            participantName = it.lastMessageAuthorCustomName ?: it.firstname,
                             createdAt = it.createdAt,
                             content = it.content,
+                            chatId = it.chatId,
+                            userId = userId,
                         ),
                     )
                 }
@@ -209,20 +209,20 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 
-    fun observeMessages(chatId: UUID, userId: UUID): Flow<List<Message>> {
+    fun observeMessages(chatId: UUID, userId: UUID): Flow<List<LocalMessage>> {
         return dbQuery.selectMessages(chatId).asFlow()
             .mapToList(Dispatchers.IO)
             .map { messages ->
                 messages.map {
-                    Message(
+                    LocalMessage(
                         id = it.id,
                         isUserMessage = it.userId == userId,
-                        participantId = it.authorId,
-                        participantFirstName = it.firstname.orEmpty(),
-                        participantLastName = it.lastName.orEmpty(),
-                        participantCustomName = it.customName,
+                        authorId = userId,
+                        participantName = it.customName ?: it.firstname.orEmpty(),
                         createdAt = it.createdAt,
-                        content = it.content
+                        content = it.content,
+                        chatId = chatId,
+                        userId = userId,
                     )
                 }
             }
@@ -244,7 +244,7 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 
-    suspend fun insertIncomingMessage(chatId: UUID, message: Message) {
+    suspend fun insertIncomingMessage(chatId: UUID, message: MessageBroadcast) {
         withContext(Dispatchers.IO) {
             dbQuery.insertMessage(
                 id = message.id,
@@ -269,43 +269,3 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 }
-
-private fun mapUserSelecting(
-    id: UUID,
-    email: String,
-    username: String,
-    token: String,
-    refreshToken: String,
-    firstName: String,
-    lastName: String,
-    avatarUrl: String,
-): LocalUser = LocalUser(
-    id = id,
-    email = email,
-    username = username,
-    token = token,
-    refreshToken = refreshToken,
-    firstName = firstName,
-    lastName = lastName,
-    avatarUrl = avatarUrl,
-)
-
-private fun mapContactSelecting(
-    id: UUID,
-    userId: UUID,
-    contactUserId: UUID,
-    avatarUrl: String,
-    firstName: String,
-    lastName: String,
-    username: String,
-    isActive: Boolean,
-): LocalContact = LocalContact(
-    id = id,
-    userId = userId,
-    contactUserId = contactUserId,
-    avatarUrl = avatarUrl,
-    firstName = firstName,
-    lastName = lastName,
-    username = username,
-    isActive = isActive
-)

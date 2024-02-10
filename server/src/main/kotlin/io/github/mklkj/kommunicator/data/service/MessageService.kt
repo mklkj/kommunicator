@@ -25,11 +25,7 @@ class MessageService(
                 val participant = participants.first { it.userId == message.userId }
                 Message(
                     id = message.id,
-                    isUserMessage = message.userId == userId,
                     participantId = participant.id,
-                    participantCustomName = participant.customName,
-                    participantFirstName = participant.userFirstName,
-                    participantLastName = participant.userLastName,
                     createdAt = message.timestamp,
                     content = message.content,
                 )

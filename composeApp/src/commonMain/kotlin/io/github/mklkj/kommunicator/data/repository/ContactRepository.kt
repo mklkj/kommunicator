@@ -1,8 +1,8 @@
 package io.github.mklkj.kommunicator.data.repository
 
+import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.data.api.service.ContactService
 import io.github.mklkj.kommunicator.data.db.Database
-import io.github.mklkj.kommunicator.data.db.entity.LocalContact
 import io.github.mklkj.kommunicator.data.models.ContactAddRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -20,7 +20,7 @@ class ContactRepository(
         refreshContacts()
     }
 
-    fun observeContacts(): Flow<List<LocalContact>> {
+    fun observeContacts(): Flow<List<Contacts>> {
         return flow {
             val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
             if (database.getContacts(userId).isEmpty()) {

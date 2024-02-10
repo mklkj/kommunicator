@@ -8,7 +8,7 @@ import io.github.mklkj.kommunicator.data.models.Chat
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatCreateResponse
 import io.github.mklkj.kommunicator.data.models.Message
-import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.models.MessageEvent
 import kotlinx.uuid.UUID
 
 interface MessagesService {
@@ -28,6 +28,6 @@ interface MessagesService {
     @POST("/api/chats/{chatId}/messages")
     suspend fun sendMessage(
         @Path("chatId") chatId: UUID,
-        @Body message: MessageRequest,
+        @Body message: MessageEvent,
     )
 }

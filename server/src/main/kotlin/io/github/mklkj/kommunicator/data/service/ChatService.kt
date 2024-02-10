@@ -84,11 +84,7 @@ class ChatService(
                 isActive = false,
                 lastMessage = Message(
                     id = chat.lastMessage.messageId,
-                    isUserMessage = chat.lastMessage.authorId == userId,
                     participantId = chat.lastMessage.authorId,
-                    participantFirstName = chat.lastMessage.authorFirstName,
-                    participantLastName = chat.lastMessage.authorLastName,
-                    participantCustomName = chat.lastMessage.authorCustomName,
                     createdAt = chat.lastMessage.createdAt,
                     content = chat.lastMessage.content,
                 ),

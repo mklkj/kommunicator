@@ -1,7 +1,9 @@
 package io.github.mklkj.kommunicator.data.ws
 
 import co.touchlab.kermit.Logger
-import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.data.models.MessageBroadcast
+import io.github.mklkj.kommunicator.data.models.MessageEvent
+import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.getDeserialized
@@ -46,9 +48,15 @@ class ConversationClient(
         for (frame in chatSession?.incoming ?: return) {
             if (frame !is Frame.Text) continue
 
-            val message = frame.getDeserialized<Message>(websocketConverter)
-            Logger.withTag(TAG).i("Receive message from: ${message.participantId}")
-            messagesRepository.handleReceivedMessage(chatId ?: return, message)
+            when (val messageEvent = frame.getDeserialized<MessageEvent>(websocketConverter)) {
+                is MessageBroadcast -> {
+                    Logger.withTag(TAG).i("Receive message from: ${messageEvent.participantId}")
+                    messagesRepository.handleReceivedMessage(chatId ?: return, messageEvent)
+                }
+
+                // not implemented on server
+                is MessagePush -> Unit
+            }
         }
     }
 
@@ -59,10 +67,16 @@ class ConversationClient(
                     Logger.withTag(TAG).i("Sending message with REST API")
                     messagesRepository.sendMessage(chatId, message)
                 }
+
                 else -> {
                     Logger.withTag(TAG).i("Sending message with websockets")
                     messagesRepository.saveMessageToSend(chatId, message)
-                    chatSession?.sendSerialized(message)
+                    chatSession?.sendSerialized<MessageEvent>(
+                        MessagePush(
+                            id = message.id,
+                            content = message.content,
+                        )
+                    )
                 }
             }
         }

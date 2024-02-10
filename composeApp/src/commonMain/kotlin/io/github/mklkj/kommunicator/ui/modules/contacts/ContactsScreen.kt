@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.koin.getNavigatorScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import io.github.mklkj.kommunicator.data.db.entity.LocalContact
+import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.ui.modules.contacts.add.ContactAddScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
@@ -160,7 +160,7 @@ internal object ContactsScreen : Tab {
     }
 
     @Composable
-    private fun ContactItem(item: LocalContact, onClick: (LocalContact) -> Unit) {
+    private fun ContactItem(item: Contacts, onClick: (Contacts) -> Unit) {
         Row(
             Modifier
                 .clickable(onClick = { onClick(item) })

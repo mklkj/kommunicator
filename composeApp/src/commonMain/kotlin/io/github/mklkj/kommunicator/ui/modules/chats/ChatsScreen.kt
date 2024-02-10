@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.koin.getNavigatorScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.data.db.entity.LocalChat
 import io.github.mklkj.kommunicator.ui.modules.account.AccountScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
 import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
@@ -182,7 +182,7 @@ internal object ChatsScreen : Tab {
     }
 
     @Composable
-    fun ChatItem(item: Chat, onClick: (Chat) -> Unit) {
+    fun ChatItem(item: LocalChat, onClick: (LocalChat) -> Unit) {
         Row(
             Modifier
                 .clickable(onClick = { onClick(item) })
@@ -225,7 +225,7 @@ internal object ChatsScreen : Tab {
                         .height(IntrinsicSize.Min)
                 ) {
                     Text(
-                        text = item.lastMessage?.participantFirstName + ": " + item.lastMessage?.content,
+                        text = item.lastMessage?.participantName + ": " + item.lastMessage?.content,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

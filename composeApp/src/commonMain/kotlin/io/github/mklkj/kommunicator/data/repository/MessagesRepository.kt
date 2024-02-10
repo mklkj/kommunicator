@@ -2,12 +2,14 @@ package io.github.mklkj.kommunicator.data.repository
 
 import io.github.mklkj.kommunicator.BuildKonfig
 import io.github.mklkj.kommunicator.Chats
+import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.db.Database
-import io.github.mklkj.kommunicator.data.db.entity.LocalContact
-import io.github.mklkj.kommunicator.data.models.Chat
+import io.github.mklkj.kommunicator.data.db.entity.LocalChat
+import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
-import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.data.models.MessageBroadcast
+import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -29,7 +31,7 @@ class MessagesRepository(
     private val database: Database,
 ) {
 
-    suspend fun createChat(contacts: List<LocalContact>): UUID {
+    suspend fun createChat(contacts: List<Contacts>): UUID {
         return messagesService.createChat(
             ChatCreateRequest(
                 customName = null,
@@ -40,7 +42,7 @@ class MessagesRepository(
         ).chatId
     }
 
-    fun observeChats(): Flow<List<Chat>> {
+    fun observeChats(): Flow<List<LocalChat>> {
         return flow {
             val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
             if (database.getChats(userId).isEmpty()) {
@@ -75,7 +77,7 @@ class MessagesRepository(
         database.insertMessages(chatId, messages)
     }
 
-    fun observeMessages(chatId: UUID): Flow<List<Message>> {
+    fun observeMessages(chatId: UUID): Flow<List<LocalMessage>> {
         return flow {
             val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
             emitAll(database.observeMessages(chatId, userId))
@@ -84,7 +86,13 @@ class MessagesRepository(
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {
         saveMessageToSend(chatId, message)
-        messagesService.sendMessage(chatId, message)
+        messagesService.sendMessage(
+            chatId = chatId,
+            message = MessagePush(
+                id = message.id,
+                content = message.content,
+            )
+        )
     }
 
     suspend fun saveMessageToSend(chatId: UUID, message: MessageRequest) {
@@ -108,7 +116,7 @@ class MessagesRepository(
         return session
     }
 
-    suspend fun handleReceivedMessage(chatId: UUID, message: Message) {
+    suspend fun handleReceivedMessage(chatId: UUID, message: MessageBroadcast) {
         database.insertIncomingMessage(chatId, message)
     }
 }

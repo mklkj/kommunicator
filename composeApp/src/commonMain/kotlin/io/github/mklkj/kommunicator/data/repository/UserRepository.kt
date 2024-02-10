@@ -1,9 +1,9 @@
 package io.github.mklkj.kommunicator.data.repository
 
 import com.mmk.kmpnotifier.notification.NotifierManager
+import io.github.mklkj.kommunicator.Users
 import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
-import io.github.mklkj.kommunicator.data.db.entity.LocalUser
 import io.github.mklkj.kommunicator.data.models.LoginRequest
 import io.github.mklkj.kommunicator.data.models.PushTokenRequest
 import io.github.mklkj.kommunicator.data.models.UserRequest
@@ -69,7 +69,7 @@ class UserRepository(
         }
     }
 
-    suspend fun getCurrentUser(): LocalUser {
+    suspend fun getCurrentUser(): Users {
         return database.getCurrentUser() ?: error("There is no currently logged in user!")
     }
 
@@ -94,7 +94,7 @@ class UserRepository(
             id = response.id,
         )
         database.insertUser(
-            LocalUser(
+            Users(
                 id = response.id,
                 email = user.email,
                 username = user.username,

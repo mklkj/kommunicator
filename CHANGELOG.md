@@ -460,6 +460,28 @@ odbierać wiadomości niż potrzeba. Uświadomiłem to sobie dopiero jak trafił
 https://youtrack.jetbrains.com/issue/KTOR-4452. Ostatecznie zrobiłem swoją metodę pomocniczą,
 działającą podobnie do `receiveDeserialized()` z pominięciem wywołania `receive()` w środku.
 
+## Aktualizacja bibliotek, więcej websocketów (2024-02-08/10)
+
+Na początek aktualizacja bibliotek, żeby mieć najnowsze compose multiplatform. Jeszcze wszystko nie
+ma stabilnej wersji, ale to nic. Wziąłem wersję dev, żeby była jak najbliższa kolejnemu wydaniu:
+https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.6.0-dev1409. Do tego wersja
+beta material3, bo coś zepsuli i z compose BOM nie idzie odpowiednia
+https://github.com/JetBrains/compose-multiplatform/issues/4157 i nawet działa.
+
+Idąc dalej — do realizacji ostatniego punktu wymagań potrzebuję jeszcze statusów o pisaniu
+i aktywności. Żeby przesyłać statusy o tym, że ktoś coś pisze najlepiej wykorzystać websockety.
+Nie chcemy jednak tworzyć miliona osobnych połączeń, a maksymalnie jedno per czat (tak jest teraz).
+Po tym jednym połączeniu chcemy przesyłać wiadomości. Żeby sobie _ułatwić_ pracę, zastosujemy
+polimiroficzną serializację z kotlinx.serialization
+https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#sealed-classes.
+I tutaj dałem się złapać na jedną niby oczywistą rzecz, ale w natłoku całej reszty kodu jej nie
+zauważyłem. Ciągle nie chciał mi się dodawać oryginalny typ do zserializowanych jsonów, przez co
+server nie mógł rozpoznać typu ramki. Okazało się, że chodzi o brak jasno zadeklarowanego typu
+przy wywołaniu serializera, tj. np. `Json.encodeToString()` zserializuje obiekt tak, jak go widzi.
+Żeby wziąć pod uwagę rodzica i dodać pole z `class discriminatorem` trzeba powiedzieć, o jaki typ
+nadrzędny nam chodzi, więc powinniśmy zapisać `Json.encodeToString<Typ>()` i tego mi właśnie
+na początku zabrakło.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

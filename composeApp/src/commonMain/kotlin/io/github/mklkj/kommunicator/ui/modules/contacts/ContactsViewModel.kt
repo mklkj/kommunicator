@@ -1,6 +1,6 @@
 package io.github.mklkj.kommunicator.ui.modules.contacts
 
-import io.github.mklkj.kommunicator.data.db.entity.LocalContact
+import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.data.repository.ContactRepository
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
@@ -45,7 +45,7 @@ class ContactsViewModel(
         }
     }
 
-    fun onCreateChat(contact: LocalContact) {
+    fun onCreateChat(contact: Contacts) {
         launch("create_chat_${contact.id}", cancelExisting = false) {
             mutableState.update { it.copy(isLoading = true) }
             runCatching { messagesRepository.createChat(listOf(contact)) }

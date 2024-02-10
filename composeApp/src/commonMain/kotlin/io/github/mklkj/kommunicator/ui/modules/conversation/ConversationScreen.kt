@@ -39,6 +39,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
@@ -108,7 +109,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     }
 
     @Composable
-    private fun ChatMessage(message: Message, modifier: Modifier = Modifier) {
+    private fun ChatMessage(message: LocalMessage, modifier: Modifier = Modifier) {
         val bubbleColor = when {
             message.isUserMessage -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.surface

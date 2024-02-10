@@ -33,7 +33,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.github.mklkj.kommunicator.data.db.entity.LocalUser
+import io.github.mklkj.kommunicator.Users
 import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
@@ -85,7 +85,7 @@ class AccountScreen : Screen {
 
     @Composable
     private fun AccountContent(
-        user: LocalUser,
+        user: Users,
         onLogout: () -> Unit,
     ) {
         Column(

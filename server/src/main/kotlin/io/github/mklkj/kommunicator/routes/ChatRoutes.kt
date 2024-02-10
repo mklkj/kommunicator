@@ -3,9 +3,10 @@ package io.github.mklkj.kommunicator.routes
 import io.github.mklkj.kommunicator.data.ChatConnections
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatCreateResponse
-import io.github.mklkj.kommunicator.data.models.Message
+import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEntity
-import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.models.MessageEvent
+import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.service.ChatService
 import io.github.mklkj.kommunicator.data.service.MessageService
 import io.github.mklkj.kommunicator.data.service.NotificationService
@@ -74,7 +75,7 @@ fun Route.chatRoutes() {
     post("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
         val chatId = call.parameters.getOrFail("id").toUUID()
-        val message = call.receive<MessageRequest>()
+        val message = call.receive<MessagePush>()
         val participants = chatService.getParticipants(chatId)
 
         // todo: add verification whether a given user can write to that chat!!!
@@ -92,20 +93,15 @@ fun Route.chatRoutes() {
             .filterNot { it.userId == userId }
             .forEach {
                 println("Notify user: ${it.userId}")
-                it.session.sendSerialized(
-                    Message(
-                        id = entity.id,
-                        isUserMessage = it.userId == userId,
-                        participantId = participants.single { participant ->
-                            it.userId == participant.userId
-                        }.id,
-                        participantFirstName = entity.firstName.orEmpty(), // todo
-                        participantLastName = entity.lastName.orEmpty(), // todo
-                        participantCustomName = entity.author,
-                        createdAt = entity.timestamp,
-                        content = entity.content,
-                    )
+                val event = MessageBroadcast(
+                    id = entity.id,
+                    participantId = participants.single { participant ->
+                        it.userId == participant.userId
+                    }.id,
+                    createdAt = entity.timestamp,
+                    content = entity.content,
                 )
+                it.session.sendSerialized<MessageEvent>(event)
             }
         notificationService.notifyParticipants(
             chatId = chatId,
@@ -136,45 +132,47 @@ fun Route.chatWebsockets() {
             incoming.consumeAsFlow()
                 .mapNotNull { frame ->
                     if (frame is Frame.Text) {
-                        frame.getDeserialized<MessageRequest>(this)
+                        frame.getDeserialized<MessageEvent>(this)
                     } else null
                 }
                 .onEach { message ->
-                    val entity = MessageEntity(
-                        id = message.id,
-                        chatId = chatId,
-                        userId = userId,
-                        timestamp = Clock.System.now(),
-                        content = message.content,
-                    )
-                    messageService.saveMessage(entity)
+                    when (message) {
+                        is MessagePush -> {
+                            val entity = MessageEntity(
+                                id = message.id,
+                                chatId = chatId,
+                                userId = userId,
+                                timestamp = Clock.System.now(),
+                                content = message.content,
+                            )
+                            messageService.saveMessage(entity)
 
-                    val connections = chatConnections.getConnections(chatId)
-                    connections
-                        .filterNot { it.userId == userId }
-                        .forEach {
-                            println("Notify user: ${it.userId}")
-                            it.session.sendSerialized(
-                                Message(
-                                    id = entity.id,
-                                    isUserMessage = it.userId == userId,
-                                    participantId = participants.single { participant ->
-                                        userId == participant.userId
-                                    }.id,
-                                    participantFirstName = entity.firstName.orEmpty(), // todo
-                                    participantLastName = entity.lastName.orEmpty(), // todo
-                                    participantCustomName = entity.author,
-                                    createdAt = entity.timestamp,
-                                    content = entity.content,
-                                )
+                            val connections = chatConnections.getConnections(chatId)
+                            connections
+                                .filterNot { it.userId == userId }
+                                .forEach { connection ->
+                                    println("Notify user: ${connection.userId}")
+                                    val event = MessageBroadcast(
+                                        id = entity.id,
+                                        participantId = participants
+                                            .single { userId == it.userId }
+                                            .id,
+                                        content = entity.content,
+                                        createdAt = entity.timestamp
+                                    )
+                                    connection.session.sendSerialized<MessageEvent>(event)
+                                }
+                            // todo: add to some queue?
+                            notificationService.notifyParticipants(
+                                chatId = chatId,
+                                messageId = message.id,
+                                alreadyNotifiedUsers = connections.map { it.userId },
                             )
                         }
-                    // todo: add to some queue?
-                    notificationService.notifyParticipants(
-                        chatId = chatId,
-                        messageId = message.id,
-                        alreadyNotifiedUsers = connections.map { it.userId },
-                    )
+
+                        // not handled on server
+                        is MessageBroadcast -> Unit
+                    }
                 }
                 .collect()
         } catch (e: Throwable) {
