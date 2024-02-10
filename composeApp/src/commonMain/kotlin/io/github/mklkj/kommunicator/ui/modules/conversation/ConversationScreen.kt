@@ -40,10 +40,10 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
-import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
+import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 
 class ConversationScreen(private val chatId: UUID) : Screen {
@@ -74,6 +74,10 @@ class ConversationScreen(private val chatId: UUID) : Screen {
             chatListState.animateScrollToItem(0)
         }
 
+        LaunchedEffect(state.typingParticipants) {
+            chatListState.animateScrollToItem(0)
+        }
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -95,16 +99,48 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     reverseLayout = true,
                     modifier = Modifier.weight(1f)
                 ) {
+                    items(state.typingParticipants.toList(), key = { it.first.toString() }) {
+                        ChatTyping(it.second)
+                    }
                     items(state.messages, key = { it.id.toString() }) {
                         ChatMessage(it)
                     }
                 }
                 ChatInput(
                     isLoading = state.isLoading,
-                    onSendClick = { viewModel.sendMessage(chatId, it) },
+                    onTyping = viewModel::onTyping,
+                    onSendClick = viewModel::sendMessage,
                     modifier = Modifier.fillMaxWidth().imePadding()
                 )
             }
+        }
+    }
+
+    @Composable
+    private fun ChatTyping(time: Instant, modifier: Modifier = Modifier) {
+        val bubbleColor = MaterialTheme.colorScheme.surface
+
+        Box(
+            contentAlignment = Alignment.CenterStart,
+            modifier = modifier
+                .padding(end = 50.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "...\n$time",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            bottomStart = 20.dp,
+                            bottomEnd = 20.dp,
+                            topEnd = 20.dp,
+                            topStart = 2.dp
+                        )
+                    )
+                    .background(bubbleColor)
+                    .padding(16.dp)
+            )
         }
     }
 
@@ -148,6 +184,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     @Composable
     private fun ChatInput(
         isLoading: Boolean,
+        onTyping: () -> Unit,
         onSendClick: (MessageRequest) -> Unit,
         modifier: Modifier = Modifier,
     ) {
@@ -156,7 +193,10 @@ class ConversationScreen(private val chatId: UUID) : Screen {
 
         TextField(
             value = content,
-            onValueChange = { content = it },
+            onValueChange = {
+                onTyping()
+                content = it
+            },
             maxLines = 3,
             placeholder = { Text(text = "Type a message...") },
             trailingIcon = {

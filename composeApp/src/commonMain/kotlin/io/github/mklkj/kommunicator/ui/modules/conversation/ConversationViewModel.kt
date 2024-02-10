@@ -5,7 +5,7 @@ import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.data.ws.ConversationClient
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
@@ -38,8 +38,12 @@ class ConversationViewModel(
         )
     }
 
-    fun sendMessage(chatId: UUID, message: MessageRequest) {
-        conversationClient.sendMessage(chatId, message)
+    fun sendMessage(message: MessageRequest) {
+        conversationClient.sendMessage(message)
+    }
+
+    fun onTyping() {
+        conversationClient.onTyping()
     }
 
     override fun onDispose() {
@@ -72,13 +76,17 @@ class ConversationViewModel(
 
     private fun observeMessages(chatId: UUID) {
         launch("observe_messages", isFlowObserver = true) {
-            messagesRepository.observeMessages(chatId)
-                .onEach { messages ->
-                    mutableState.update {
-                        it.copy(messages = messages)
-                    }
+            combine(
+                flow = messagesRepository.observeMessages(chatId),
+                flow2 = conversationClient.typingParticipants,
+            ) { messages, typingParticipants ->
+                mutableState.update {
+                    it.copy(
+                        messages = messages,
+                        typingParticipants = typingParticipants,
+                    )
                 }
-                .collect()
+            }.collect()
         }
     }
 

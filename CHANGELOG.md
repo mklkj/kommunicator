@@ -482,6 +482,13 @@ przy wywołaniu serializera, tj. np. `Json.encodeToString()` zserializuje obiekt
 nadrzędny nam chodzi, więc powinniśmy zapisać `Json.encodeToString<Typ>()` i tego mi właśnie
 na początku zabrakło.
 
+Idziemy dalej i implementujemy statusy o pisaniu wiadomości. Na razie zrobiłem to tak, że user
+piszący wiadomość wysyła pusty obiekt websocketem do serwera, który rozgłasza info o tym, że ten
+user coś pisze w obiekcie z jego participant id wszystkim zainteresowanym. Następnie ci wszyscy
+zainteresowani trzymają listę wszystkich osób, które coś pisały i okresowo usuwają z niej te wpisy,
+które są starsze niż 1 sekunda. Dzięki temu w UI pokazujemy tych, którzy faktycznie coś w danym
+momencie piszą i ukrywamy, kiedy pisać przestają.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

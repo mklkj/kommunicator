@@ -7,6 +7,8 @@ import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEntity
 import io.github.mklkj.kommunicator.data.models.MessageEvent
 import io.github.mklkj.kommunicator.data.models.MessagePush
+import io.github.mklkj.kommunicator.data.models.TypingBroadcast
+import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.service.ChatService
 import io.github.mklkj.kommunicator.data.service.MessageService
 import io.github.mklkj.kommunicator.data.service.NotificationService
@@ -136,6 +138,9 @@ fun Route.chatWebsockets() {
                     } else null
                 }
                 .onEach { message ->
+                    val connections = chatConnections.getConnections(chatId)
+                    val participantId = participants.single { userId == it.userId }.id
+
                     when (message) {
                         is MessagePush -> {
                             val entity = MessageEntity(
@@ -147,16 +152,13 @@ fun Route.chatWebsockets() {
                             )
                             messageService.saveMessage(entity)
 
-                            val connections = chatConnections.getConnections(chatId)
                             connections
                                 .filterNot { it.userId == userId }
                                 .forEach { connection ->
                                     println("Notify user: ${connection.userId}")
                                     val event = MessageBroadcast(
                                         id = entity.id,
-                                        participantId = participants
-                                            .single { userId == it.userId }
-                                            .id,
+                                        participantId = participantId,
                                         content = entity.content,
                                         createdAt = entity.timestamp
                                     )
@@ -170,8 +172,20 @@ fun Route.chatWebsockets() {
                             )
                         }
 
+                        TypingPush -> {
+                            connections
+                                .filterNot { it.userId == userId }
+                                .forEach { connection ->
+                                    val event = TypingBroadcast(
+                                        participantId = participantId,
+                                    )
+                                    connection.session.sendSerialized<MessageEvent>(event)
+                                }
+                        }
+
                         // not handled on server
                         is MessageBroadcast -> Unit
+                        is TypingBroadcast -> TODO()
                     }
                 }
                 .collect()

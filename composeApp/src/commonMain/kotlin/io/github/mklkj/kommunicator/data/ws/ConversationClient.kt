@@ -5,6 +5,8 @@ import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEvent
 import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.models.TypingBroadcast
+import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.getDeserialized
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -16,9 +18,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
+import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ConversationClient"
 
@@ -32,6 +44,8 @@ class ConversationClient(
 
     private var chatSession: DefaultClientWebSocketSession? = null
     private var chatId: UUID? = null
+    private val typingChannel = Channel<Unit>()
+    val typingParticipants = MutableStateFlow<Map<UUID, Instant>>(emptyMap())
 
     fun connect(chatId: UUID, onFailure: (Throwable) -> Unit) {
         Logger.withTag(TAG).i("Connecting to websocket on $chatId chat")
@@ -39,6 +53,8 @@ class ConversationClient(
         scope.launch {
             runCatching {
                 chatSession = messagesRepository.getChatSession(chatId)
+                initializeTypingObserver()
+                initializeTypingStaleTimer()
                 observeIncomingMessages()
             }.onFailure(onFailure)
         }
@@ -54,13 +70,24 @@ class ConversationClient(
                     messagesRepository.handleReceivedMessage(chatId ?: return, messageEvent)
                 }
 
+                is TypingBroadcast -> {
+                    Logger.withTag(TAG).i("Receive typing from: ${messageEvent.participantId}")
+
+                    typingParticipants.update {
+                        it + mapOf(messageEvent.participantId to Clock.System.now())
+                    }
+                }
+
                 // not implemented on server
                 is MessagePush -> Unit
+                TypingPush -> Unit
             }
         }
     }
 
-    fun sendMessage(chatId: UUID, message: MessageRequest) {
+    fun sendMessage(message: MessageRequest) {
+        val chatId = chatId ?: return
+
         scope.launch {
             when (chatSession) {
                 null -> {
@@ -80,6 +107,34 @@ class ConversationClient(
                 }
             }
         }
+    }
+
+    private fun initializeTypingObserver() {
+        scope.launch {
+            typingChannel.consumeAsFlow()
+//                .debounce(0.5.seconds)
+                .onEach {
+                    chatSession?.sendSerialized<MessageEvent>(TypingPush)
+                }
+                .collect()
+        }
+    }
+
+    private fun initializeTypingStaleTimer() {
+        scope.launch {
+            while (true) {
+                typingParticipants.update { participants ->
+                    participants.filterValues { lastUpdate ->
+                        Clock.System.now().minus(lastUpdate) <= 1.seconds
+                    }
+                }
+                delay(1.seconds)
+            }
+        }
+    }
+
+    fun onTyping() {
+        typingChannel.trySend(Unit)
     }
 
     fun onDispose() {

@@ -23,3 +23,11 @@ data class MessagePush(
     val id: UUID,
     val content: String,
 ) : MessageEvent()
+
+@Serializable
+data object TypingPush : MessageEvent()
+
+@Serializable
+data class TypingBroadcast(
+    val participantId: UUID,
+) : MessageEvent()
