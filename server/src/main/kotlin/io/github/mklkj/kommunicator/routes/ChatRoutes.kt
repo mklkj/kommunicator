@@ -77,10 +77,11 @@ fun Route.chatRoutes() {
     post("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
         val chatId = call.parameters.getOrFail("id").toUUID()
-        val message = call.receive<MessagePush>()
+        val message = call.receive<MessageEvent>()
         val participants = chatService.getParticipants(chatId)
 
-        // todo: add verification whether a given user can write to that chat!!!
+        if (message !is MessagePush) return@post
+
         val entity = MessageEntity(
             id = message.id,
             chatId = chatId,
@@ -88,6 +89,7 @@ fun Route.chatRoutes() {
             timestamp = Clock.System.now(),
             content = message.content,
         )
+        // todo: add verification whether a given user can write to that chat!!!
         messageService.saveMessage(entity)
 
         val connections = chatConnections.getConnections(chatId)
@@ -185,7 +187,7 @@ fun Route.chatWebsockets() {
 
                         // not handled on server
                         is MessageBroadcast -> Unit
-                        is TypingBroadcast -> TODO()
+                        is TypingBroadcast -> Unit
                     }
                 }
                 .collect()

@@ -88,6 +88,7 @@ class ConversationClient(
     fun sendMessage(message: MessageRequest) {
         val chatId = chatId ?: return
 
+        // todo: add error handler!
         scope.launch {
             when (chatSession) {
                 null -> {
