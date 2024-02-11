@@ -14,9 +14,9 @@ import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocketSession
-import io.ktor.client.request.host
-import io.ktor.client.request.port
 import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
+import io.ktor.http.path
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -108,12 +108,14 @@ class MessagesRepository(
     }
 
     suspend fun getChatSession(chatId: UUID): DefaultClientWebSocketSession {
-        val session = httpClient.webSocketSession("/ws/chats/$chatId/messages") {
-            val url = URLBuilder(BuildKonfig.BASE_URL)
-            host = url.host
-            port = url.port
+        val url = (URLBuilder(BuildKonfig.BASE_URL)).apply {
+            protocol = when (protocol) {
+                URLProtocol.HTTPS -> URLProtocol.WSS
+                else -> URLProtocol.WS
+            }
+            path("/ws/chats/$chatId/messages")
         }
-        return session
+        return httpClient.webSocketSession(url.buildString())
     }
 
     suspend fun handleReceivedMessage(chatId: UUID, message: MessageBroadcast) {
