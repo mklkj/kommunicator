@@ -489,6 +489,29 @@ zainteresowani trzymają listę wszystkich osób, które coś pisały i okresowo
 które są starsze niż 1 sekunda. Dzięki temu w UI pokazujemy tych, którzy faktycznie coś w danym
 momencie piszą i ukrywamy, kiedy pisać przestają.
 
+## Websockety ciąg dalszy (2024-02-11)
+
+Niestety wczorajszy deploy się nie powiódł. Apka się wywala, połączenie z websocketami się nie
+ustanawia. Dramat.
+
+Pierwszy problem był lekko ukryty i pokazywał się w momencie, kiedy sesji websocketowej nie było.
+Powiązane z poprzednimi problemami, czyli z deserializacją — zły obiekt sobie na backendzie
+próbowałem deserializować i się wywalało przez nieznane pole `type`. Zamiana na ten bardziej ogólny
+wystarczyła.
+
+Drugie, powód braku łączenia z websocketami. W zasadzie to były tu dwa problemy. Najpierw pokazał
+się ten spowodowany użyciem złego protokołu (`ws`), kiedy API było za SSLem. Apka dostawała HTTP 304
+(pewnie cloudflare próbował przekierować na https). Trzeba było zmienić na `wss` i...
+i mamy kolejny problem. Teraz apka dostaje HTTP 404 :) Trochę zabawy w detektywa i mój wzrok padł
+na kwestię nagłówków. API jest za nginxowym proxy, więc tam się pewnie header `Upgrade` nie
+przesyła do API. Dodanie dwóch linijek do mojej konfiguracji nginxa
+https://www.serverlab.ca/tutorials/linux/web-servers-linux/how-to-configure-nginx-for-websockets/
+i załatwione.
+
+Dalej — indykator pisania wiadomości. Jest trochę... słaby. Zróbmy go trochę lepszym.
+Na początek ulepszenia w debounce/throtlingu/itp/itd. Znalazłem taką fajną metodę, która wysyła
+tylko jeden request na 3 sekundy. Na razie wystarczy, chociaż nie jest idealna.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

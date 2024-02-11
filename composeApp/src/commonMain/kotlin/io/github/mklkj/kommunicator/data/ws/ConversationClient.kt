@@ -9,6 +9,7 @@ import io.github.mklkj.kommunicator.data.models.TypingBroadcast
 import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.getDeserialized
+import io.github.mklkj.kommunicator.utils.throttleFirst
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.sendSerialized
 import io.ktor.serialization.WebsocketContentConverter
@@ -33,6 +34,7 @@ import org.koin.core.annotation.Factory
 import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ConversationClient"
+private val TYPING_SAMPLE_DURATION = 3.seconds
 
 @Factory
 class ConversationClient(
@@ -113,7 +115,7 @@ class ConversationClient(
     private fun initializeTypingObserver() {
         scope.launch {
             typingChannel.consumeAsFlow()
-//                .debounce(0.5.seconds)
+                .throttleFirst(TYPING_SAMPLE_DURATION.inWholeMilliseconds)
                 .onEach {
                     chatSession?.sendSerialized<MessageEvent>(TypingPush)
                 }
@@ -126,10 +128,10 @@ class ConversationClient(
             while (true) {
                 typingParticipants.update { participants ->
                     participants.filterValues { lastUpdate ->
-                        Clock.System.now().minus(lastUpdate) <= 1.seconds
+                        Clock.System.now().minus(lastUpdate) <= TYPING_SAMPLE_DURATION
                     }
                 }
-                delay(1.seconds)
+                delay(TYPING_SAMPLE_DURATION)
             }
         }
     }
