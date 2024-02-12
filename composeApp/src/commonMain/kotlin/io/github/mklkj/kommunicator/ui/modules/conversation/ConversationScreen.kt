@@ -2,6 +2,7 @@ package io.github.mklkj.kommunicator.ui.modules.conversation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,6 +50,7 @@ import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.DotsTyping
+import io.github.mklkj.kommunicator.utils.format
 import kotlinx.uuid.UUID
 
 class ConversationScreen(private val chatId: UUID) : Screen {
@@ -111,7 +113,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     }
                     items(state.messages, key = { it.id.toString() }) {
                         AvatarWithItem(it.avatarUrl, it.isUserMessage) {
-                            BubbleMessage(it)
+                            BubbleMessageWithDate(it)
                         }
                     }
                 }
@@ -179,7 +181,29 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     }
 
     @Composable
-    private fun BubbleMessage(message: LocalMessage, modifier: Modifier = Modifier) {
+    private fun BubbleMessageWithDate(message: LocalMessage, modifier: Modifier = Modifier) {
+        var dateReveal by remember { mutableStateOf(false) }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxWidth()
+        ) {
+            if (dateReveal) {
+                Text(message.createdAt.format())
+            }
+            BubbleMessage(
+                message = message,
+                onClick = { dateReveal = !dateReveal }
+            )
+        }
+    }
+
+    @Composable
+    private fun BubbleMessage(
+        message: LocalMessage,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+    ) {
         val bubbleColor = when {
             message.isUserMessage -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.surface
@@ -209,6 +233,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     .padding(8.dp)
                     .border(1.dp, MaterialTheme.colorScheme.primaryContainer, shape)
                     .clip(shape)
+                    .clickable { onClick() }
                     .background(bubbleColor)
                     .padding(16.dp)
             )

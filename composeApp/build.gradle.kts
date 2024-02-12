@@ -207,10 +207,12 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     dependencies {
+        coreLibraryDesugaring(libs.desugar.jdk.libs)
         debugImplementation(libs.compose.ui.tooling)
     }
 }

@@ -31,3 +31,5 @@ fun Long.toLocalDate(): LocalDate {
 fun LocalDate.getMillis(tz: TimeZone = TimeZone.UTC): Long {
     return atStartOfDayIn(tz).toEpochMilliseconds()
 }
+
+expect fun Instant.format(format: String = "dd-MM-yyyy HH:mm:ss"): String
