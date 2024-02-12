@@ -142,6 +142,7 @@ class Database(sqlDriver: SqlDriver) {
                             content = it.content,
                             chatId = it.chatId,
                             userId = userId,
+                            avatarUrl = it.avatarUrl,
                         ),
                     )
                 }
@@ -228,6 +229,7 @@ class Database(sqlDriver: SqlDriver) {
                         content = it.content,
                         chatId = chatId,
                         userId = userId,
+                        avatarUrl = it.avatarUrl,
                     )
                 }
             }

@@ -10,6 +10,7 @@ data class LocalMessage(
     val authorId: UUID,
     val isUserMessage: Boolean,
     val participantName: String,
+    val avatarUrl: String?,
     val createdAt: Instant,
     val content: String,
 )

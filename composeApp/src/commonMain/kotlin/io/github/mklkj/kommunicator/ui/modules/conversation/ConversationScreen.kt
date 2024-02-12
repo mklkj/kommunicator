@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +47,7 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.DotsTyping
 import kotlinx.uuid.UUID
 
@@ -101,10 +105,14 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     modifier = Modifier.weight(1f)
                 ) {
                     items(state.typingParticipants.toList(), key = { it.id.toString() }) {
-                        ChatTyping()
+                        AvatarWithItem(it.avatarUrl, false) {
+                            BubbleTyping()
+                        }
                     }
                     items(state.messages, key = { it.id.toString() }) {
-                        ChatMessage(it)
+                        AvatarWithItem(it.avatarUrl, it.isUserMessage) {
+                            BubbleMessage(it)
+                        }
                     }
                 }
                 ChatInput(
@@ -118,7 +126,32 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     }
 
     @Composable
-    private fun ChatTyping(modifier: Modifier = Modifier) {
+    private fun AvatarWithItem(
+        avatarUrl: String?,
+        isUserMessage: Boolean,
+        modifier: Modifier = Modifier,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp)
+        ) {
+            if (avatarUrl != null && !isUserMessage) {
+                AppImage(
+                    url = avatarUrl,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .size(32.dp)
+                        .clip(CircleShape)
+                )
+            }
+            content()
+        }
+    }
+
+    @Composable
+    private fun BubbleTyping(modifier: Modifier = Modifier) {
         val bubbleColor = MaterialTheme.colorScheme.surface
         val shape = RoundedCornerShape(
             bottomStart = 20.dp,
@@ -146,7 +179,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     }
 
     @Composable
-    private fun ChatMessage(message: LocalMessage, modifier: Modifier = Modifier) {
+    private fun BubbleMessage(message: LocalMessage, modifier: Modifier = Modifier) {
         val bubbleColor = when {
             message.isUserMessage -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.surface
