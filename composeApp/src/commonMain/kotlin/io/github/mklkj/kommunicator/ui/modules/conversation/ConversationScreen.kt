@@ -1,6 +1,7 @@
 package io.github.mklkj.kommunicator.ui.modules.conversation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +44,7 @@ import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
+import io.github.mklkj.kommunicator.ui.widgets.DotsTyping
 import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 
@@ -119,27 +121,27 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     @Composable
     private fun ChatTyping(time: Instant, modifier: Modifier = Modifier) {
         val bubbleColor = MaterialTheme.colorScheme.surface
-
+        val shape = RoundedCornerShape(
+            bottomStart = 20.dp,
+            bottomEnd = 20.dp,
+            topEnd = 20.dp,
+            topStart = 2.dp
+        )
         Box(
             contentAlignment = Alignment.CenterStart,
             modifier = modifier
-                .padding(end = 50.dp)
-                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, MaterialTheme.colorScheme.primaryContainer, shape)
+                .clip(shape)
+                .background(bubbleColor)
+                .padding(16.dp)
         ) {
-            Text(
-                text = "...\n$time",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            bottomStart = 20.dp,
-                            bottomEnd = 20.dp,
-                            topEnd = 20.dp,
-                            topStart = 2.dp
-                        )
-                    )
-                    .background(bubbleColor)
-                    .padding(16.dp)
+            DotsTyping(
+                numberOfDots = 3,
+                dotSize = 6.dp,
+                spaceBetween = 6.dp,
+                dotColor = MaterialTheme.colorScheme.onSurface,
+                delayUnit = 500,
             )
         }
     }
@@ -163,18 +165,18 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                 )
                 .fillMaxWidth()
         ) {
+            val shape = RoundedCornerShape(
+                bottomStart = 20.dp,
+                bottomEnd = 20.dp,
+                topEnd = if (message.isUserMessage) 2.dp else 20.dp,
+                topStart = if (message.isUserMessage) 20.dp else 2.dp
+            )
             Text(
                 text = message.content,
                 modifier = Modifier
                     .padding(8.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            bottomStart = 20.dp,
-                            bottomEnd = 20.dp,
-                            topEnd = if (message.isUserMessage) 2.dp else 20.dp,
-                            topStart = if (message.isUserMessage) 20.dp else 2.dp
-                        )
-                    )
+                    .border(1.dp, MaterialTheme.colorScheme.primaryContainer, shape)
+                    .clip(shape)
                     .background(bubbleColor)
                     .padding(16.dp)
             )
