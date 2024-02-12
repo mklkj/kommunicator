@@ -25,9 +25,12 @@ data class MessagePush(
 ) : MessageEvent()
 
 @Serializable
-data object TypingPush : MessageEvent()
+data class TypingPush(
+    val isStop: Boolean,
+) : MessageEvent()
 
 @Serializable
 data class TypingBroadcast(
     val participantId: UUID,
+    val isStop: Boolean,
 ) : MessageEvent()

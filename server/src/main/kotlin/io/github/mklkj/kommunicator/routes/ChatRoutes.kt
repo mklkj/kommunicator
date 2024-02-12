@@ -174,12 +174,13 @@ fun Route.chatWebsockets() {
                             )
                         }
 
-                        TypingPush -> {
+                        is TypingPush -> {
                             connections
                                 .filterNot { it.userId == userId }
                                 .forEach { connection ->
                                     val event = TypingBroadcast(
                                         participantId = participantId,
+                                        isStop = message.isStop,
                                     )
                                     connection.session.sendSerialized<MessageEvent>(event)
                                 }

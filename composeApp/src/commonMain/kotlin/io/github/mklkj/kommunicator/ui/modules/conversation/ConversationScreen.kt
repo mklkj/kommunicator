@@ -218,7 +218,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     @Composable
     private fun ChatInput(
         isLoading: Boolean,
-        onTyping: () -> Unit,
+        onTyping: (String) -> Unit,
         onSendClick: (MessageRequest) -> Unit,
         modifier: Modifier = Modifier,
     ) {
@@ -228,7 +228,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
         TextField(
             value = content,
             onValueChange = {
-                onTyping()
+                onTyping(it)
                 content = it
             },
             maxLines = 3,

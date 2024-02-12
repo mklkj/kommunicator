@@ -45,8 +45,8 @@ class ConversationViewModel(
         conversationClient.sendMessage(message)
     }
 
-    fun onTyping() {
-        conversationClient.onTyping()
+    fun onTyping(currentMessage: String) {
+        conversationClient.onTyping(currentMessage.isBlank())
     }
 
     override fun onDispose() {

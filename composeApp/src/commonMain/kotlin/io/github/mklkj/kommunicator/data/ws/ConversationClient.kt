@@ -46,7 +46,7 @@ class ConversationClient(
 
     private var chatSession: DefaultClientWebSocketSession? = null
     private var chatId: UUID? = null
-    private val typingChannel = Channel<Unit>()
+    private val typingChannel = Channel<Boolean>()
     val typingParticipants = MutableStateFlow<Map<UUID, Instant>>(emptyMap())
 
     fun connect(chatId: UUID, onFailure: (Throwable) -> Unit) {
@@ -75,14 +75,17 @@ class ConversationClient(
                 is TypingBroadcast -> {
                     Logger.withTag(TAG).i("Receive typing from: ${messageEvent.participantId}")
 
-                    typingParticipants.update {
-                        it + mapOf(messageEvent.participantId to Clock.System.now())
+                    typingParticipants.update { typingMap ->
+                        when {
+                            messageEvent.isStop -> typingMap.filterKeys { it != messageEvent.participantId }
+                            else -> typingMap + mapOf(messageEvent.participantId to Clock.System.now())
+                        }
                     }
                 }
 
                 // not implemented on server
                 is MessagePush -> Unit
-                TypingPush -> Unit
+                is TypingPush -> Unit
             }
         }
     }
@@ -107,6 +110,7 @@ class ConversationClient(
                             content = message.content,
                         )
                     )
+                    onTyping(isEmptyMessage = true)
                 }
             }
         }
@@ -117,7 +121,7 @@ class ConversationClient(
             typingChannel.consumeAsFlow()
                 .throttleFirst(TYPING_SAMPLE_DURATION.inWholeMilliseconds)
                 .onEach {
-                    chatSession?.sendSerialized<MessageEvent>(TypingPush)
+                    chatSession?.sendSerialized<MessageEvent>(TypingPush(it))
                 }
                 .collect()
         }
@@ -136,8 +140,8 @@ class ConversationClient(
         }
     }
 
-    fun onTyping() {
-        typingChannel.trySend(Unit)
+    fun onTyping(isEmptyMessage: Boolean) {
+        typingChannel.trySend(isEmptyMessage)
     }
 
     fun onDispose() {
