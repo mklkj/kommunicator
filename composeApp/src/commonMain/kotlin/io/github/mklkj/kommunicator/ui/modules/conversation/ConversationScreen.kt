@@ -1,5 +1,6 @@
 package io.github.mklkj.kommunicator.ui.modules.conversation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -100,6 +101,8 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                 )
             },
         ) { paddingValues ->
+            var revealedMessageId by remember { mutableStateOf<UUID?>(null) }
+
             Column(Modifier.scaffoldPadding(paddingValues)) {
                 LazyColumn(
                     state = chatListState,
@@ -113,7 +116,16 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     }
                     items(state.messages, key = { it.id.toString() }) {
                         AvatarWithItem(it.avatarUrl, it.isUserMessage) {
-                            BubbleMessageWithDate(it)
+                            BubbleMessageWithDate(
+                                message = it,
+                                isDateRevealed = revealedMessageId == it.id,
+                                onClick = {
+                                    revealedMessageId = when (it.id) {
+                                        revealedMessageId -> null
+                                        else -> it.id
+                                    }
+                                },
+                            )
                         }
                     }
                 }
@@ -181,19 +193,22 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     }
 
     @Composable
-    private fun BubbleMessageWithDate(message: LocalMessage, modifier: Modifier = Modifier) {
-        var dateReveal by remember { mutableStateOf(false) }
-
+    private fun BubbleMessageWithDate(
+        message: LocalMessage,
+        isDateRevealed: Boolean,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxWidth()
         ) {
-            if (dateReveal) {
+            AnimatedVisibility(isDateRevealed) {
                 Text(message.createdAt.format())
             }
             BubbleMessage(
                 message = message,
-                onClick = { dateReveal = !dateReveal }
+                onClick = onClick,
             )
         }
     }
