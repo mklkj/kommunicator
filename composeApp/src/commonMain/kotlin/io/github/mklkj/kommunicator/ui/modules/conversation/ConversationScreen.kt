@@ -45,7 +45,6 @@ import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.DotsTyping
-import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 
 class ConversationScreen(private val chatId: UUID) : Screen {
@@ -101,8 +100,8 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     reverseLayout = true,
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(state.typingParticipants.toList(), key = { it.first.toString() }) {
-                        ChatTyping(it.second)
+                    items(state.typingParticipants.toList(), key = { it.id.toString() }) {
+                        ChatTyping()
                     }
                     items(state.messages, key = { it.id.toString() }) {
                         ChatMessage(it)
@@ -119,7 +118,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     }
 
     @Composable
-    private fun ChatTyping(time: Instant, modifier: Modifier = Modifier) {
+    private fun ChatTyping(modifier: Modifier = Modifier) {
         val bubbleColor = MaterialTheme.colorScheme.surface
         val shape = RoundedCornerShape(
             bottomStart = 20.dp,

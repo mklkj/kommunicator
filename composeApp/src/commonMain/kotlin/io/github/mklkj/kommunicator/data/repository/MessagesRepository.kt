@@ -3,11 +3,13 @@ package io.github.mklkj.kommunicator.data.repository
 import io.github.mklkj.kommunicator.BuildKonfig
 import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.Contacts
+import io.github.mklkj.kommunicator.Participants
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalChat
 import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
+import io.github.mklkj.kommunicator.data.models.ChatParticipant
 import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
@@ -82,6 +84,10 @@ class MessagesRepository(
             val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
             emitAll(database.observeMessages(chatId, userId))
         }
+    }
+
+    fun observeParticipants(chatId: UUID): Flow<List<Participants>> {
+        return database.observeParticipants(chatId)
     }
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {

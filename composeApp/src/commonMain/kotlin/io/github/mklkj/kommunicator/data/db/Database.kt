@@ -166,6 +166,11 @@ class Database(sqlDriver: SqlDriver) {
         }.executeAsOneOrNull()
     }
 
+    fun observeParticipants(chatId: UUID): Flow<List<Participants>> {
+        return dbQuery.selectChatParticipants(chatId).asFlow()
+            .mapToList(Dispatchers.IO)
+    }
+
     suspend fun insertChats(userId: UUID, chats: List<Chat>) {
         withContext(Dispatchers.IO) {
             dbQuery.transaction {

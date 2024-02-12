@@ -4,8 +4,11 @@ import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.data.ws.ConversationClient
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
@@ -74,11 +77,17 @@ class ConversationViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeMessages(chatId: UUID) {
         launch("observe_messages", isFlowObserver = true) {
             combine(
                 flow = messagesRepository.observeMessages(chatId),
-                flow2 = conversationClient.typingParticipants,
+                flow2 = messagesRepository.observeParticipants(chatId)
+                    .flatMapLatest { participants ->
+                        conversationClient.typingParticipants.map { typing ->
+                            participants.filter { it.id in typing.keys }
+                        }
+                    },
             ) { messages, typingParticipants ->
                 mutableState.update {
                     it.copy(

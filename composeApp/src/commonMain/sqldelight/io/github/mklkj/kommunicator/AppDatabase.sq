@@ -101,6 +101,9 @@ insertParticipant:
 INSERT OR REPLACE INTO Participants(id, userId, chatId, customName, firstname, lastName, avatarUrl)
 VALUES(?, ?, ?, ?, ?, ?, ?);
 
+selectChatParticipants:
+SELECT * FROM Participants WHERE chatId = ?;
+
 selectParticipantByUserId:
 SELECT * FROM Participants WHERE userId = ? AND chatId = ?;
 

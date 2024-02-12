@@ -61,7 +61,7 @@ fun DotsTyping(
 }
 
 @Composable
-fun Dot(offset: Float, dotSize: Dp, dotColor: Color) {
+private fun Dot(offset: Float, dotSize: Dp, dotColor: Color) {
     val modifier = Modifier
         .size(dotSize)
         .offset(y = -offset.dp)
@@ -73,7 +73,7 @@ fun Dot(offset: Float, dotSize: Dp, dotColor: Color) {
 }
 
 @Composable
-fun animateOffsetWithDelay(
+private fun animateOffsetWithDelay(
     delay: Int,
     maxOffset: Float,
     duration: Int,
