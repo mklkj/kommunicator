@@ -72,7 +72,7 @@ fun Route.chatRoutes() {
         // todo: add verification whether a given user can read messages from that chat!!!
         val chatId = call.parameters.getOrFail("id").toUUID()
 
-        call.respond(messageService.getMessages(chatId))
+        call.respond(messageService.getMessages(chatId, userId))
     }
     post("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
@@ -119,7 +119,6 @@ fun Route.chatRoutes() {
 }
 
 fun Route.chatWebsockets() {
-    val chatService by inject<ChatService>()
     val messageService by inject<MessageService>()
     val notificationService by inject<NotificationService>()
     val chatConnections by inject<ChatConnections>()

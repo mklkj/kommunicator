@@ -12,4 +12,5 @@ data class MessageEntity(
     val author: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
+    val readAt: Instant? = null,
 )

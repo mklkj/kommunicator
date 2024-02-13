@@ -10,4 +10,5 @@ data class Message(
     val participantId: UUID,
     val createdAt: Instant,
     val content: String,
+    val readAt: Instant?,
 )

@@ -3,6 +3,7 @@ package io.github.mklkj.kommunicator.data
 import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ChatsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ContactsTable
+import io.github.mklkj.kommunicator.data.dao.tables.MessagesReadTable
 import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
 import io.github.mklkj.kommunicator.data.dao.tables.UserPushTokensTable
 import io.github.mklkj.kommunicator.data.dao.tables.UserTokensTable
@@ -19,6 +20,7 @@ class DatabaseFactory {
     private val tables = arrayOf(
         UsersTable,
         MessagesTable,
+        MessagesReadTable,
         UserTokensTable,
         ContactsTable,
         ChatsTable,

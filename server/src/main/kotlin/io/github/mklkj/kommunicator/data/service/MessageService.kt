@@ -21,14 +21,15 @@ class MessageService(
         return chatRepository.getChatParticipantId(chatId, userId)
     }
 
-    suspend fun getMessages(chatId: UUID): List<Message> {
-        return messageRepository.getMessages(chatId)
+    suspend fun getMessages(chatId: UUID, userId: UUID): List<Message> {
+        return messageRepository.getMessages(chatId, userId)
             .map { message ->
                 Message(
                     id = message.id,
                     participantId = message.participantId,
                     createdAt = message.timestamp,
                     content = message.content,
+                    readAt = message.readAt,
                 )
             }
     }

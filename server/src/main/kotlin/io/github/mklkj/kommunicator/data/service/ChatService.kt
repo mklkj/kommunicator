@@ -87,6 +87,7 @@ class ChatService(
                     participantId = chat.lastMessage.authorId,
                     createdAt = chat.lastMessage.createdAt,
                     content = chat.lastMessage.content,
+                    readAt = chat.lastMessage.readAt,
                 ),
                 customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
                     when (notCurrentUserParticipants.size) {

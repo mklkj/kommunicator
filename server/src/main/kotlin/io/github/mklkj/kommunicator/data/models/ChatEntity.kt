@@ -23,6 +23,7 @@ data class ChatSummaryLastMessageEntity(
     val authorFirstName: String,
     val authorLastName: String,
     val authorCustomName: String?,
+    val readAt: Instant?,
 )
 
 data class ChatSummaryParticipant(
