@@ -70,8 +70,9 @@ SELECT * FROM Chats WHERE id = ?;
 selectAllChats:
 SELECT
     Chat.id AS chatId, Chat.customName AS chatCustomName, Chat.avatarUrl,
-    Messages.id AS lastMessageId, Messages.authorId, Messages.createdAt, Messages.content,
-    Participants.id AS lastMessageAuthorId, Participants.avatarUrl, Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName
+    Messages.id AS lastMessageId, Messages.authorId, Messages.createdAt, Messages.content, Messages.readAt AS lastMessageReadAt,
+    Participants.id AS lastMessageAuthorId, Participants.avatarUrl,
+    Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName
 FROM (
     SELECT Chats.*, (
             SELECT id
@@ -114,12 +115,13 @@ CREATE TABLE Messages (
     chatId TEXT AS UUID NOT NULL,
     authorId TEXT AS UUID NOT NULL,
     createdAt TEXT AS Instant NOT NULL,
-    content TEXT NOT NULL
+    content TEXT NOT NULL,
+    readAt TEXT AS Instant
 );
 
 insertMessage:
-INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content)
-VALUES(?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content, readAt)
+VALUES(?, ?, ?, ?, ?, ?);
 
 selectMessages:
 SELECT Messages.*, Participants.userId AS userId, Participants.firstname, Participants.lastName, Participants.customName, Participants.avatarUrl

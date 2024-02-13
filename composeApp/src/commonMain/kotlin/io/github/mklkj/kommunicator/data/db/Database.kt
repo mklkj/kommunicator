@@ -45,6 +45,7 @@ class Database(sqlDriver: SqlDriver) {
             chatIdAdapter = UUIDStringAdapter,
             authorIdAdapter = UUIDStringAdapter,
             createdAtAdapter = InstantStringAdapter,
+            readAtAdapter = InstantStringAdapter,
         ),
         ParticipantsAdapter = Participants.Adapter(
             idAdapter = UUIDStringAdapter,
@@ -129,7 +130,7 @@ class Database(sqlDriver: SqlDriver) {
                         customName = it.chatCustomName,
                         avatarUrl = it.avatarUrl,
 
-                        isUnread = false,
+                        isUnread = it.lastMessageReadAt == null,
                         isActive = Random.nextBoolean(),
                         participants = listOf(),
 
@@ -208,6 +209,7 @@ class Database(sqlDriver: SqlDriver) {
                                 authorId = lastMessage.participantId,
                                 createdAt = lastMessage.createdAt,
                                 content = lastMessage.content,
+                                readAt = lastMessage.readAt,
                             )
                         }
                     }
@@ -245,6 +247,7 @@ class Database(sqlDriver: SqlDriver) {
                         authorId = it.participantId,
                         createdAt = it.createdAt,
                         content = it.content,
+                        readAt = it.readAt,
                     )
                 }
             }
@@ -259,6 +262,7 @@ class Database(sqlDriver: SqlDriver) {
                 authorId = message.participantId,
                 createdAt = message.createdAt,
                 content = message.content,
+                readAt = null,
             )
         }
 
@@ -272,6 +276,7 @@ class Database(sqlDriver: SqlDriver) {
                 authorId = authorId,
                 createdAt = Clock.System.now(),
                 content = messageRequest.content,
+                readAt = null,
             )
         }
     }

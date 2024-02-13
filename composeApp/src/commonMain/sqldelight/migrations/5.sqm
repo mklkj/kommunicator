@@ -1,0 +1,3 @@
+import kotlinx.datetime.Instant;
+
+ALTER TABLE Messages ADD COLUMN readAt TEXT AS Instant;
