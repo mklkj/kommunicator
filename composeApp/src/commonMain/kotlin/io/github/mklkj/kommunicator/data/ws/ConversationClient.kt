@@ -14,6 +14,7 @@ import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.sendSerialized
 import io.ktor.serialization.WebsocketContentConverter
 import io.ktor.websocket.Frame
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -22,6 +23,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onEach
@@ -43,58 +45,72 @@ class ConversationClient(
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val errorExceptionHandler = CoroutineExceptionHandler { _, it ->
+        Logger.e("Error occurred in conversation client", it)
+    }
 
     private var chatSession: DefaultClientWebSocketSession? = null
     private var chatId: UUID? = null
     private val typingChannel = Channel<Boolean>()
     val typingParticipants = MutableStateFlow<Map<UUID, Instant>>(emptyMap())
+    val connectionStatus = MutableStateFlow<ConnectionStatus>(ConnectionStatus.NotConnected)
 
-    fun connect(chatId: UUID, onFailure: (Throwable) -> Unit) {
+    fun connect(chatId: UUID) {
         Logger.withTag(TAG).i("Connecting to websocket on $chatId chat")
         this.chatId = chatId
-        scope.launch {
-            runCatching {
-                chatSession = messagesRepository.getChatSession(chatId)
-                initializeTypingObserver()
-                initializeTypingStaleTimer()
-                observeIncomingMessages()
-            }.onFailure(onFailure)
+        scope.launch(errorExceptionHandler) {
+            connectionStatus.update { ConnectionStatus.Connecting }
+            chatSession = runCatching { messagesRepository.getChatSession(chatId) }
+                .onFailure { error -> connectionStatus.update { ConnectionStatus.Error(error) } }
+                .getOrThrow()
+
+            initializeTypingObserver()
+            initializeTypingStaleTimer()
+            observeIncomingMessages()
         }
     }
 
     private suspend fun observeIncomingMessages() {
-        for (frame in chatSession?.incoming ?: return) {
-            if (frame !is Frame.Text) continue
+        try {
+            connectionStatus.update { ConnectionStatus.Connected }
+            for (frame in chatSession?.incoming ?: return) {
+                if (frame !is Frame.Text) continue
 
-            when (val messageEvent = frame.getDeserialized<MessageEvent>(websocketConverter)) {
-                is MessageBroadcast -> {
-                    Logger.withTag(TAG).i("Receive message from: ${messageEvent.participantId}")
-                    messagesRepository.handleReceivedMessage(chatId ?: return, messageEvent)
-                }
+                handleIncomingFrame(frame)
+            }
+        } catch (e: Throwable) {
+            connectionStatus.update { ConnectionStatus.Error(e) }
+        }
+    }
 
-                is TypingBroadcast -> {
-                    Logger.withTag(TAG).i("Receive typing from: ${messageEvent.participantId}")
+    private suspend fun handleIncomingFrame(frame: Frame) {
+        when (val messageEvent = frame.getDeserialized<MessageEvent>(websocketConverter)) {
+            is MessageBroadcast -> {
+                Logger.withTag(TAG).i("Receive message from: ${messageEvent.participantId}")
+                messagesRepository.handleReceivedMessage(chatId ?: return, messageEvent)
+            }
 
-                    typingParticipants.update { typingMap ->
-                        when {
-                            messageEvent.isStop -> typingMap.filterKeys { it != messageEvent.participantId }
-                            else -> typingMap + mapOf(messageEvent.participantId to Clock.System.now())
-                        }
+            is TypingBroadcast -> {
+                Logger.withTag(TAG).i("Receive typing from: ${messageEvent.participantId}")
+
+                typingParticipants.update { typingMap ->
+                    when {
+                        messageEvent.isStop -> typingMap.filterKeys { it != messageEvent.participantId }
+                        else -> typingMap + mapOf(messageEvent.participantId to Clock.System.now())
                     }
                 }
-
-                // not implemented on server
-                is MessagePush -> Unit
-                is TypingPush -> Unit
             }
+
+            // not implemented on server
+            is MessagePush -> Unit
+            is TypingPush -> Unit
         }
     }
 
     fun sendMessage(message: MessageRequest) {
         val chatId = chatId ?: return
 
-        // todo: add error handler!
-        scope.launch {
+        scope.launch(errorExceptionHandler) {
             when (chatSession) {
                 null -> {
                     Logger.withTag(TAG).i("Sending message with REST API")
@@ -117,18 +133,19 @@ class ConversationClient(
     }
 
     private fun initializeTypingObserver() {
-        scope.launch {
+        scope.launch(errorExceptionHandler) {
             typingChannel.consumeAsFlow()
                 .throttleFirst(TYPING_SAMPLE_DURATION.inWholeMilliseconds)
                 .onEach {
                     chatSession?.sendSerialized<MessageEvent>(TypingPush(it))
                 }
+                .catch { Logger.e("Error during typing", it) }
                 .collect()
         }
     }
 
     private fun initializeTypingStaleTimer() {
-        scope.launch {
+        scope.launch(errorExceptionHandler) {
             while (true) {
                 typingParticipants.update { participants ->
                     participants.filterValues { lastUpdate ->

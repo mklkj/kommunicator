@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
@@ -27,18 +28,16 @@ class ConversationViewModel(
     }
 
     private fun initializeWebSocketSession(chatId: UUID) {
-        conversationClient.connect(
-            chatId = chatId,
-            onFailure = { error ->
-                proceedError(error)
-                mutableState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = error.message,
-                    )
+        conversationClient.connect(chatId)
+        launch("observe_connection", isFlowObserver = true) {
+            conversationClient.connectionStatus
+                .onEach { status ->
+                    mutableState.update {
+                        it.copy(connectionStatus = status)
+                    }
                 }
-            }
-        )
+                .collect()
+        }
     }
 
     fun sendMessage(message: MessageRequest) {
@@ -77,6 +76,21 @@ class ConversationViewModel(
         }
     }
 
+    private fun refreshChat(chatId: UUID) {
+        launch("chat_refresh_$chatId", cancelExisting = false) {
+            runCatching { messagesRepository.refreshMessages(chatId) }
+                .onFailure { error ->
+                    proceedError(error)
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message,
+                        )
+                    }
+                }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeMessages(chatId: UUID) {
         launch("observe_messages", isFlowObserver = true) {
@@ -96,21 +110,6 @@ class ConversationViewModel(
                     )
                 }
             }.collect()
-        }
-    }
-
-    private fun refreshChat(chatId: UUID) {
-        launch("chat_refresh_$chatId", cancelExisting = false) {
-            runCatching { messagesRepository.refreshMessages(chatId) }
-                .onFailure { error ->
-                    proceedError(error)
-                    mutableState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = error.message,
-                        )
-                    }
-                }
         }
     }
 }

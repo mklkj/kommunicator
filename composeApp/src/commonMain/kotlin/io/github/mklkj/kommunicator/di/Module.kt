@@ -47,6 +47,7 @@ val commonModule = module {
     single<WebsocketContentConverter> { KotlinxWebsocketSerializationConverter(get<Json>()) }
     single {
         HttpClient {
+            developmentMode = BuildKonfig.IS_DEBUG
             expectSuccess = true
             defaultRequest {
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -109,7 +110,7 @@ val commonModule = module {
                 sanitizeHeader { header ->
                     header == HttpHeaders.Authorization && !BuildKonfig.IS_DEBUG
                 }
-                level = if (BuildKonfig.IS_DEBUG) LogLevel.BODY else LogLevel.INFO
+                level = if (BuildKonfig.IS_DEBUG) LogLevel.ALL else LogLevel.INFO
                 logger = object : KtorLogger {
                     override fun log(message: String) {
                         Logger.v(message)

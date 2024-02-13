@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
@@ -47,6 +49,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.ws.ConnectionStatus
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
@@ -104,6 +107,25 @@ class ConversationScreen(private val chatId: UUID) : Screen {
             var revealedMessageId by remember { mutableStateOf<UUID?>(null) }
 
             Column(Modifier.scaffoldPadding(paddingValues)) {
+                AnimatedVisibility(
+                    visible = state.connectionStatus != ConnectionStatus.Connected,
+                ) {
+                    Text(
+                        text = state.connectionStatus.toString(),
+                        textAlign = TextAlign.Center,
+                        color = Color.White,
+                        modifier = Modifier.fillMaxWidth()
+                            .background(
+                                when (state.connectionStatus) {
+                                    ConnectionStatus.NotConnected -> Color(0xFF37474F)
+                                    ConnectionStatus.Connecting -> Color(0xFFFFAB00)
+                                    ConnectionStatus.Connected -> Color(0xFF64DD17)
+                                    is ConnectionStatus.Error -> Color(0xFFBF360C)
+                                }
+                            )
+                            .padding(vertical = 5.dp)
+                    )
+                }
                 LazyColumn(
                     state = chatListState,
                     reverseLayout = true,
