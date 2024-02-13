@@ -125,18 +125,20 @@ class Database(sqlDriver: SqlDriver) {
             .mapToList(Dispatchers.IO)
             .map { chats ->
                 chats.map {
+                    val isUserMessage = userId == it.lastMessageUserId
+
                     LocalChat(
                         id = it.chatId,
                         customName = it.chatCustomName,
                         avatarUrl = it.avatarUrl,
 
-                        isUnread = it.lastMessageReadAt == null,
+                        isUnread = it.lastMessageReadAt == null && !isUserMessage,
                         isActive = Random.nextBoolean(),
                         participants = listOf(),
 
                         lastMessage = LocalMessage(
                             id = it.lastMessageId,
-                            isUserMessage = userId == it.lastMessageAuthorId, // todo
+                            isUserMessage = isUserMessage,
                             authorId = it.lastMessageAuthorId,
                             participantName = it.lastMessageAuthorCustomName ?: it.firstname,
                             createdAt = it.createdAt,

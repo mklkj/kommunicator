@@ -28,7 +28,7 @@ class MessagesDao {
         content = row[MessagesTable.content],
         author = if (isExtended) row[ChatParticipantsTable.customName] else null,
         firstName = if (isExtended) row[UsersTable.firstName] else null,
-        readAt = row[MessagesReadTable.readAt],
+        readAt = if (!isExtended) row[MessagesReadTable.readAt] else null,
     )
 
     suspend fun addMessage(message: MessageEntity) = withContext(Dispatchers.IO) {
@@ -46,15 +46,15 @@ class MessagesDao {
     suspend fun getMessages(chatId: UUID, userId: UUID): List<MessageEntity> = dbQuery {
         MessagesTable
             .join(
-                otherTable = ChatParticipantsTable,
-                otherColumn = ChatParticipantsTable.id,
-                onColumn = MessagesTable.participantId,
-                joinType = JoinType.LEFT
+                otherTable = MessagesReadTable,
+                otherColumn = MessagesReadTable.messageId,
+                onColumn = MessagesTable.id,
+                joinType = JoinType.LEFT,
             )
             .join(
-                otherTable = MessagesReadTable,
-                otherColumn = MessagesReadTable.participantId,
-                onColumn = ChatParticipantsTable.id,
+                otherTable = ChatParticipantsTable,
+                otherColumn = ChatParticipantsTable.id,
+                onColumn = MessagesReadTable.participantId,
                 joinType = JoinType.LEFT,
                 additionalConstraint = {
                     ChatParticipantsTable.userId eq userId
