@@ -17,15 +17,16 @@ class MessageService(
         messageRepository.saveMessage(entity)
     }
 
-    suspend fun getMessages(chatId: UUID, userId: UUID): List<Message> {
-        val participants = chatRepository.getParticipants(chatId)
+    suspend fun getChatParticipantId(chatId: UUID, userId: UUID): UUID {
+        return chatRepository.getChatParticipantId(chatId, userId)
+    }
 
+    suspend fun getMessages(chatId: UUID): List<Message> {
         return messageRepository.getMessages(chatId)
             .map { message ->
-                val participant = participants.first { it.userId == message.userId }
                 Message(
                     id = message.id,
-                    participantId = participant.id,
+                    participantId = message.participantId,
                     createdAt = message.timestamp,
                     content = message.content,
                 )

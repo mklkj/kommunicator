@@ -28,6 +28,10 @@ class ChatRepository(
         return chatsDao.getChat(chatId, userId)
     }
 
+    suspend fun getChatParticipantId(chatId: UUID, userId: UUID): UUID {
+        return chatParticipantsDao.getChatParticipantId(chatId, userId)
+    }
+
     suspend fun getParticipants(chatId: UUID): List<ChatParticipantEntity> {
         return chatParticipantsDao.getParticipants(chatId)
     }

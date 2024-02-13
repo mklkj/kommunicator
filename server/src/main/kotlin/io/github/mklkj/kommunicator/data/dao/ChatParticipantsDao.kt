@@ -30,6 +30,15 @@ class ChatParticipantsDao {
         )
     }
 
+    suspend fun getChatParticipantId(chatId: UUID, userId: UUID): UUID = dbQuery {
+        ChatParticipantsTable
+            .select {
+                (ChatParticipantsTable.chatId eq chatId) and (ChatParticipantsTable.userId eq userId)
+            }
+            .map { it[ChatParticipantsTable.id] }
+            .first()
+    }
+
     suspend fun getParticipants(chatId: UUID) = dbQuery {
         ChatParticipantsTable
             .join(

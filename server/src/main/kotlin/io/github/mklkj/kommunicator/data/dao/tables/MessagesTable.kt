@@ -8,7 +8,7 @@ object MessagesTable : Table("messages") {
 
     val id = kotlinxUUID("id")
     val chatId = kotlinxUUID("chat_id")
-    val userId = kotlinxUUID("user_id")
+    val participantId = kotlinxUUID("participant_id")
     val createdAt = timestamp("created_at")
     val content = text("content")
 

@@ -22,7 +22,7 @@ class MessagesDao {
     private fun resultRowToMessage(row: ResultRow, isExtended: Boolean = false) = MessageEntity(
         id = row[MessagesTable.id],
         chatId = row[MessagesTable.chatId],
-        userId = row[MessagesTable.userId],
+        participantId = row[MessagesTable.participantId],
         timestamp = row[MessagesTable.createdAt],
         content = row[MessagesTable.content],
         author = if (isExtended) row[ChatParticipantsTable.customName] else null,
@@ -34,7 +34,7 @@ class MessagesDao {
             MessagesTable.insert {
                 it[id] = message.id
                 it[chatId] = message.chatId
-                it[userId] = message.userId
+                it[participantId] = message.participantId
                 it[createdAt] = message.timestamp
                 it[content] = message.content
             }
@@ -55,14 +55,14 @@ class MessagesDao {
         MessagesTable
             .join(
                 otherTable = ChatParticipantsTable,
-                otherColumn = ChatParticipantsTable.userId,
-                onColumn = ChatParticipantsTable.userId,
+                otherColumn = ChatParticipantsTable.id,
+                onColumn = MessagesTable.participantId,
                 joinType = JoinType.LEFT
             )
             .join(
                 otherTable = UsersTable,
                 otherColumn = UsersTable.id,
-                onColumn = MessagesTable.userId,
+                onColumn = ChatParticipantsTable.userId,
                 joinType = JoinType.LEFT,
             )
             .select { MessagesTable.id eq messageId }

@@ -123,7 +123,7 @@ class ChatsDao {
                     users.id as user_id, users.first_name, users.last_name,
                     chat_participants.id as participant_id, chat_participants.custom_name
                 FROM messages
-                LEFT JOIN chat_participants ON chat_participants.chat_id = messages.chat_id AND chat_participants.user_id = messages.user_id
+                LEFT JOIN chat_participants ON chat_participants.chat_id = messages.chat_id AND chat_participants.id = messages.participant_id
                 LEFT JOIN users ON users.id = chat_participants.user_id
                 WHERE chats.id = messages.chat_id
                 ORDER BY created_at DESC

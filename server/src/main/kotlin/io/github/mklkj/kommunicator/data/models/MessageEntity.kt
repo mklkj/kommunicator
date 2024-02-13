@@ -6,7 +6,7 @@ import kotlinx.uuid.UUID
 data class MessageEntity(
     val id: UUID,
     val chatId: UUID,
-    val userId: UUID,
+    val participantId: UUID,
     val timestamp: Instant,
     val content: String,
     val author: String? = null,

@@ -72,12 +72,13 @@ fun Route.chatRoutes() {
         // todo: add verification whether a given user can read messages from that chat!!!
         val chatId = call.parameters.getOrFail("id").toUUID()
 
-        call.respond(messageService.getMessages(chatId, userId))
+        call.respond(messageService.getMessages(chatId))
     }
     post("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
         val chatId = call.parameters.getOrFail("id").toUUID()
         val message = call.receive<MessageEvent>()
+        val participantId = messageService.getChatParticipantId(chatId, userId)
         val participants = chatService.getParticipants(chatId)
 
         if (message !is MessagePush) return@post
@@ -85,7 +86,7 @@ fun Route.chatRoutes() {
         val entity = MessageEntity(
             id = message.id,
             chatId = chatId,
-            userId = userId,
+            participantId = participantId,
             timestamp = Clock.System.now(),
             content = message.content,
         )
@@ -126,7 +127,7 @@ fun Route.chatWebsockets() {
     webSocket("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
         val chatId = call.parameters.getOrFail("id").toUUID()
-        val participants = chatService.getParticipants(chatId)
+        val participantId = messageService.getChatParticipantId(chatId, userId)
 
         val thisConnection = Connection(this, userId)
 
@@ -141,14 +142,13 @@ fun Route.chatWebsockets() {
                 }
                 .onEach { message ->
                     val connections = chatConnections.getConnections(chatId)
-                    val participantId = participants.single { userId == it.userId }.id
 
                     when (message) {
                         is MessagePush -> {
                             val entity = MessageEntity(
                                 id = message.id,
                                 chatId = chatId,
-                                userId = userId,
+                                participantId = participantId,
                                 timestamp = Clock.System.now(),
                                 content = message.content,
                             )
