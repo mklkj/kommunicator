@@ -9,7 +9,6 @@ import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalChat
 import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
-import io.github.mklkj.kommunicator.data.models.ChatParticipant
 import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
@@ -121,7 +120,15 @@ class MessagesRepository(
             }
             path("/ws/chats/$chatId/messages")
         }
-        return httpClient.webSocketSession(url.buildString())
+        return runCatching {
+            httpClient.webSocketSession(url.buildString())
+        }.recover {
+            // refresh JWT using "normal" connection
+            // workaround for https://youtrack.jetbrains.com/issue/KTOR-4852/Question-Ktor-client-Refresh-token-and-retry
+            messagesService.getChat(chatId)
+
+            httpClient.webSocketSession(url.buildString())
+        }.getOrThrow()
     }
 
     suspend fun handleReceivedMessage(chatId: UUID, message: MessageBroadcast) {
