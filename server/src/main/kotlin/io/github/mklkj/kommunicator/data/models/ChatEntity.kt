@@ -23,7 +23,6 @@ data class ChatSummaryLastMessageEntity(
     val authorFirstName: String,
     val authorLastName: String,
     val authorCustomName: String?,
-    val readAt: Instant?,
 )
 
 data class ChatSummaryParticipant(
@@ -33,6 +32,7 @@ data class ChatSummaryParticipant(
     val customName: String?,
     val firstName: String,
     val lastName: String,
+    val readAt: Instant?,
 )
 
 data class ChatParticipantEntity(
@@ -44,4 +44,5 @@ data class ChatParticipantEntity(
     val userFirstName: String,
     val userLastName: String,
     val userAvatarUrl: String,
+    val readAt: Instant?,
 )

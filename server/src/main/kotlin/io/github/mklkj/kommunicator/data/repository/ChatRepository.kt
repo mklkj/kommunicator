@@ -6,6 +6,7 @@ import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.ChatEntity
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
 import io.github.mklkj.kommunicator.data.models.ChatSummaryEntity
+import io.github.mklkj.kommunicator.data.models.ParticipantReadEntity
 import io.github.mklkj.kommunicator.data.models.UserPushTokenEntity
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
@@ -15,6 +16,10 @@ class ChatRepository(
     private val chatsDao: ChatsDao,
     private val chatParticipantsDao: ChatParticipantsDao,
 ) {
+
+    suspend fun saveParticipantReadStatus(status: ParticipantReadEntity) {
+        chatParticipantsDao.saveParticipantReadStatus(status)
+    }
 
     suspend fun getChatsContainingParticipants(participantsIds: List<UUID>): List<UUID> {
         return chatsDao.getChatsContainingParticipants(participantsIds)

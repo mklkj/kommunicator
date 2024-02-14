@@ -1,7 +1,6 @@
 package io.github.mklkj.kommunicator.data.dao
 
 import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
-import io.github.mklkj.kommunicator.data.dao.tables.MessagesReadTable
 import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.MessageEntity
@@ -28,7 +27,6 @@ class MessagesDao {
         content = row[MessagesTable.content],
         author = if (isExtended) row[ChatParticipantsTable.customName] else null,
         firstName = if (isExtended) row[UsersTable.firstName] else null,
-        readAt = if (!isExtended) row[MessagesReadTable.readAt] else null,
     )
 
     suspend fun addMessage(message: MessageEntity) = withContext(Dispatchers.IO) {
@@ -43,23 +41,8 @@ class MessagesDao {
         }
     }
 
-    suspend fun getMessages(chatId: UUID, userId: UUID): List<MessageEntity> = dbQuery {
+    suspend fun getMessages(chatId: UUID): List<MessageEntity> = dbQuery {
         MessagesTable
-            .join(
-                otherTable = MessagesReadTable,
-                otherColumn = MessagesReadTable.messageId,
-                onColumn = MessagesTable.id,
-                joinType = JoinType.LEFT,
-            )
-            .join(
-                otherTable = ChatParticipantsTable,
-                otherColumn = ChatParticipantsTable.id,
-                onColumn = MessagesReadTable.participantId,
-                joinType = JoinType.LEFT,
-                additionalConstraint = {
-                    ChatParticipantsTable.userId eq userId
-                }
-            )
             .select { MessagesTable.chatId eq chatId }
             .orderBy(MessagesTable.createdAt, order = SortOrder.DESC)
             .limit(15)

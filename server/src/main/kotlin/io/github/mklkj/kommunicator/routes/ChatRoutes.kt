@@ -7,9 +7,9 @@ import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEntity
 import io.github.mklkj.kommunicator.data.models.MessageEvent
 import io.github.mklkj.kommunicator.data.models.MessagePush
-import io.github.mklkj.kommunicator.data.models.MessageReadEntity
-import io.github.mklkj.kommunicator.data.models.ReadBroadcast
-import io.github.mklkj.kommunicator.data.models.ReadPush
+import io.github.mklkj.kommunicator.data.models.ParticipantReadEntity
+import io.github.mklkj.kommunicator.data.models.ParticipantReadBroadcast
+import io.github.mklkj.kommunicator.data.models.ChatReadPush
 import io.github.mklkj.kommunicator.data.models.TypingBroadcast
 import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.service.ChatService
@@ -71,11 +71,11 @@ fun Route.chatRoutes() {
         call.respond(chat)
     }
     get("/{id}/messages") {
-        val userId = call.principalId ?: error("Invalid JWT!")
+//        val userId = call.principalId ?: error("Invalid JWT!")
         // todo: add verification whether a given user can read messages from that chat!!!
         val chatId = call.parameters.getOrFail("id").toUUID()
 
-        call.respond(messageService.getMessages(chatId, userId))
+        call.respond(messageService.getMessages(chatId))
     }
     post("/{id}/messages") {
         val userId = call.principalId ?: error("Invalid JWT token")
@@ -176,19 +176,17 @@ fun Route.chatWebsockets() {
                             )
                         }
 
-                        is ReadPush -> {
-                            val entity = MessageReadEntity(
-                                messageId = message.messageId,
+                        is ChatReadPush -> {
+                            val entity = ParticipantReadEntity(
                                 participantId = participantId,
                                 readAt = message.readAt,
                             )
-                            messageService.saveMessageReadStatus(entity)
+                            messageService.saveParticipantReadStatus(entity)
 
                             connections
                                 .filterNot { it.userId == userId }
                                 .forEach { connection ->
-                                    val event = ReadBroadcast(
-                                        messageId = entity.messageId,
+                                    val event = ParticipantReadBroadcast(
                                         participantId = participantId,
                                         readAt = entity.readAt,
                                     )
@@ -211,7 +209,7 @@ fun Route.chatWebsockets() {
                         // not handled on server
                         is MessageBroadcast -> Unit
                         is TypingBroadcast -> Unit
-                        is ReadBroadcast -> Unit
+                        is ParticipantReadBroadcast -> Unit
                     }
                 }
                 .collect()

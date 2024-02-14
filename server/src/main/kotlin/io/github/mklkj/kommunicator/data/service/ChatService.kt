@@ -65,7 +65,8 @@ class ChatService(
                     customName = it.customName,
                     firstName = it.userFirstName,
                     lastName = it.userLastName,
-                    avatarUrl = it.userAvatarUrl
+                    avatarUrl = it.userAvatarUrl,
+                    readAt = it.readAt,
                 )
             },
         )
@@ -87,7 +88,6 @@ class ChatService(
                     participantId = chat.lastMessage.authorId,
                     createdAt = chat.lastMessage.createdAt,
                     content = chat.lastMessage.content,
-                    readAt = chat.lastMessage.readAt,
                 ),
                 customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
                     when (notCurrentUserParticipants.size) {
@@ -113,6 +113,7 @@ class ChatService(
                         firstName = it.firstName,
                         lastName = it.lastName,
                         avatarUrl = "https://gravatar.com/avatar/${md5(it.email)}",
+                        readAt = it.readAt,
                     )
                 },
             )

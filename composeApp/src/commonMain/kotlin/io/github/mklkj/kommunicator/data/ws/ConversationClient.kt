@@ -5,8 +5,8 @@ import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEvent
 import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
-import io.github.mklkj.kommunicator.data.models.ReadBroadcast
-import io.github.mklkj.kommunicator.data.models.ReadPush
+import io.github.mklkj.kommunicator.data.models.ParticipantReadBroadcast
+import io.github.mklkj.kommunicator.data.models.ChatReadPush
 import io.github.mklkj.kommunicator.data.models.TypingBroadcast
 import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
@@ -92,11 +92,9 @@ class ConversationClient(
                 messagesRepository.handleReceivedMessage(chatId ?: return, messageEvent)
             }
 
-            is ReadBroadcast -> {
+            is ParticipantReadBroadcast -> {
                 Logger.withTag(TAG).i("Receive message read from: ${messageEvent.participantId}")
-                chatId?.let {
-                    messagesRepository.handleMessageReadStatus(it, messageEvent)
-                }
+                messagesRepository.handleMessageReadStatus(messageEvent)
             }
 
             is TypingBroadcast -> {
@@ -113,7 +111,7 @@ class ConversationClient(
             // not implemented on server
             is MessagePush -> Unit
             is TypingPush -> Unit
-            is ReadPush -> Unit
+            is ChatReadPush -> Unit
         }
     }
 
@@ -171,13 +169,10 @@ class ConversationClient(
         typingChannel.trySend(isEmptyMessage)
     }
 
-    fun onMessageRead(messageId: UUID) {
+    fun onMessageRead() {
         scope.launch {
             chatSession?.sendSerialized<MessageEvent>(
-                ReadPush(
-                    messageId = messageId,
-                    readAt = Clock.System.now(),
-                )
+                ChatReadPush(readAt = Clock.System.now())
             )
         }
     }

@@ -36,14 +36,12 @@ data class TypingBroadcast(
 ) : MessageEvent()
 
 @Serializable
-data class ReadPush(
-    val messageId: UUID,
+data class ChatReadPush(
     val readAt: Instant,
 ) : MessageEvent()
 
 @Serializable
-data class ReadBroadcast(
-    val messageId: UUID,
+data class ParticipantReadBroadcast(
     val participantId: UUID,
     val readAt: Instant,
 ) : MessageEvent()

@@ -3,7 +3,6 @@ package io.github.mklkj.kommunicator.data.dao
 import io.github.mklkj.kommunicator.data.columns.ArrayColumnType
 import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
 import io.github.mklkj.kommunicator.data.dao.tables.ChatsTable
-import io.github.mklkj.kommunicator.data.dao.tables.MessagesReadTable
 import io.github.mklkj.kommunicator.data.dao.tables.MessagesTable
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
@@ -15,6 +14,7 @@ import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
+import kotlinx.datetime.toInstant
 import kotlinx.uuid.UUID
 import kotlinx.uuid.exposed.UUIDColumnType
 import kotlinx.uuid.toUUID
@@ -100,7 +100,8 @@ class ChatsDao {
                     chat_participants.custom_name,
                     users.first_name,
                     users.last_name,
-                    users.email
+                    users.email,
+                    chat_participants.read_at::text
                 ]) as participants
               FROM chat_participants
               LEFT JOIN users ON users.id = chat_participants.user_id
@@ -116,20 +117,13 @@ class ChatsDao {
                 messages.first_name as last_message_author_first_name,
                 messages.last_name as last_message_author_last_name,
                 messages.custom_name as last_message_author_custom_name,
-                messages.read_at as last_message_read_at,
                 participants
             FROM chats
             LEFT JOIN LATERAL(
                 SELECT
                     messages.id as message_id, messages.created_at, messages.content,
                     users.id as user_id, users.first_name, users.last_name,
-                    chat_participants.id as participant_id, chat_participants.custom_name,
-                    (SELECT read_at
-                        FROM messages_read, chat_participants
-                        WHERE messages_read.message_id = messages.id
-                            AND chat_participants.id = messages_read.participant_id
-                            AND chat_participants.user_id = ?
-                    ) as read_at
+                    chat_participants.id as participant_id, chat_participants.custom_name
                 FROM messages
                 LEFT JOIN chat_participants ON chat_participants.chat_id = messages.chat_id AND chat_participants.id = messages.participant_id
                 LEFT JOIN users ON users.id = chat_participants.user_id
@@ -144,8 +138,7 @@ class ChatsDao {
         """
 
         val stmt = TransactionManager.current().connection.prepareStatement(query, false)
-        val userIdParam = Pair(UUIDColumnType(), userId)
-        stmt.fillParameters(listOf(userIdParam, userIdParam))
+        stmt.fillParameters(listOf(Pair(UUIDColumnType(), userId)))
         stmt.executeQuery().map { rs ->
             ChatSummaryEntity(
                 id = ChatsTable.id.columnType.valueFromDB(
@@ -163,10 +156,8 @@ class ChatsDao {
                     authorFirstName = UsersTable.id.columnType.readObject(rs, 7) as String,
                     authorLastName = UsersTable.id.columnType.readObject(rs, 8) as String,
                     authorCustomName = UsersTable.id.columnType.readObject(rs, 9) as String?,
-                    readAt = MessagesReadTable.readAt.columnType.readObject(rs, 10)
-                        ?.let { MessagesReadTable.readAt.columnType.valueFromDB(it) } as Instant?,
                 ),
-                participants = (rs.getArray(11).array as Array<*>).map {
+                participants = (rs.getArray(10).array as Array<*>).map {
                     val row = it as Array<*>
                     ChatSummaryParticipant(
                         id = row[0].toString().toUUID(),
@@ -175,6 +166,7 @@ class ChatsDao {
                         firstName = row[3].toString(),
                         lastName = row[4].toString(),
                         email = row[5].toString(),
+                        readAt = row[6]?.toString()?.toInstant(),
                     )
                 },
             )

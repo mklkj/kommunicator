@@ -4,14 +4,18 @@ import io.github.mklkj.kommunicator.data.dao.tables.ChatParticipantsTable
 import io.github.mklkj.kommunicator.data.dao.tables.UserPushTokensTable
 import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
+import io.github.mklkj.kommunicator.data.models.ParticipantReadEntity
 import io.github.mklkj.kommunicator.data.models.UserPushTokenEntity
 import io.github.mklkj.kommunicator.utils.dbQuery
 import io.github.mklkj.kommunicator.utils.md5
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.update
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -26,9 +30,21 @@ class ChatParticipantsDao {
             username = row[UsersTable.username],
             userFirstName = row[UsersTable.firstName],
             userLastName = row[UsersTable.lastName],
-            userAvatarUrl = "https://gravatar.com/avatar/${md5(row[UsersTable.email])}"
+            userAvatarUrl = "https://gravatar.com/avatar/${md5(row[UsersTable.email])}",
+            readAt = row[ChatParticipantsTable.readAt],
         )
     }
+
+    suspend fun saveParticipantReadStatus(status: ParticipantReadEntity) =
+        withContext(Dispatchers.IO) {
+            ChatParticipantsTable.update(
+                where = {
+                    ChatParticipantsTable.id eq status.participantId
+                }
+            ) {
+                it[readAt] = status.readAt
+            }
+        }
 
     suspend fun getChatParticipantId(chatId: UUID, userId: UUID): UUID = dbQuery {
         ChatParticipantsTable

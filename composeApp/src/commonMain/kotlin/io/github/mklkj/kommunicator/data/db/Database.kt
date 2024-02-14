@@ -17,7 +17,7 @@ import io.github.mklkj.kommunicator.data.models.Contact
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageRequest
-import io.github.mklkj.kommunicator.data.models.ReadBroadcast
+import io.github.mklkj.kommunicator.data.models.ParticipantReadBroadcast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -46,12 +46,12 @@ class Database(sqlDriver: SqlDriver) {
             chatIdAdapter = UUIDStringAdapter,
             authorIdAdapter = UUIDStringAdapter,
             createdAtAdapter = InstantStringAdapter,
-            readAtAdapter = InstantStringAdapter,
         ),
         ParticipantsAdapter = Participants.Adapter(
             idAdapter = UUIDStringAdapter,
             userIdAdapter = UUIDStringAdapter,
             chatIdAdapter = UUIDStringAdapter,
+            readAtAdapter = InstantStringAdapter,
         )
     )
     private val dbQuery = database.appDatabaseQueries
@@ -127,13 +127,16 @@ class Database(sqlDriver: SqlDriver) {
             .map { chats ->
                 chats.map {
                     val isUserMessage = userId == it.lastMessageUserId
+                    val isUnread = if (it.readAt != null) {
+                        it.readAt.toEpochMilliseconds() < it.lastMessageCreatedAt.toEpochMilliseconds()
+                    } else true
 
                     LocalChat(
                         id = it.chatId,
                         customName = it.chatCustomName,
                         avatarUrl = it.avatarUrl,
 
-                        isUnread = it.lastMessageReadAt == null && !isUserMessage,
+                        isUnread = isUnread && !isUserMessage,
                         isActive = Random.nextBoolean(),
                         participants = listOf(),
 
@@ -142,7 +145,7 @@ class Database(sqlDriver: SqlDriver) {
                             isUserMessage = isUserMessage,
                             authorId = it.lastMessageAuthorId,
                             participantName = it.lastMessageAuthorCustomName ?: it.firstname,
-                            createdAt = it.createdAt,
+                            createdAt = it.lastMessageCreatedAt,
                             content = it.content,
                             chatId = it.chatId,
                             userId = userId,
@@ -198,6 +201,7 @@ class Database(sqlDriver: SqlDriver) {
                             firstname = it.firstName,
                             lastName = it.lastName,
                             avatarUrl = it.avatarUrl,
+                            readAt = it.readAt,
                         )
                     }
                 }
@@ -212,7 +216,6 @@ class Database(sqlDriver: SqlDriver) {
                                 authorId = lastMessage.participantId,
                                 createdAt = lastMessage.createdAt,
                                 content = lastMessage.content,
-                                readAt = lastMessage.readAt,
                             )
                         }
                     }
@@ -227,7 +230,7 @@ class Database(sqlDriver: SqlDriver) {
                 messages.map {
                     LocalMessage(
                         id = it.id,
-                        isUserMessage = it.userId == userId,
+                        isUserMessage = it.participantUserId == userId,
                         authorId = userId,
                         participantName = it.customName ?: it.firstname.orEmpty(),
                         createdAt = it.createdAt,
@@ -250,7 +253,6 @@ class Database(sqlDriver: SqlDriver) {
                         authorId = it.participantId,
                         createdAt = it.createdAt,
                         content = it.content,
-                        readAt = it.readAt,
                     )
                 }
             }
@@ -265,7 +267,6 @@ class Database(sqlDriver: SqlDriver) {
                 authorId = message.participantId,
                 createdAt = message.createdAt,
                 content = message.content,
-                readAt = null,
             )
         }
 
@@ -279,15 +280,14 @@ class Database(sqlDriver: SqlDriver) {
                 authorId = authorId,
                 createdAt = Clock.System.now(),
                 content = messageRequest.content,
-                readAt = null,
             )
         }
     }
 
-    suspend fun updateMessageReadAt(readStatus: ReadBroadcast) = withContext(Dispatchers.IO) {
-        dbQuery.updateMessageReadAt(
+    suspend fun updateParticipantReadAt(readStatus: ParticipantReadBroadcast) = withContext(Dispatchers.IO) {
+        dbQuery.updateParticipantReadAt(
+            id = readStatus.participantId,
             readAt = readStatus.readAt,
-            id = readStatus.messageId,
         )
     }
 }

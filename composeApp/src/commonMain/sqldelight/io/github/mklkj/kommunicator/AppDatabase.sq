@@ -70,9 +70,9 @@ SELECT * FROM Chats WHERE id = ?;
 selectAllChats:
 SELECT
     Chat.id AS chatId, Chat.customName AS chatCustomName, Chat.avatarUrl,
-    Messages.id AS lastMessageId, Messages.authorId AS lastMessageAuthorId, Messages.createdAt, Messages.content, Messages.readAt AS lastMessageReadAt,
+    Messages.id AS lastMessageId, Messages.authorId AS lastMessageAuthorId, Messages.createdAt AS lastMessageCreatedAt, Messages.content,
     Participants.userId AS lastMessageUserId, Participants.avatarUrl,
-    Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName
+    Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName, Participants.readAt
 FROM (
     SELECT Chats.*, (
             SELECT id
@@ -95,18 +95,22 @@ CREATE TABLE Participants(
     customName TEXT,
     firstname TEXT NOT NULL,
     lastName TEXT NOT NULL,
-    avatarUrl TEXT NOT NULL
+    avatarUrl TEXT NOT NULL,
+    readAt TEXT AS Instant
 );
 
 insertParticipant:
-INSERT OR REPLACE INTO Participants(id, userId, chatId, customName, firstname, lastName, avatarUrl)
-VALUES(?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO Participants(id, userId, chatId, customName, firstname, lastName, avatarUrl, readAt)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?);
 
 selectChatParticipants:
 SELECT * FROM Participants WHERE chatId = ?;
 
 selectParticipantByUserId:
 SELECT * FROM Participants WHERE userId = ? AND chatId = ?;
+
+updateParticipantReadAt:
+UPDATE Participants SET readAt = ? WHERE id = ?;
 
 -- MESSAGES
 
@@ -115,20 +119,18 @@ CREATE TABLE Messages (
     chatId TEXT AS UUID NOT NULL,
     authorId TEXT AS UUID NOT NULL,
     createdAt TEXT AS Instant NOT NULL,
-    content TEXT NOT NULL,
-    readAt TEXT AS Instant
+    content TEXT NOT NULL
 );
 
 insertMessage:
-INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content, readAt)
-VALUES(?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO Messages(id, chatId, authorId, createdAt, content)
+VALUES(?, ?, ?, ?, ?);
 
 selectMessages:
-SELECT Messages.*, Participants.userId AS userId, Participants.firstname, Participants.lastName, Participants.customName, Participants.avatarUrl
+SELECT
+    Messages.id, Messages.createdAt, Messages.content,
+    Participants.userId AS participantUserId, Participants.firstname, Participants.lastName, Participants.customName, Participants.avatarUrl
 FROM Messages
 LEFT JOIN Participants ON Messages.authorId = Participants.id
 WHERE Messages.chatId = ?
 ORDER BY Messages.createdAt DESC;
-
-updateMessageReadAt:
-UPDATE Messages SET readAt = ? WHERE id = ?;
