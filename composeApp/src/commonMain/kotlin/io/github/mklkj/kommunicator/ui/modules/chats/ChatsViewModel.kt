@@ -1,5 +1,7 @@
 package io.github.mklkj.kommunicator.ui.modules.chats
 
+import co.touchlab.kermit.Logger
+import com.mmk.kmpnotifier.notification.NotifierManager
 import io.github.mklkj.kommunicator.data.exceptions.UserTokenExpiredException
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.data.repository.UserRepository
@@ -36,6 +38,14 @@ class ChatsViewModel(
                         it.copy(userAvatarUrl = user.avatarUrl)
                     }
                 }
+        }
+    }
+
+    fun onNotificationPermissionResult(isGranted: Boolean) {
+        if (!isGranted) return Logger.i("Notifications permission not granted")
+
+        launch("update_push_token", cancelExisting = false) {
+            userRepository.sendPushToken(NotifierManager.getPushNotifier().getToken())
         }
     }
 

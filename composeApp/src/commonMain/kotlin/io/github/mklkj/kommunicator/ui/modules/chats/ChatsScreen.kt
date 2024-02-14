@@ -22,6 +22,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +61,7 @@ import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
 import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
 import io.github.mklkj.kommunicator.ui.widgets.rememberPullRefreshState
+import io.github.mklkj.kommunicator.utils.rememberNotificationsPermissionController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nl.jacobras.humanreadable.HumanReadable
@@ -86,6 +89,11 @@ internal object ChatsScreen : Tab {
         val navigator = LocalNavigatorParent
         val viewModel = navigator.getNavigatorScreenModel<ChatsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+
+        val notificationsPermissionManager = rememberNotificationsPermissionController(
+            onPermissionCheckResult = viewModel::onNotificationPermissionResult,
+        )
+        val isNotificationPermissionGranted by notificationsPermissionManager.isPermissionGranted
 
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
@@ -167,6 +175,25 @@ internal object ChatsScreen : Tab {
                     }
 
                     else -> LazyColumn(Modifier.fillMaxSize()) {
+                        item {
+                            if (!isNotificationPermissionGranted) {
+                                Column(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .background(Color(0xFFb37800))
+                                        .padding(16.dp)
+                                ) {
+                                    Text("Permission to send notifications is missing!")
+                                    Button(
+                                        onClick = { notificationsPermissionManager.askNotificationPermission() },
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
+                                    ) {
+                                        Text("Grant permission", color = Color.White)
+                                    }
+                                }
+                            }
+                        }
+
                         items(state.chats, key = { it.id.toString() }) { chat ->
                             ChatItem(
                                 item = chat,

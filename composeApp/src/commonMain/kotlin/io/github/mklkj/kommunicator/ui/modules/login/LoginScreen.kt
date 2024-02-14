@@ -33,7 +33,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.github.mklkj.kommunicator.ui.modules.homescreen.HomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.TextInput
@@ -47,9 +46,7 @@ class LoginScreen : Screen {
         val state by viewModel.state.collectAsStateWithLifecycle()
         val navigator = LocalNavigator.currentOrThrow
 
-        if (state.isLoggedIn) {
-            navigator.replaceAll(HomeScreen)
-        } else Scaffold(
+        Scaffold(
             topBar = {
                 TopAppBar(
                     title = { Text("Sign in") },

@@ -1,6 +1,5 @@
 package io.github.mklkj.kommunicator.ui.modules.conversation
 
-import co.touchlab.kermit.Logger
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
 import io.github.mklkj.kommunicator.data.ws.ConversationClient
@@ -107,7 +106,6 @@ class ConversationViewModel(
                     },
                 flow3 = messagesRepository.observeParticipantsLastRead(chatId),
             ) { messages, typingParticipants, lastReads ->
-                Logger.w("lastReads: $lastReads")
                 mutableState.update {
                     it.copy(
                         messages = messages,
