@@ -129,3 +129,6 @@ FROM Messages
 LEFT JOIN Participants ON Messages.authorId = Participants.id
 WHERE Messages.chatId = ?
 ORDER BY Messages.createdAt DESC;
+
+updateMessageReadAt:
+UPDATE Messages SET readAt = ? WHERE id = ?;

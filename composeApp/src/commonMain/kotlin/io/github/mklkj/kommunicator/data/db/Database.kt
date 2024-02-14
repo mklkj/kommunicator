@@ -17,6 +17,7 @@ import io.github.mklkj.kommunicator.data.models.Contact
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.models.ReadBroadcast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -281,5 +282,12 @@ class Database(sqlDriver: SqlDriver) {
                 readAt = null,
             )
         }
+    }
+
+    suspend fun updateMessageReadAt(readStatus: ReadBroadcast) = withContext(Dispatchers.IO) {
+        dbQuery.updateMessageReadAt(
+            readAt = readStatus.readAt,
+            id = readStatus.messageId,
+        )
     }
 }

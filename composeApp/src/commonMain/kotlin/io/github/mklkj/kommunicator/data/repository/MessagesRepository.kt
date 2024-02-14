@@ -12,6 +12,7 @@ import io.github.mklkj.kommunicator.data.models.ChatCreateRequest
 import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
+import io.github.mklkj.kommunicator.data.models.ReadBroadcast
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocketSession
@@ -133,5 +134,16 @@ class MessagesRepository(
 
     suspend fun handleReceivedMessage(chatId: UUID, message: MessageBroadcast) {
         database.insertIncomingMessage(chatId, message)
+    }
+
+    suspend fun handleMessageReadStatus(chatId: UUID, readStatus: ReadBroadcast) {
+        val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
+        val authorId = database.getChatParticipant(chatId, userId)?.id
+            ?: error("Current user is not a participant in that chat!")
+
+        // TODO
+        if (authorId == readStatus.participantId) {
+            database.updateMessageReadAt(readStatus)
+        }
     }
 }

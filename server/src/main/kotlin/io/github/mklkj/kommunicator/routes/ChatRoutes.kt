@@ -7,6 +7,9 @@ import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEntity
 import io.github.mklkj.kommunicator.data.models.MessageEvent
 import io.github.mklkj.kommunicator.data.models.MessagePush
+import io.github.mklkj.kommunicator.data.models.MessageReadEntity
+import io.github.mklkj.kommunicator.data.models.ReadBroadcast
+import io.github.mklkj.kommunicator.data.models.ReadPush
 import io.github.mklkj.kommunicator.data.models.TypingBroadcast
 import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.service.ChatService
@@ -173,6 +176,26 @@ fun Route.chatWebsockets() {
                             )
                         }
 
+                        is ReadPush -> {
+                            val entity = MessageReadEntity(
+                                messageId = message.messageId,
+                                participantId = participantId,
+                                readAt = message.readAt,
+                            )
+                            messageService.saveMessageReadStatus(entity)
+
+                            connections
+                                .filterNot { it.userId == userId }
+                                .forEach { connection ->
+                                    val event = ReadBroadcast(
+                                        messageId = entity.messageId,
+                                        participantId = participantId,
+                                        readAt = entity.readAt,
+                                    )
+                                    connection.session.sendSerialized<MessageEvent>(event)
+                                }
+                        }
+
                         is TypingPush -> {
                             connections
                                 .filterNot { it.userId == userId }
@@ -188,6 +211,7 @@ fun Route.chatWebsockets() {
                         // not handled on server
                         is MessageBroadcast -> Unit
                         is TypingBroadcast -> Unit
+                        is ReadBroadcast -> Unit
                     }
                 }
                 .collect()
