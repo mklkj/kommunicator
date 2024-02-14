@@ -14,7 +14,7 @@ Podstawowe funkcjonalności komunikatora:
 - [x] rejestracja i logowanie
 - [x] dodawanie kontaktów
 - [x] wysyłanie i odbieranie wiadomości tekstowych
-- [ ] statusy (odczytana wiadomość, pisanie)
+- [x] statusy (odczytana wiadomość, pisanie)
 - [x] historia wiadomości dostępna offline
 - [x] powiadomienia push 
 

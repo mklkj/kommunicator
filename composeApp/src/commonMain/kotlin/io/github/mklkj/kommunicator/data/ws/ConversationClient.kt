@@ -90,6 +90,9 @@ class ConversationClient(
             is MessageBroadcast -> {
                 Logger.withTag(TAG).i("Receive message from: ${messageEvent.participantId}")
                 messagesRepository.handleReceivedMessage(chatId ?: return, messageEvent)
+
+                // mark chat as read when message arrive
+                onChatRead()
             }
 
             is ParticipantReadBroadcast -> {

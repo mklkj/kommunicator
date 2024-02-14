@@ -156,18 +156,16 @@ fun Route.chatWebsockets() {
                             )
                             messageService.saveMessage(entity)
 
-                            connections
-                                .filterNot { it.userId == userId }
-                                .forEach { connection ->
-                                    println("Notify user: ${connection.userId}")
-                                    val event = MessageBroadcast(
-                                        id = entity.id,
-                                        participantId = participantId,
-                                        content = entity.content,
-                                        createdAt = entity.timestamp
-                                    )
-                                    connection.session.sendSerialized<MessageEvent>(event)
-                                }
+                            connections.forEach { connection ->
+                                println("Notify user: ${connection.userId}")
+                                val event = MessageBroadcast(
+                                    id = entity.id,
+                                    participantId = participantId,
+                                    content = entity.content,
+                                    createdAt = entity.timestamp
+                                )
+                                connection.session.sendSerialized<MessageEvent>(event)
+                            }
                             // todo: add to some queue?
                             notificationService.notifyParticipants(
                                 chatId = chatId,

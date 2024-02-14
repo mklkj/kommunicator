@@ -49,10 +49,6 @@ class ConversationViewModel(
         conversationClient.onTyping(currentMessage.isBlank())
     }
 
-    fun onChatRead() {
-        conversationClient.onChatRead()
-    }
-
     override fun onDispose() {
         super.onDispose()
         conversationClient.onDispose()
@@ -93,6 +89,8 @@ class ConversationViewModel(
                         )
                     }
                 }
+            // mark chat as read on chat enter
+            conversationClient.onChatRead()
         }
     }
 

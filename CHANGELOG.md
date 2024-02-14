@@ -512,6 +512,37 @@ Dalej — indykator pisania wiadomości. Jest trochę... słaby. Zróbmy go troc
 Na początek ulepszenia w debounce/throtlingu/itp/itd. Znalazłem taką fajną metodę, która wysyła
 tylko jeden request na 3 sekundy. Na razie wystarczy, chociaż nie jest idealna.
 
+## Statusy przeczytania wiadomości (2024-02-12/13)
+
+Ostatnia brakująca funkcja — statusy odczytania wiadomości. Bałem się, że będzie z nią najgorzej,
+a tymczasem udało mi się ją całkiem dopracować i poza jednym mankamentem działa super.
+
+A jak przebiegała historia?
+
+Na początku wyobrażałem to sobie w ten sposób, że stworzę tabelkę, w której będzie trzymana historia
+odczytania każdej pojedynczej wiadomości dla każdego uczestnika czatu. No i plan byłby fajny, ale
+w realizacji to jest już gorzej. Już abstrahując od ilości danych, którą to by wygenerowało (w
+zasadzie rekordów by było dodatkowo liczba wiadomości, razy liczba participantów), to określenie
+na czacie, którą wiadomość oznaczyć jako przeczytaną nie jest trywialne. W zasadzie to odczytanie
+nawet nie konkretnej, a konkretnych wiadomości, bo przecież ich jest więcej.
+
+Po zasięgnięciu opinii internetu (stackoverflow) trafiłem na odpowiedź kogoś, kto radził
+przechowywać jedynie ostatni czas odczytania wiadomości przez daną osobę. Po małym riserczu
+organoleptycznym jak robią to inni, np. messenger, wyszło mi tyle, że tam prawdopodobnie jest to
+zrealizowane właśnie w ten sposób.
+
+Sama implementacja jest już dość prostolinijna. Tworzymy kolumnę przy chat participants na datę
+odczytania, tak po stronie backendu, jak i mobilek. User odbierając wiadomość, wysyła też przez
+websocket event o tym, że daną wiadomość odczytał. Później serwer rozsyła tę informację do
+wszystkich podpiętych klientów, którzy zapisują ją u siebie w tabeli z uczestnikami czatu.
+Apka na podstawie tego zapisanego timestampa określa to, która wiadomość na czacie została odczytana
+przez danego użytkownika jako ostatnia i wyświetla w tym miejscu małe kółeczko z awatarkiem. Po
+kliknięciu w wiadomosć wyświetla się imię tego użytkownika.
+Żeby zachować "spójność" systemu, wiadomości wysyłane przez użytkownika również są później rozsyłane
+przez serwer, żeby apka miała poprawną datę utworzenia wiadomości. Dzięki temu u użytkownika, który
+wiadomość wysłał, można również bezpiecznie wyświetlić informacje o tym, że ją odczytał (choć to
+trochę bez sensu, to przyda się do oceny działania apki).
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome
