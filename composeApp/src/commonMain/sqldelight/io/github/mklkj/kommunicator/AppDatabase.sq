@@ -138,7 +138,7 @@ WHERE Messages.chatId = ?
 ORDER BY Messages.createdAt DESC;
 
 selectParticipantsWithLastReadMessage:
-SELECT Participants.avatarUrl AS userAvatarUrl, Messages.id AS messageId
+SELECT Participants.avatarUrl, Participants.customName, Participants.firstname, Messages.id AS messageId
 FROM Participants
 LEFT JOIN Messages ON Participants.chatId = Messages.chatId
     AND Messages.id = (

@@ -183,15 +183,13 @@ fun Route.chatWebsockets() {
                             )
                             messageService.saveParticipantReadStatus(entity)
 
-                            connections
-                                .filterNot { it.userId == userId }
-                                .forEach { connection ->
-                                    val event = ParticipantReadBroadcast(
-                                        participantId = participantId,
-                                        readAt = entity.readAt,
-                                    )
-                                    connection.session.sendSerialized<MessageEvent>(event)
-                                }
+                            connections.forEach { connection ->
+                                val event = ParticipantReadBroadcast(
+                                    participantId = participantId,
+                                    readAt = entity.readAt,
+                                )
+                                connection.session.sendSerialized<MessageEvent>(event)
+                            }
                         }
 
                         is TypingPush -> {

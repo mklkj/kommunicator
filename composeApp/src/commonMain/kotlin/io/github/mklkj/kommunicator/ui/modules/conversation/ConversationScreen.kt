@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -142,7 +143,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                         AvatarWithItem(it.avatarUrl, it.isUserMessage) {
                             BubbleMessageWithDate(
                                 message = it,
-                                isDateRevealed = revealedMessageId == it.id,
+                                isDetailsRevealed = revealedMessageId == it.id,
                                 userReads = state.lastReadMessages.filter { lastRead ->
                                     lastRead.messageId == it.id
                                 },
@@ -222,7 +223,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     @Composable
     private fun BubbleMessageWithDate(
         message: LocalMessage,
-        isDateRevealed: Boolean,
+        isDetailsRevealed: Boolean,
         userReads: List<SelectParticipantsWithLastReadMessage>,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
@@ -231,18 +232,31 @@ class ConversationScreen(private val chatId: UUID) : Screen {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxWidth()
         ) {
-            AnimatedVisibility(isDateRevealed) {
+            AnimatedVisibility(isDetailsRevealed) {
                 Text(message.createdAt.format())
             }
-            Column {
+            Column(Modifier.fillMaxWidth()) {
                 BubbleMessage(
                     message = message,
                     onClick = onClick,
                 )
-                Row {
+                AnimatedVisibility(isDetailsRevealed && userReads.isNotEmpty()) {
+                    Text(
+                        text = "Read by: " + userReads
+                            .joinToString { it.customName ?: it.firstname },
+                        textAlign = if (message.isUserMessage) TextAlign.End else TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .padding(bottom = 4.dp, end = 8.dp)
+                        .fillMaxWidth()
+                ) {
                     userReads.forEach {
                         AppImage(
-                            url = it.userAvatarUrl,
+                            url = it.avatarUrl,
                             modifier = Modifier
                                 .size(12.dp)
                                 .clip(CircleShape)
@@ -285,8 +299,8 @@ class ConversationScreen(private val chatId: UUID) : Screen {
             Text(
                 text = message.content,
                 modifier = Modifier
-                    .padding(8.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.primaryContainer, shape)
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.secondaryContainer, shape)
                     .clip(shape)
                     .clickable { onClick() }
                     .background(bubbleColor)
