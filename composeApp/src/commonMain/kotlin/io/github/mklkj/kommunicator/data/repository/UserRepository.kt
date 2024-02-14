@@ -1,6 +1,5 @@
 package io.github.mklkj.kommunicator.data.repository
 
-import com.mmk.kmpnotifier.notification.NotifierManager
 import io.github.mklkj.kommunicator.Users
 import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
@@ -106,12 +105,10 @@ class UserRepository(
             )
         )
         invalidateBearerTokens()
-
-        sendPushToken(NotifierManager.getPushNotifier().getToken(), isFromLogin = true)
     }
 
-    suspend fun sendPushToken(pushToken: String?, isFromLogin: Boolean = false) {
-        if (database.getCurrentUser() == null && !isFromLogin) return
+    suspend fun sendPushToken(pushToken: String?) {
+        if (database.getCurrentUser() == null) return
 
         userService.sendPushToken(
             PushTokenRequest(

@@ -1,6 +1,7 @@
 package io.github.mklkj.kommunicator.ui.modules.account
 
 import io.github.mklkj.kommunicator.data.repository.UserRepository
+import io.github.mklkj.kommunicator.domain.LogOutUseCase
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
@@ -8,6 +9,7 @@ import org.koin.core.annotation.Factory
 @Factory
 class AccountViewModel(
     private val userRepository: UserRepository,
+    private val logOutUseCase: LogOutUseCase,
 ) : BaseViewModel<AccountState>(AccountState()) {
 
     init {
@@ -40,7 +42,7 @@ class AccountViewModel(
 
     fun logout() {
         launch("logout_user", cancelExisting = false) {
-            userRepository.logout()
+            logOutUseCase()
         }
     }
 }
