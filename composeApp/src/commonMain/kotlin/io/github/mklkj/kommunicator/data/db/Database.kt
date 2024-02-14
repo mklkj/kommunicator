@@ -126,23 +126,24 @@ class Database(sqlDriver: SqlDriver) {
             .mapToList(Dispatchers.IO)
             .map { chats ->
                 chats.map {
-                    val isUserMessage = userId == it.lastMessageUserId
-                    val isUnread = if (it.readAt != null) {
-                        it.readAt.toEpochMilliseconds() < it.lastMessageCreatedAt.toEpochMilliseconds()
-                    } else true
-
                     LocalChat(
                         id = it.chatId,
                         customName = it.chatCustomName,
                         avatarUrl = it.avatarUrl,
 
-                        isUnread = isUnread && !isUserMessage,
+                        isUnread = when {
+                            it.readAt != null -> {
+                                it.readAt.toEpochMilliseconds() < it.lastMessageCreatedAt.toEpochMilliseconds()
+                            }
+
+                            else -> true
+                        },
                         isActive = Random.nextBoolean(),
                         participants = listOf(),
 
                         lastMessage = LocalMessage(
                             id = it.lastMessageId,
-                            isUserMessage = isUserMessage,
+                            isUserMessage = userId == it.lastMessageUserId,
                             authorId = it.lastMessageAuthorId,
                             participantName = it.lastMessageAuthorCustomName ?: it.firstname,
                             createdAt = it.lastMessageCreatedAt,
@@ -284,7 +285,9 @@ class Database(sqlDriver: SqlDriver) {
         }
     }
 
-    suspend fun updateParticipantReadAt(readStatus: ParticipantReadBroadcast) = withContext(Dispatchers.IO) {
+    suspend fun updateParticipantReadAt(
+        readStatus: ParticipantReadBroadcast
+    ) = withContext(Dispatchers.IO) {
         dbQuery.updateParticipantReadAt(
             id = readStatus.participantId,
             readAt = readStatus.readAt,

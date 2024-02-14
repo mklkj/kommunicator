@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.koin.core.annotation.Singleton
 
@@ -37,12 +38,14 @@ class ChatParticipantsDao {
 
     suspend fun saveParticipantReadStatus(status: ParticipantReadEntity) =
         withContext(Dispatchers.IO) {
-            ChatParticipantsTable.update(
-                where = {
-                    ChatParticipantsTable.id eq status.participantId
+            transaction {
+                ChatParticipantsTable.update(
+                    where = {
+                        ChatParticipantsTable.id eq status.participantId
+                    }
+                ) {
+                    it[readAt] = status.readAt
                 }
-            ) {
-                it[readAt] = status.readAt
             }
         }
 

@@ -83,6 +83,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
 
         LaunchedEffect(state.messages) {
             chatListState.animateScrollToItem(0)
+            viewModel.onChatRead()
         }
 
         LaunchedEffect(state.typingParticipants) {

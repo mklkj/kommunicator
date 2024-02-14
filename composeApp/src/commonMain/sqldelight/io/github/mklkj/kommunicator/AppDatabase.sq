@@ -72,10 +72,11 @@ SELECT
     Chat.id AS chatId, Chat.customName AS chatCustomName, Chat.avatarUrl,
     Messages.id AS lastMessageId, Messages.authorId AS lastMessageAuthorId, Messages.createdAt AS lastMessageCreatedAt, Messages.content,
     Participants.userId AS lastMessageUserId, Participants.avatarUrl,
-    Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName, Participants.readAt
+    Participants.customName AS lastMessageAuthorCustomName, Participants.firstname, Participants.lastName,
+    user.readAt
 FROM (
     SELECT Chats.*, (
-            SELECT id
+            SELECT Messages.id
             FROM Messages
             WHERE Chats.id = Messages.chatId
             ORDER BY createdAt DESC
@@ -84,6 +85,7 @@ FROM (
 ) Chat
 JOIN Messages ON Chat.messageId = Messages.id
 JOIN Participants ON Participants.id = Messages.authorId
+JOIN Participants user ON user.chatId = Chat.id AND user.userId = Chat.userId
 WHERE Chat.userId = ?;
 
 -- PARTICIPANTS

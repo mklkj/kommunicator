@@ -14,7 +14,6 @@ import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
-import kotlinx.datetime.toInstant
 import kotlinx.uuid.UUID
 import kotlinx.uuid.exposed.UUIDColumnType
 import kotlinx.uuid.toUUID
@@ -29,6 +28,7 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 @Singleton
 class ChatsDao {
@@ -153,12 +153,13 @@ class ChatsDao {
                         ?.let { MessagesTable.id.columnType.valueFromDB(it) } as UUID,
                     authorId = (ChatParticipantsTable.id.columnType.readObject(rs, 6))
                         ?.let { ChatParticipantsTable.id.columnType.valueFromDB(it) } as UUID,
-                    authorFirstName = UsersTable.id.columnType.readObject(rs, 7) as String,
-                    authorLastName = UsersTable.id.columnType.readObject(rs, 8) as String,
-                    authorCustomName = UsersTable.id.columnType.readObject(rs, 9) as String?,
+                    authorFirstName = UsersTable.firstName.columnType.readObject(rs, 7) as String,
+                    authorLastName = UsersTable.lastName.columnType.readObject(rs, 8) as String,
+                    authorCustomName = ChatParticipantsTable.customName.columnType
+                        .readObject(rs, 9) as String?,
                 ),
-                participants = (rs.getArray(10).array as Array<*>).map {
-                    val row = it as Array<*>
+                participants = (rs.getArray(10).array as Array<*>).map { array ->
+                    val row = array as Array<*>
                     ChatSummaryParticipant(
                         id = row[0].toString().toUUID(),
                         userId = row[1].toString().toUUID(),
@@ -166,7 +167,9 @@ class ChatsDao {
                         firstName = row[3].toString(),
                         lastName = row[4].toString(),
                         email = row[5].toString(),
-                        readAt = row[6]?.toString()?.toInstant(),
+                        readAt = row[6]?.toString()?.let {
+                            ChatParticipantsTable.readAt.columnType.valueFromDB(Timestamp.valueOf(it))
+                        } as Instant?,
                     )
                 },
             )

@@ -48,6 +48,10 @@ class ConversationViewModel(
         conversationClient.onTyping(currentMessage.isBlank())
     }
 
+    fun onChatRead() {
+        conversationClient.onChatRead()
+    }
+
     override fun onDispose() {
         super.onDispose()
         conversationClient.onDispose()

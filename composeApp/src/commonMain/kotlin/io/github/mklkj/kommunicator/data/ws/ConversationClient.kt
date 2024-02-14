@@ -169,8 +169,9 @@ class ConversationClient(
         typingChannel.trySend(isEmptyMessage)
     }
 
-    fun onMessageRead() {
+    fun onChatRead() {
         scope.launch {
+            Logger.withTag(TAG).i("Marking chat as read")
             chatSession?.sendSerialized<MessageEvent>(
                 ChatReadPush(readAt = Clock.System.now())
             )
