@@ -106,11 +106,13 @@ class ConversationViewModel(
                             participants.filter { it.id in typing.keys }
                         }
                     },
-            ) { messages, typingParticipants ->
+                flow3 = messagesRepository.observeParticipantsLastRead(chatId),
+            ) { messages, typingParticipants, lastReads ->
                 mutableState.update {
                     it.copy(
                         messages = messages,
                         typingParticipants = typingParticipants,
+                        lastReadMessages = lastReads,
                     )
                 }
             }.collect()

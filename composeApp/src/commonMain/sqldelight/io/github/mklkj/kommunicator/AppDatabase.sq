@@ -136,3 +136,15 @@ FROM Messages
 LEFT JOIN Participants ON Messages.authorId = Participants.id
 WHERE Messages.chatId = ?
 ORDER BY Messages.createdAt DESC;
+
+selectParticipantsWithLastReadMessage:
+SELECT Participants.avatarUrl AS userAvatarUrl, Messages.id AS messageId
+FROM Participants
+LEFT JOIN Messages ON Participants.chatId = Messages.chatId
+    AND Messages.id = (
+        SELECT id
+        FROM Messages
+        WHERE createdAt < Participants.readAt AND chatId = Participants.chatId
+        ORDER BY createdAt DESC
+    )
+WHERE Messages.createdAt < Participants.readAt AND Participants.chatId = ?;

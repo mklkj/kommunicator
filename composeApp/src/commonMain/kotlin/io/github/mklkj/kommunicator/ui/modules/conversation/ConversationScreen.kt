@@ -47,6 +47,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import io.github.mklkj.kommunicator.SelectParticipantsWithLastReadMessage
 import io.github.mklkj.kommunicator.data.db.entity.LocalMessage
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.ws.ConnectionStatus
@@ -142,6 +143,9 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                             BubbleMessageWithDate(
                                 message = it,
                                 isDateRevealed = revealedMessageId == it.id,
+                                userReads = state.lastReadMessages.filter { lastRead ->
+                                    lastRead.messageId == it.id
+                                },
                                 onClick = {
                                     revealedMessageId = when (it.id) {
                                         revealedMessageId -> null
@@ -219,6 +223,7 @@ class ConversationScreen(private val chatId: UUID) : Screen {
     private fun BubbleMessageWithDate(
         message: LocalMessage,
         isDateRevealed: Boolean,
+        userReads: List<SelectParticipantsWithLastReadMessage>,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
     ) {
@@ -229,10 +234,22 @@ class ConversationScreen(private val chatId: UUID) : Screen {
             AnimatedVisibility(isDateRevealed) {
                 Text(message.createdAt.format())
             }
-            BubbleMessage(
-                message = message,
-                onClick = onClick,
-            )
+            Column {
+                BubbleMessage(
+                    message = message,
+                    onClick = onClick,
+                )
+                Row {
+                    userReads.forEach {
+                        AppImage(
+                            url = it.userAvatarUrl,
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+                }
+            }
         }
     }
 

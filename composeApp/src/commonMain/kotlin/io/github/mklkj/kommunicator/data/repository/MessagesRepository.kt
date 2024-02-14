@@ -4,6 +4,7 @@ import io.github.mklkj.kommunicator.BuildKonfig
 import io.github.mklkj.kommunicator.Chats
 import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.Participants
+import io.github.mklkj.kommunicator.SelectParticipantsWithLastReadMessage
 import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.db.entity.LocalChat
@@ -88,6 +89,10 @@ class MessagesRepository(
 
     fun observeParticipants(chatId: UUID): Flow<List<Participants>> {
         return database.observeParticipants(chatId)
+    }
+
+    fun observeParticipantsLastRead(chatId: UUID): Flow<List<SelectParticipantsWithLastReadMessage>> {
+        return database.observeParticipantsLastRead(chatId)
     }
 
     suspend fun sendMessage(chatId: UUID, message: MessageRequest) {

@@ -8,6 +8,7 @@ import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.Messages
 import io.github.mklkj.kommunicator.Participants
 import io.github.mklkj.kommunicator.SelectAllChats
+import io.github.mklkj.kommunicator.SelectParticipantsWithLastReadMessage
 import io.github.mklkj.kommunicator.Users
 import io.github.mklkj.kommunicator.data.db.adapters.InstantStringAdapter
 import io.github.mklkj.kommunicator.data.db.entity.LocalChat
@@ -177,6 +178,11 @@ class Database(sqlDriver: SqlDriver) {
 
     fun observeParticipants(chatId: UUID): Flow<List<Participants>> {
         return dbQuery.selectChatParticipants(chatId).asFlow()
+            .mapToList(Dispatchers.IO)
+    }
+
+    fun observeParticipantsLastRead(chatId: UUID): Flow<List<SelectParticipantsWithLastReadMessage>> {
+        return dbQuery.selectParticipantsWithLastReadMessage(chatId).asFlow()
             .mapToList(Dispatchers.IO)
     }
 
