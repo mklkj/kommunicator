@@ -55,9 +55,12 @@ import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
 import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
 import io.github.mklkj.kommunicator.ui.widgets.rememberPullRefreshState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 internal object ContactsScreen : Tab {
+
+    private var snackbarJob: Job? = null
 
     override val options: TabOptions
         @Composable
@@ -82,8 +85,9 @@ internal object ContactsScreen : Tab {
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
         LaunchedEffect(state.error) {
+            snackbarJob?.cancel()
             if (state.error != null) {
-                scope.launch {
+                snackbarJob = scope.launch {
                     val action = snackbarHostState.showSnackbar(
                         message = state.error?.message.toString(),
                         actionLabel = "Retry",

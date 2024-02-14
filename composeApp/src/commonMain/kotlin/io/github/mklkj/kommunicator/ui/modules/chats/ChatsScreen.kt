@@ -59,10 +59,13 @@ import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.PullRefreshIndicator
 import io.github.mklkj.kommunicator.ui.widgets.pullRefresh
 import io.github.mklkj.kommunicator.ui.widgets.rememberPullRefreshState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nl.jacobras.humanreadable.HumanReadable
 
 internal object ChatsScreen : Tab {
+
+    private var snackbarJob: Job? = null
 
     override val options: TabOptions
         @Composable
@@ -89,8 +92,9 @@ internal object ChatsScreen : Tab {
         val pullRefreshState = rememberPullRefreshState(state.isLoading, viewModel::onRefresh)
 
         LaunchedEffect(state.error) {
+            snackbarJob?.cancel()
             if (state.error != null) {
-                scope.launch {
+                snackbarJob = scope.launch {
                     val action = snackbarHostState.showSnackbar(
                         message = state.error?.message.toString(),
                         actionLabel = "Retry",
@@ -246,7 +250,8 @@ internal object ChatsScreen : Tab {
                         )
                     }
                     Text(
-                        text = item.lastMessage?.createdAt?.let { HumanReadable.timeAgo(it) }.orEmpty(),
+                        text = item.lastMessage?.createdAt?.let { HumanReadable.timeAgo(it) }
+                            .orEmpty(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (item.isUnread) FontWeight.Bold else null,
