@@ -2,7 +2,6 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
-import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -60,11 +59,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
-            // workaround https://github.com/JetBrains/compose-multiplatform/issues/4157
-            //noinspection UseTomlInstead
-            implementation("org.jetbrains.compose.material3:material3:1.6.0-beta02")
             implementation(compose.materialIconsExtended)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(libs.kamel.image)
 
@@ -94,8 +89,6 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.ws)
 
-            api(libs.kmpnotifier)
-
             implementation(project.dependencies.platform(libs.koin.annotations.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -104,6 +97,7 @@ kotlin {
             implementation(libs.kermit)
             implementation(libs.kermit.crashlytics)
             implementation(libs.firebase.crashlytics)
+            api(libs.kmpnotifier)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -167,7 +161,6 @@ android {
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
         applicationId = "io.github.mklkj.kommunicator"

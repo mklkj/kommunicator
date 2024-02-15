@@ -16,6 +16,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
 import io.github.mklkj.kommunicator.ui.modules.registration.RegistrationScreen
+import kommunicator.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
@@ -45,7 +46,7 @@ object WelcomeScreen : Screen {
                     .padding(16.dp)
             ) {
                 Image(
-                    painter = painterResource("compose-multiplatform.xml"),
+                    painter = painterResource(Res.drawable.icon),
                     contentDescription = null,
                     modifier = Modifier.weight(1f)
                 )
