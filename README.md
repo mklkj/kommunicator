@@ -37,9 +37,23 @@ $ docker-compose up    # utworzenie obrazów z serwerem i bazą danych oraz ich 
 > dostosować do adresu hosta z postawionym w poprzednim kroku serwerem w pliku
 > ./composeApp/build.gradle w bloku `buildkonfig.targetConfigs`.
 
+## Android
+
 ```shell
 $ ./gradlew assembleDebug # zbudowanie apk
 ```
 
 > [!TIP]
 > Plik .apk będzie znajdował się w `./composeApp/build/outputs/apk/debug/`
+
+## iOS
+
+Do zbudowania aplikacji z działającymi powiadomieniami potrzebny jest Provisioning Profile,
+a więc i konto Apple ID z Apple Developer Program membership.
+
+W pliku Config.xcconfig ustawia się TEAM_ID używany przy budowaniu aplikacji. Można zostawić pusty
+(jak w Config.xcconfig.example) ale wtedy nie będą działać powiadomienia.
+
+```shell
+$ cp iosApp/Configuration/Config.xcconfig.example iosApp/Configuration/Config.xcconfig
+```

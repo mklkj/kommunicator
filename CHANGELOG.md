@@ -563,6 +563,30 @@ https://forums.developer.apple.com/forums/thread/77135
 Dla pewności - sprawdzić jeszcze to
 https://www.kodeco.com/11395893-push-notifications-tutorial-getting-started
 
+## Ciąg dalszy powiadomień na iOS
+
+Udało się 🎉! Udało mi się załatwić provisioning profile, dzięki czemu wysyłanie powiadomień na
+iOS działa.
+
+Jak to tak mniej więcej trzeba było zrobić?
+
+1. Wejść na https://appstoreconnect.apple.com/apps
+2. Dodać nową apkę (wybrać nazwę, domyślny język w App Store)
+3. Przy rejestrowaniu trzeba wybrać bundle ID, które najpierw trzeba zarejestrować
+   tutaj https://developer.apple.com/account/resources/identifiers/bundleId/add/bundle
+4. Tam wybieramy w Capabilities pozycję "Push Notifications"
+5. Przechodzimy dalej i wrzucamy swój certyfikat z naszego Maca, a w następnym kroku pobieramy i
+   instalujemy wygenerowany certyfikat
+6. Kolejny krok to utworzenie Provisioning Profile
+7. Wybieramy tam "iOS App Development", potem utworzone wcześniej app ID i zaznaczamy wygenerowany
+   certyfikat
+8. Potem zaznaczamy urządzenia, na których chcemy testować apkę
+9. I na końcu możemy pobrać plik z wygenerowanym Provisioning profilem.
+
+Nie jestem pewny, czy publikowanie TEAM_ID w tym repo będzie bezpieczne, więc ukryłem je
+w `Config.xcconfig`, który to plik nie będzie śledzony przez gita, w zasadzie podobnie jak tutaj
+https://stackoverflow.com/a/75226629/6695449.
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

@@ -12,3 +12,4 @@ xcuserdata
 iosApp/Pods
 .env
 kommunicator-*.json
+Config.xcconfig
