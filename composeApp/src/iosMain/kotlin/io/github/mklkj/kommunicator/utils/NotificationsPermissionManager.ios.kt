@@ -1,6 +1,7 @@
 package io.github.mklkj.kommunicator.utils
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,9 +20,12 @@ actual fun rememberNotificationsPermissionController(
 
     val notificationCenter = UNUserNotificationCenter.currentNotificationCenter()
 
-    notificationCenter.getNotificationSettingsWithCompletionHandler {
-        Logger.i("Notification settings status: ${it?.authorizationStatus}")
-        isPermissionGranted.value = it?.authorizationStatus == UNAuthorizationStatusAuthorized
+    LaunchedEffect(Unit) {
+        notificationCenter.getNotificationSettingsWithCompletionHandler {
+            Logger.i("Notification settings status: ${it?.authorizationStatus}")
+            isPermissionGranted.value = it?.authorizationStatus == UNAuthorizationStatusAuthorized
+            onPermissionCheckResult(isPermissionGranted.value)
+        }
     }
 
     return object : NotificationsPermissionController {

@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,7 +21,12 @@ actual fun rememberNotificationsPermissionController(
 ): NotificationsPermissionController {
     val context = LocalContext.current
 
-    val isPermissionGranted = remember { mutableStateOf(context.hasNotificationPermission()) }
+    val isPermissionGranted = remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        isPermissionGranted.value = context.hasNotificationPermission()
+        onPermissionCheckResult(isPermissionGranted.value)
+    }
+
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
