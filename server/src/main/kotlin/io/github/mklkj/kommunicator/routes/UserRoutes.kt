@@ -6,9 +6,9 @@ import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
-import io.github.mklkj.kommunicator.utils.extractPrincipalUsername
 import io.github.mklkj.kommunicator.utils.md5
 import io.github.mklkj.kommunicator.utils.principalId
+import io.github.mklkj.kommunicator.utils.principalUsername
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
@@ -18,7 +18,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import kotlinx.uuid.UUID
+import kotlinx.uuid.toUUIDOrNull
 import org.koin.ktor.ext.inject
 
 fun Route.userRoutes() {
@@ -58,12 +58,12 @@ fun Route.userRoutes() {
     }
     authenticate("another-auth") {
         get("/{id}") {
-            val id: String = call.parameters["id"]
+            val id = call.parameters["id"]?.toUUIDOrNull()
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val foundUser = userService.findById(UUID(id))
+            val foundUser = userService.findById(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
-            if (foundUser.username != extractPrincipalUsername(call))
-                return@get call.respond(HttpStatusCode.NotFound)
+            if (foundUser.username != call.principalUsername)
+                return@get call.respond(HttpStatusCode.Conflict)
 
             call.respond(message = foundUser.toResponse())
         }

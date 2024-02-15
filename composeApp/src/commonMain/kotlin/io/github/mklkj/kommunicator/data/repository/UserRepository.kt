@@ -88,6 +88,7 @@ class UserRepository(
             } else throw it
         }.getOrThrow()
 
+        invalidateBearerTokens()
         val user = userService.getUser(
             token = "Bearer ${response.token}",
             id = response.id,

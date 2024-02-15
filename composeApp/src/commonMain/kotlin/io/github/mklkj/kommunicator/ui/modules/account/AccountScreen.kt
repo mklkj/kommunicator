@@ -34,7 +34,6 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.Users
-import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.widgets.AppImage
 
@@ -76,7 +75,6 @@ class AccountScreen : Screen {
                         user = state.user!!,
                     ) {
                         viewModel.logout()
-                        navigator.replaceAll(WelcomeScreen)
                     }
                 }
             }
