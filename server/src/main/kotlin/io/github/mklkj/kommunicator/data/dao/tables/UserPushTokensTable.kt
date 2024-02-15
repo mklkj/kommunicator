@@ -11,6 +11,6 @@ object UserPushTokensTable : Table("user_push_tokens") {
     val userId = kotlinxUUID("user_id")
 
     init {
-        uniqueIndex("token_device_unique", token, deviceIdHash, userId)
+        uniqueIndex("token_device_unique", deviceIdHash)
     }
 }
