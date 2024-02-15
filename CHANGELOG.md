@@ -543,6 +543,26 @@ przez serwer, żeby apka miała poprawną datę utworzenia wiadomości. Dzięki 
 wiadomość wysłał, można również bezpiecznie wyświetlić informacje o tym, że ją odczytał (choć to
 trochę bez sensu, to przyda się do oceny działania apki).
 
+## Poprawki powiadomień (2024-02-15)
+
+Dodałem pytanie o uprawnienie do wysyłania powiadomień na Androidzie (taki box na ekranie z czatami)
+oraz dorobiłem wysyłanie push tokena przy wejściu na ekran z czatami (tak dla pewności).
+
+Ciągle mam problem z iOSem. Podobno powiadomienia powinny działać na symulatorze od Xcode 14,
+ale u mnie się nie chcą pokazać.
+https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Simulator
+
+Według rady z https://stackoverflow.com/a/71133328/6695449 dodałem `gcm.message_id` i w końcu coś
+zaczęło się dziać. Wygrzebałem errory z odpowiedzi przy wysyłaniu powiadomień i tam z obaczyłem
+`Unexpected HTTP response with status: 401`. Szybkie guglando i mamy to
+https://stackoverflow.com/q/55824244/6695449. W skrócie — trzeba skonfigurować APSN.
+
+Tylko żeby to zrobić, trzeba być w _Apple Developer Program membership_ xD
+https://forums.developer.apple.com/forums/thread/77135
+
+Dla pewności - sprawdzić jeszcze to
+https://www.kodeco.com/11395893-push-notifications-tutorial-getting-started
+
 ## Materiały
 
 - biblioteki KMM 1 - https://github.com/terrakok/kmm-awesome

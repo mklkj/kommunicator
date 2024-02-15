@@ -3,6 +3,8 @@ package io.github.mklkj.kommunicator.data.service
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import com.google.firebase.messaging.ApnsConfig
+import com.google.firebase.messaging.Aps
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.MulticastMessage
 import com.google.firebase.messaging.Notification
@@ -48,9 +50,26 @@ class NotificationService(
                     .setBody(messageToNotify.content)
                     .build()
             )
+            .setApnsConfig(
+                ApnsConfig.builder()
+                    .setAps(
+                        Aps.builder()
+                            .build()
+                    )
+                    .build()
+            )
+            .putData("gcm.message_id", messageId.toString())
             .addAllTokens(registrationTokens)
             .build()
         val response = FirebaseMessaging.getInstance().sendEachForMulticast(message)
-        println(response.successCount.toString() + " messages were sent successfully")
+        println(response.successCount.toString() + " of ${registrationTokens.size} messages were sent successfully, ${response.failureCount} fail")
+
+        if (response.failureCount > 0) {
+            response.responses.forEach {
+                if (!it.isSuccessful) {
+                    it.exception.printStackTrace()
+                }
+            }
+        }
     }
 }
