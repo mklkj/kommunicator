@@ -81,6 +81,7 @@ kotlin {
             //noinspection UseTomlInstead
             implementation("co.touchlab:stately-common:2.0.5")
 
+            implementation(libs.kotlinx.coroutines)
             implementation(libs.ktorfit)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.auth)

@@ -17,6 +17,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
 import io.github.mklkj.kommunicator.ui.modules.registration.RegistrationScreen
 import kommunicator.composeapp.generated.resources.Res
+import kommunicator.composeapp.generated.resources.icon
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
