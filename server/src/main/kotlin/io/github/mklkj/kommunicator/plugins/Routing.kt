@@ -1,6 +1,5 @@
 package io.github.mklkj.kommunicator.plugins
 
-import io.github.mklkj.kommunicator.Greeting
 import io.github.mklkj.kommunicator.routes.authRoute
 import io.github.mklkj.kommunicator.routes.chatRoutes
 import io.github.mklkj.kommunicator.routes.chatWebsockets
@@ -17,7 +16,7 @@ import io.ktor.server.routing.routing
 fun Application.configureRouting() {
     routing {
         get("/") {
-            call.respondText("Ktor: ${Greeting().greet()}")
+            call.respondText("Ktor: kommunicator")
         }
 
         route("/api/auth") { authRoute() }
