@@ -4,6 +4,8 @@ import io.github.mklkj.kommunicator.Contacts
 import io.github.mklkj.kommunicator.data.api.service.ContactService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.models.ContactAddRequest
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -16,7 +18,15 @@ class ContactRepository(
 ) {
 
     suspend fun addContact(username: String) {
-        contactService.addContact(ContactAddRequest(username))
+        runCatching { contactService.addContact(ContactAddRequest(username)) }
+            .onFailure {
+                if (it is ClientRequestException) {
+                    when (it.response.status) {
+                        HttpStatusCode.BadRequest -> error("User does not exist")
+                        HttpStatusCode.Conflict -> error("Contact already exist")
+                    }
+                }
+            }
         refreshContacts()
     }
 

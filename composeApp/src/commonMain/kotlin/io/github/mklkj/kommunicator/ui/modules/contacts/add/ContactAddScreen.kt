@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,7 @@ class ContactAddScreen : Screen {
         ) { paddingValues ->
             Column(Modifier.padding(paddingValues).padding(16.dp)) {
                 var username by remember { mutableStateOf("") }
+                val isUsernameNotBLank by derivedStateOf { username.isNotBlank() }
                 TextField(
                     value = username,
                     onValueChange = { username = it },
@@ -74,7 +76,7 @@ class ContactAddScreen : Screen {
                         onClick = {
                             viewModel.addContact(username)
                         },
-                        enabled = !state.isLoading,
+                        enabled = !state.isLoading && isUsernameNotBLank,
                         modifier = Modifier.align(Alignment.BottomEnd)
                     ) {
                         Text("Add")
