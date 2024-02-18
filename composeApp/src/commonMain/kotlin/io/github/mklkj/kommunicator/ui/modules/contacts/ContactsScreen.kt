@@ -1,6 +1,5 @@
 package io.github.mklkj.kommunicator.ui.modules.contacts
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -177,14 +176,14 @@ internal object ContactsScreen : Tab {
                         .size(64.dp)
                         .clip(CircleShape)
                 )
-                Box(
-                    Modifier
-                        .size(20.dp)
-                        .background(if (item.isActive) Color.Green else Color.Gray, CircleShape)
-                        .padding(5.dp)
-                        .background(Color.White, CircleShape)
-                        .align(Alignment.BottomEnd)
-                )
+//                Box(
+//                    Modifier
+//                        .size(20.dp)
+//                        .background(if (item.isActive) Color.Green else Color.Gray, CircleShape)
+//                        .padding(5.dp)
+//                        .background(Color.White, CircleShape)
+//                        .align(Alignment.BottomEnd)
+//                )
             }
             Spacer(Modifier.width(16.dp))
             Column(

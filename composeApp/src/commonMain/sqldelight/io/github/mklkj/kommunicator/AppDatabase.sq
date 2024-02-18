@@ -1,4 +1,3 @@
-import kotlin.Boolean;
 import kotlinx.datetime.Instant;
 import kotlinx.uuid.UUID;
 
@@ -37,13 +36,12 @@ CREATE TABLE Contacts (
     avatarUrl TEXT NOT NULL,
     firstName TEXT NOT NULL,
     lastName TEXT NOT NULL,
-    username TEXT NOT NULL,
-    isActive INTEGER AS Boolean NOT NULL
+    username TEXT NOT NULL
 );
 
 insertContact:
-INSERT INTO Contacts(id, userId, contactUserId, avatarUrl, firstName, lastName, username, isActive)
-VALUES(?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO Contacts(id, userId, contactUserId, avatarUrl, firstName, lastName, username)
+VALUES(?, ?, ?, ?, ?, ?, ?);
 
 removeAllContacts:
 DELETE FROM Contacts WHERE userId = ?;

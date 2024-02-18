@@ -28,7 +28,6 @@ import kotlinx.datetime.Clock
 import kotlinx.uuid.UUID
 import kotlinx.uuid.sqldelight.UUIDStringAdapter
 import org.koin.core.annotation.Singleton
-import kotlin.random.Random
 
 @Singleton
 class Database(sqlDriver: SqlDriver) {
@@ -116,7 +115,6 @@ class Database(sqlDriver: SqlDriver) {
                         firstName = it.firstName,
                         lastName = it.lastName,
                         username = it.username,
-                        isActive = it.isActive,
                     )
                 }
             }
@@ -139,7 +137,6 @@ class Database(sqlDriver: SqlDriver) {
 
                             else -> true
                         },
-                        isActive = Random.nextBoolean(),
                         participants = listOf(),
 
                         lastMessage = LocalMessage(

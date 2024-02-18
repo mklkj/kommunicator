@@ -55,8 +55,6 @@ class ChatService(
                     }
                 }
             },
-            isUnread = false,
-            isActive = false,
             lastMessage = null,
             participants = participants.map {
                 ChatParticipant(
@@ -81,8 +79,6 @@ class ChatService(
                     1 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
                     else -> "https://i.pravatar.cc/256?u=${chat.id}"
                 },
-                isUnread = false,
-                isActive = false,
                 lastMessage = Message(
                     id = chat.lastMessage.messageId,
                     participantId = chat.lastMessage.authorId,

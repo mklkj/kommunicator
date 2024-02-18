@@ -8,8 +8,6 @@ import kotlinx.uuid.UUID
 data class Chat(
     val id: UUID,
     val avatarUrl: String,
-    val isUnread: Boolean,
-    val isActive: Boolean,
     val participants: List<ChatParticipant>,
     val lastMessage: Message?,
     val customName: String?,

@@ -6,7 +6,7 @@ data class LocalChat(
     val id: UUID,
     val avatarUrl: String,
     val isUnread: Boolean,
-    val isActive: Boolean,
+    val isActive: Boolean? = null,
     val participants: List<LocalParticipant>,
     val lastMessage: LocalMessage?,
     val customName: String?,

@@ -226,14 +226,16 @@ internal object ChatsScreen : Tab {
                         .size(64.dp)
                         .clip(CircleShape)
                 )
-                Box(
-                    Modifier
-                        .size(20.dp)
-                        .background(if (item.isActive) Color.Green else Color.Gray, CircleShape)
-                        .padding(5.dp)
-                        .background(Color.White, CircleShape)
-                        .align(Alignment.BottomEnd)
-                )
+                if (item.isActive != null) {
+                    Box(
+                        Modifier
+                            .size(20.dp)
+                            .background(if (item.isActive) Color.Green else Color.Gray, CircleShape)
+                            .padding(5.dp)
+                            .background(Color.White, CircleShape)
+                            .align(Alignment.BottomEnd)
+                    )
+                }
             }
             Spacer(Modifier.width(16.dp))
             Column(

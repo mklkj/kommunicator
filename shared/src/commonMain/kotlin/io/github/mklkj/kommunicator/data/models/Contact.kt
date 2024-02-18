@@ -11,5 +11,4 @@ data class Contact(
     val firstName: String,
     val lastName: String,
     val username: String,
-    val isActive: Boolean,
 )

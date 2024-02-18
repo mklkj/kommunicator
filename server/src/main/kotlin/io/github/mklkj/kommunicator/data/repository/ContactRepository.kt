@@ -6,7 +6,6 @@ import io.github.mklkj.kommunicator.data.models.ContactEntity
 import io.github.mklkj.kommunicator.utils.md5
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
-import kotlin.random.Random
 
 @Singleton
 class ContactRepository(
@@ -22,7 +21,6 @@ class ContactRepository(
                 firstName = it.firstName,
                 lastName = it.lastName,
                 username = it.username,
-                isActive = Random.nextBoolean(), // todo
             )
         }
     }
