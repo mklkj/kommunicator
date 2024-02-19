@@ -1,0 +1,12 @@
+import kotlinx.uuid.UUID;
+
+DROP TABLE Contacts;
+CREATE TABLE Contacts (
+    id TEXT AS UUID NOT NULL PRIMARY KEY,
+    userId TEXT AS UUID NOT NULL,
+    contactUserId TEXT AS UUID NOT NULL,
+    avatarUrl TEXT NOT NULL,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    username TEXT NOT NULL
+);

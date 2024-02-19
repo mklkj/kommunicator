@@ -6,7 +6,7 @@ import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
 import io.github.mklkj.kommunicator.data.models.UserResponse
 import io.github.mklkj.kommunicator.data.service.UserService
-import io.github.mklkj.kommunicator.utils.md5
+import io.github.mklkj.kommunicator.utils.AvatarHelper
 import io.github.mklkj.kommunicator.utils.principalId
 import io.github.mklkj.kommunicator.utils.principalUsername
 import io.ktor.http.HttpStatusCode
@@ -23,6 +23,7 @@ import org.koin.ktor.ext.inject
 
 fun Route.userRoutes() {
     val userService by inject<UserService>()
+    val avatarHelper by inject<AvatarHelper>()
 
     post {
         val userRequest = call.receive<UserRequest>()
@@ -45,7 +46,7 @@ fun Route.userRoutes() {
         get {
             val users = userService.findAll()
             call.respond(
-                message = users.map(User::toResponse)
+                message = users.map { it.toResponse(avatarHelper) }
             )
         }
 
@@ -65,12 +66,12 @@ fun Route.userRoutes() {
             if (foundUser.username != call.principalUsername)
                 return@get call.respond(HttpStatusCode.Conflict)
 
-            call.respond(message = foundUser.toResponse())
+            call.respond(message = foundUser.toResponse(avatarHelper))
         }
     }
 }
 
-fun User.toResponse(): UserResponse = UserResponse(
+fun User.toResponse(avatarHelper: AvatarHelper): UserResponse = UserResponse(
     id = id,
     username = username,
     email = email,
@@ -78,5 +79,5 @@ fun User.toResponse(): UserResponse = UserResponse(
     lastName = lastName,
     dateOfBirth = dateOfBirth,
     gender = gender,
-    avatarUrl = "https://gravatar.com/avatar/${md5(email)}"
+    avatarUrl = avatarHelper.getUserAvatar(firstName, lastName),
 )

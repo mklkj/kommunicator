@@ -6,21 +6,23 @@ import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
 import io.github.mklkj.kommunicator.data.models.ParticipantReadEntity
 import io.github.mklkj.kommunicator.data.models.UserPushTokenEntity
+import io.github.mklkj.kommunicator.utils.AvatarHelper
 import io.github.mklkj.kommunicator.utils.dbQuery
-import io.github.mklkj.kommunicator.utils.md5
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.koin.core.annotation.Singleton
 
 @Singleton
-class ChatParticipantsDao {
+class ChatParticipantsDao(
+    private val avatarHelper: AvatarHelper,
+) {
 
     private fun resultRowToParticipant(row: ResultRow): ChatParticipantEntity {
         return ChatParticipantEntity(
@@ -31,7 +33,11 @@ class ChatParticipantsDao {
             username = row[UsersTable.username],
             userFirstName = row[UsersTable.firstName],
             userLastName = row[UsersTable.lastName],
-            userAvatarUrl = "https://gravatar.com/avatar/${md5(row[UsersTable.email])}",
+            userAvatarUrl = avatarHelper.getUserAvatar(
+                firstName = row[UsersTable.firstName],
+                lastName = row[UsersTable.lastName],
+                customName = row[ChatParticipantsTable.customName],
+            ),
             readAt = row[ChatParticipantsTable.readAt],
         )
     }
@@ -51,9 +57,8 @@ class ChatParticipantsDao {
 
     suspend fun getChatParticipantId(chatId: UUID, userId: UUID): UUID = dbQuery {
         ChatParticipantsTable
-            .select {
-                (ChatParticipantsTable.chatId eq chatId) and (ChatParticipantsTable.userId eq userId)
-            }
+            .selectAll()
+            .where { (ChatParticipantsTable.chatId eq chatId) and (ChatParticipantsTable.userId eq userId) }
             .map { it[ChatParticipantsTable.id] }
             .first()
     }
@@ -66,7 +71,8 @@ class ChatParticipantsDao {
                 otherColumn = UsersTable.id,
                 joinType = JoinType.LEFT,
             )
-            .select { ChatParticipantsTable.chatId eq chatId }
+            .selectAll()
+            .where { ChatParticipantsTable.chatId eq chatId }
             .limit(15)
             // todo: pagination
             .map(::resultRowToParticipant)
@@ -82,7 +88,8 @@ class ChatParticipantsDao {
                 otherColumn = UserPushTokensTable.userId,
                 joinType = JoinType.LEFT
             )
-            .select { (ChatParticipantsTable.chatId eq chatId) and (UserPushTokensTable.token.isNotNull()) }
+            .selectAll()
+            .where { (ChatParticipantsTable.chatId eq chatId) and (UserPushTokensTable.token.isNotNull()) }
             .map {
                 UserPushTokenEntity(
                     userId = it[ChatParticipantsTable.userId],

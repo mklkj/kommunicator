@@ -6,13 +6,14 @@ import io.github.mklkj.kommunicator.data.models.ChatParticipant
 import io.github.mklkj.kommunicator.data.models.ChatParticipantEntity
 import io.github.mklkj.kommunicator.data.models.Message
 import io.github.mklkj.kommunicator.data.repository.ChatRepository
-import io.github.mklkj.kommunicator.utils.md5
+import io.github.mklkj.kommunicator.utils.AvatarHelper
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
 @Singleton
 class ChatService(
     private val chatRepository: ChatRepository,
+    private val avatarHelper: AvatarHelper,
 ) {
 
     suspend fun addChat(request: ChatCreateRequest): UUID {
@@ -33,28 +34,35 @@ class ChatService(
         val participants = chatRepository.getParticipants(chatId)
         val notCurrentUserParticipants = participants.filterNot { it.userId == userId }
 
+        val chatName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
+            when (notCurrentUserParticipants.size) {
+                1 -> notCurrentUserParticipants.single().let {
+                    append(it.userFirstName)
+                    append(" ")
+                    append(it.userLastName)
+                }
+
+                else -> {
+                    val names = notCurrentUserParticipants.joinToString(", ") {
+                        "${it.userFirstName} ${it.userLastName}"
+                    }
+                    append(names)
+                }
+            }
+        }
+
         return Chat(
             id = chat.id,
             avatarUrl = when (notCurrentUserParticipants.size) {
-                1 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
-                else -> "https://i.pravatar.cc/256?u=${chat.id}"
-            },
-            customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
-                when (notCurrentUserParticipants.size) {
-                    1 -> notCurrentUserParticipants.single().let {
-                        append(it.userFirstName)
-                        append(" ")
-                        append(it.userLastName)
-                    }
+                1 -> avatarHelper.getUserAvatar(
+                    firstName = notCurrentUserParticipants.first().userFirstName,
+                    lastName = notCurrentUserParticipants.first().userLastName,
+                    customName = notCurrentUserParticipants.first().customName,
+                )
 
-                    else -> {
-                        val names = notCurrentUserParticipants.joinToString(", ") {
-                            "${it.userFirstName} ${it.userLastName}"
-                        }
-                        append(names)
-                    }
-                }
+                else -> avatarHelper.getGroupAvatar(chatName)
             },
+            customName = chatName,
             lastMessage = null,
             participants = participants.map {
                 ChatParticipant(
@@ -73,11 +81,33 @@ class ChatService(
     suspend fun getChats(userId: UUID): List<Chat> {
         return chatRepository.getChats(userId).map { chat ->
             val notCurrentUserParticipants = chat.participants.filterNot { it.userId == userId }
+
+            val chatName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
+                when (notCurrentUserParticipants.size) {
+                    1 -> {
+                        append(notCurrentUserParticipants.single().firstName)
+                        append(" ")
+                        append(notCurrentUserParticipants.single().lastName)
+                    }
+
+                    else -> {
+                        val names = notCurrentUserParticipants.joinToString(", ") {
+                            "${it.firstName} ${it.lastName}"
+                        }
+                        append(names)
+                    }
+                }
+            }
             Chat(
                 id = chat.id,
                 avatarUrl = when (notCurrentUserParticipants.size) {
-                    1 -> "https://gravatar.com/avatar/${md5(notCurrentUserParticipants.first().email)}"
-                    else -> "https://i.pravatar.cc/256?u=${chat.id}"
+                    1 -> avatarHelper.getUserAvatar(
+                        firstName = notCurrentUserParticipants.first().firstName,
+                        lastName = notCurrentUserParticipants.first().lastName,
+                        customName = notCurrentUserParticipants.first().customName,
+                    )
+
+                    else -> avatarHelper.getGroupAvatar(chatName)
                 },
                 lastMessage = Message(
                     id = chat.lastMessage.messageId,
@@ -85,22 +115,7 @@ class ChatService(
                     createdAt = chat.lastMessage.createdAt,
                     content = chat.lastMessage.content,
                 ),
-                customName = chat.customName.takeIf { !it.isNullOrBlank() } ?: buildString {
-                    when (notCurrentUserParticipants.size) {
-                        1 -> {
-                            append(notCurrentUserParticipants.single().firstName)
-                            append(" ")
-                            append(notCurrentUserParticipants.single().lastName)
-                        }
-
-                        else -> {
-                            val names = notCurrentUserParticipants.joinToString(", ") {
-                                "${it.firstName} ${it.lastName}"
-                            }
-                            append(names)
-                        }
-                    }
-                },
+                customName = chatName,
                 participants = chat.participants.map {
                     ChatParticipant(
                         id = it.id,
@@ -108,7 +123,11 @@ class ChatService(
                         customName = it.customName,
                         firstName = it.firstName,
                         lastName = it.lastName,
-                        avatarUrl = "https://gravatar.com/avatar/${md5(it.email)}",
+                        avatarUrl = avatarHelper.getUserAvatar(
+                            firstName = it.firstName,
+                            lastName = it.lastName,
+                            customName = it.customName,
+                        ),
                         readAt = it.readAt,
                     )
                 },
