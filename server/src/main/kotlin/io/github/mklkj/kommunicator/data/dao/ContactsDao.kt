@@ -9,9 +9,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 
@@ -46,7 +50,7 @@ class ContactsDao {
                 onColumn = ContactsTable.contactUserId,
                 otherColumn = UsersTable.id
             )
-            .select { ContactsTable.userId eq userId }
+            .selectAll().where { ContactsTable.userId eq userId }
             .limit(15)
             // todo: add pagination
             .map(::resultRowToContactWithContactUser)

@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 
@@ -38,7 +38,9 @@ class UserTokensDao {
     }
 
     suspend fun getTokenInfo(refreshToken: String) = dbQuery {
-        UserTokensTable.select { UserTokensTable.refreshToken eq refreshToken }
+        UserTokensTable
+            .selectAll()
+            .where { UserTokensTable.refreshToken eq refreshToken }
             .firstOrNull()
             ?.let(::resultRowToUserToken)
     }

@@ -1,15 +1,14 @@
 package io.github.mklkj.kommunicator.data.dao
 
+import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.data.models.User
 import io.github.mklkj.kommunicator.data.models.UserRequest
-import io.github.mklkj.kommunicator.data.dao.tables.UsersTable
 import io.github.mklkj.kommunicator.utils.dbQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
@@ -49,13 +48,15 @@ class UsersDao {
 
     suspend fun findUser(uuid: UUID): User? = dbQuery {
         UsersTable
-            .select { UsersTable.id eq uuid }
+            .selectAll()
+            .where { UsersTable.id eq uuid }
             .firstOrNull()?.let(::resultRowToUser)
     }
 
     suspend fun findUser(username: String): User? = dbQuery {
         UsersTable
-            .select { UsersTable.username eq username }
+            .selectAll()
+            .where { UsersTable.username eq username }
             .firstOrNull()?.let(::resultRowToUser)
     }
 }

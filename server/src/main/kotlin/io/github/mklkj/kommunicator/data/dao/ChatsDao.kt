@@ -17,13 +17,12 @@ import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 import kotlinx.uuid.exposed.UUIDColumnType
 import kotlinx.uuid.toUUID
-import org.intellij.lang.annotations.Language
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
@@ -41,7 +40,6 @@ class ChatsDao {
     }
 
     suspend fun getChatsContainingParticipants(participantsIds: List<UUID>): List<UUID> = dbQuery {
-        @Language("sql")
         val query = """
             SELECT chat_id
             FROM chat_participants
@@ -85,13 +83,13 @@ class ChatsDao {
                 onColumn = ChatParticipantsTable.chatId,
                 otherColumn = ChatsTable.id,
             )
-            .select { (ChatParticipantsTable.userId eq userId) and (ChatsTable.id eq chatId) }
+            .selectAll()
+            .where { (ChatParticipantsTable.userId eq userId) and (ChatsTable.id eq chatId) }
             .firstOrNull()
             ?.let { resultRowToChats(it) }
     }
 
     suspend fun getChats(userId: UUID): List<ChatSummaryEntity> = dbQuery {
-        @Language("sql")
         val query = """
             WITH aggregated_participants as (
               SELECT chat_participants.chat_id, array_agg(array[

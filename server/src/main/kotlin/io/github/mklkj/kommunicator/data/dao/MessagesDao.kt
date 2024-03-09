@@ -9,10 +9,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.uuid.UUID
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 
@@ -43,7 +47,7 @@ class MessagesDao {
 
     suspend fun getMessages(chatId: UUID): List<MessageEntity> = dbQuery {
         MessagesTable
-            .select { MessagesTable.chatId eq chatId }
+            .selectAll().where { MessagesTable.chatId eq chatId }
             .orderBy(MessagesTable.createdAt, order = SortOrder.DESC)
             .limit(15)
             // todo: add pagination
@@ -65,7 +69,8 @@ class MessagesDao {
                 onColumn = ChatParticipantsTable.userId,
                 joinType = JoinType.LEFT,
             )
-            .select { MessagesTable.id eq messageId }
+            .selectAll()
+            .where { MessagesTable.id eq messageId }
             .map { resultRowToMessage(it, true) }
             .let {
                 it
