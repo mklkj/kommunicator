@@ -43,8 +43,8 @@ class UserRepository(
                     email = credentials.email.trim(),
                     firstName = credentials.firstName.trim(),
                     lastName = credentials.lastName.trim(),
-                    dateOfBirth = credentials.dateOfBirth!!,
-                    gender = credentials.gender!!,
+                    dateOfBirth = credentials.dateOfBirth,
+                    gender = credentials.gender,
                 )
             )
         }.onFailure {

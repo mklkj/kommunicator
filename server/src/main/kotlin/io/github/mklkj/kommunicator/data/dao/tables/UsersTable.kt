@@ -14,13 +14,13 @@ object UsersTable : Table("users") {
     val password = varchar("password", 64)
     val firstName = varchar("first_name", 64)
     val lastName = varchar("last_name", 64)
-    val dateOfBirth = date("date_of_birth")
+    val dateOfBirth = date("date_of_birth").nullable()
     val gender = customEnumeration(
         name = "gender",
         sql = "UserGender",
         fromDb = { UserGender.valueOf(it.toString()) },
         toDb = { PGEnum("UserGender", it) },
-    )
+    ).nullable()
 
     override val primaryKey = PrimaryKey(id)
 

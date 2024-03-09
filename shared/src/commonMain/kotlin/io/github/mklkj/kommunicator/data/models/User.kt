@@ -12,8 +12,8 @@ data class User(
     val password: String,
     val firstName: String,
     val lastName: String,
-    val dateOfBirth: LocalDate,
-    val gender: UserGender,
+    val dateOfBirth: LocalDate?,
+    val gender: UserGender?,
 )
 
 enum class UserGender {

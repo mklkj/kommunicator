@@ -47,6 +47,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.mklkj.kommunicator.data.models.UserGender
 import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
+import io.github.mklkj.kommunicator.ui.utils.IS_DATE_OF_BIRTHDAY_REQUIRED
+import io.github.mklkj.kommunicator.ui.utils.IS_GENDER_REQUIRED
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.noRippleClickable
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
@@ -95,7 +97,7 @@ class RegistrationScreen : Screen {
     }
 
     @Composable
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun RegistrationScreenContent(
         state: RegistrationState,
         onSignUp: (RegistrationCredentials) -> Unit,
@@ -163,41 +165,32 @@ class RegistrationScreen : Screen {
                 focusRef = lastNameRef,
             )
             Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Gender: ")
+            if (IS_GENDER_REQUIRED) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Gender: ")
 
-                RadioButtonWithLabel(
-                    label = "Male",
-                    isSelected = gender == UserGender.MALE,
-                    value = UserGender.MALE,
-                    onValueSelect = { gender = UserGender.MALE },
-                )
-                RadioButtonWithLabel(
-                    label = "Female",
-                    isSelected = gender == UserGender.FEMALE,
-                    value = UserGender.FEMALE,
-                    onValueSelect = { gender = UserGender.FEMALE },
+                    RadioButtonWithLabel(
+                        label = "Male",
+                        isSelected = gender == UserGender.MALE,
+                        value = UserGender.MALE,
+                        onValueSelect = { gender = UserGender.MALE },
+                    )
+                    RadioButtonWithLabel(
+                        label = "Female",
+                        isSelected = gender == UserGender.FEMALE,
+                        value = UserGender.FEMALE,
+                        onValueSelect = { gender = UserGender.FEMALE },
+                    )
+                }
+            }
+            if (IS_DATE_OF_BIRTHDAY_REQUIRED) {
+                DateOfBirthInput(
+                    dateOfBirth = dateOfBirth,
+                    onDateOfBirthChange = { dateOfBirth = it },
+                    isDatePickerShown = isDatePickerShown,
+                    onDatePickerShownChange = { isDatePickerShown = it },
                 )
             }
-            OutlinedTextField(
-                label = { Text("Date of birth") },
-                value = dateOfBirth?.toString().orEmpty(),
-                onValueChange = { dateOfBirth = LocalDate.parse(it) },
-                singleLine = true,
-                enabled = false,
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledBorderColor = MaterialTheme.colorScheme.outline,
-                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    //For Icons
-                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .noRippleClickable { isDatePickerShown = true }
-            )
             if (!state.errorMessage.isNullOrBlank()) {
                 Text(
                     text = state.errorMessage,
@@ -229,50 +222,79 @@ class RegistrationScreen : Screen {
                 Text("Sign up", Modifier.fillMaxWidth())
             }
         }
+    }
+}
 
-        // https://medium.com/@rahulchaurasia3592/material3-datepicker-and-datepickerdialog-in-compose-in-android-54ec28be42c3
-        val defaultSelection = LocalDate.now().minus(DatePeriod(years = 13))
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = (dateOfBirth ?: defaultSelection).getMillis(),
-            yearRange = LocalDate.now().minus(DatePeriod(13)).let {
-                it.minus(DatePeriod(100)).year..it.year
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun DateOfBirthInput(
+    dateOfBirth: LocalDate?,
+    onDateOfBirthChange: (LocalDate?) -> Unit,
+    isDatePickerShown: Boolean,
+    onDatePickerShownChange: (Boolean) -> Unit,
+) {
+    OutlinedTextField(
+        label = { Text("Date of birth") },
+        value = dateOfBirth?.toString().orEmpty(),
+        onValueChange = { onDateOfBirthChange(LocalDate.parse(it)) },
+        singleLine = true,
+        enabled = false,
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            //For Icons
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .noRippleClickable { onDatePickerShownChange(true) }
+    )
+
+    // https://medium.com/@rahulchaurasia3592/material3-datepicker-and-datepickerdialog-in-compose-in-android-54ec28be42c3
+    val defaultSelection = LocalDate.now().minus(DatePeriod(years = 13))
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = (dateOfBirth ?: defaultSelection).getMillis(),
+        yearRange = LocalDate.now().minus(DatePeriod(13)).let {
+            it.minus(DatePeriod(100)).year..it.year
+        },
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis.toLocalDate().periodUntil(LocalDate.now()).years >= 13
+            }
+
+            override fun isSelectableYear(year: Int): Boolean {
+                return (LocalDate.now().year - year) >= 13
+            }
+        }
+    )
+    if (isDatePickerShown) {
+        DatePickerDialog(
+            onDismissRequest = { onDatePickerShownChange(false) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDateOfBirthChange(datePickerState.selectedDateMillis?.toLocalDate())
+                        onDatePickerShownChange(false)
+                    }
+                ) {
+                    Text(text = "OK")
+                }
             },
-            selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis.toLocalDate().periodUntil(LocalDate.now()).years >= 13
-                }
-
-                override fun isSelectableYear(year: Int): Boolean {
-                    return (LocalDate.now().year - year) >= 13
+            dismissButton = {
+                Button(onClick = { onDatePickerShownChange(false) }) {
+                    Text(text = "Cancel")
                 }
             }
-        )
-        if (isDatePickerShown) {
-            DatePickerDialog(
-                onDismissRequest = { isDatePickerShown = false },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            dateOfBirth = datePickerState.selectedDateMillis?.toLocalDate()
-                            isDatePickerShown = false
-                        }
-                    ) {
-                        Text(text = "OK")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { isDatePickerShown = false }) {
-                        Text(text = "Cancel")
-                    }
-                }
-            ) {
-                DatePicker(
-                    state = datePickerState,
-                    modifier = Modifier,
-                    dateFormatter = DatePickerDefaults.dateFormatter(),
-                    showModeToggle = true,
-                )
-            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                modifier = Modifier,
+                dateFormatter = DatePickerDefaults.dateFormatter(),
+                showModeToggle = true,
+            )
         }
     }
 }

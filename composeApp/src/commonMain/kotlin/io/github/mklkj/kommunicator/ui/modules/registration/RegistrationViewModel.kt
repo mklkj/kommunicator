@@ -2,6 +2,8 @@ package io.github.mklkj.kommunicator.ui.modules.registration
 
 import io.github.mklkj.kommunicator.data.repository.UserRepository
 import io.github.mklkj.kommunicator.ui.base.BaseViewModel
+import io.github.mklkj.kommunicator.ui.utils.IS_DATE_OF_BIRTHDAY_REQUIRED
+import io.github.mklkj.kommunicator.ui.utils.IS_GENDER_REQUIRED
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
 
@@ -62,14 +64,22 @@ class RegistrationViewModel(
             firstMessage = "E-mail is invalid"
         }
 
-        if (isValid && credentials.gender == null) {
+        if (isValid && credentials.firstName.isBlank()) {
             isValid = false
-            firstMessage = "Gender is required"
+            firstMessage = "First name can't be empty"
         }
 
-        if (isValid && credentials.dateOfBirth == null) {
-            isValid = false
-            firstMessage = "Date of birth is required"
+        if (IS_GENDER_REQUIRED) {
+            if (isValid && credentials.gender == null) {
+                isValid = false
+                firstMessage = "Gender is required"
+            }
+        }
+        if (IS_DATE_OF_BIRTHDAY_REQUIRED) {
+            if (isValid && credentials.dateOfBirth == null) {
+                isValid = false
+                firstMessage = "Date of birth is required"
+            }
         }
 
         mutableState.update {

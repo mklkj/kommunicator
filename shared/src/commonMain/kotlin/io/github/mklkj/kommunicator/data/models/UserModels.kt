@@ -12,8 +12,8 @@ data class UserRequest(
     val password: String,
     val firstName: String,
     val lastName: String,
-    val dateOfBirth: LocalDate,
-    val gender: UserGender,
+    val dateOfBirth: LocalDate?,
+    val gender: UserGender?,
 )
 
 @Serializable
@@ -23,7 +23,7 @@ data class UserResponse(
     val username: String,
     val firstName: String,
     val lastName: String,
-    val dateOfBirth: LocalDate,
-    val gender: UserGender,
+    val dateOfBirth: LocalDate?,
+    val gender: UserGender?,
     val avatarUrl: String,
 )
