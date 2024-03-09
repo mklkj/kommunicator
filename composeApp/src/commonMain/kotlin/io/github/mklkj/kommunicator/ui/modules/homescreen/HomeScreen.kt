@@ -2,6 +2,7 @@ package io.github.mklkj.kommunicator.ui.modules.homescreen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,7 +36,8 @@ object HomeScreen : Screen {
                         TabNavigationItem(tabNavigator, ChatsScreen)
                         TabNavigationItem(tabNavigator, ContactsScreen)
                     }
-                }
+                },
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

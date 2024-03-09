@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -105,10 +106,15 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     },
                 )
             },
+            modifier = Modifier.fillMaxSize()
         ) { paddingValues ->
             var revealedMessageId by remember { mutableStateOf<UUID?>(null) }
 
-            Column(Modifier.scaffoldPadding(paddingValues)) {
+            Column(
+                modifier = Modifier
+                    .scaffoldPadding(paddingValues)
+                    .fillMaxSize()
+            ) {
                 AnimatedVisibility(
                     visible = state.connectionStatus != ConnectionStatus.Connected,
                 ) {
@@ -160,7 +166,9 @@ class ConversationScreen(private val chatId: UUID) : Screen {
                     isLoading = state.isLoading,
                     onTyping = viewModel::onTyping,
                     onSendClick = viewModel::sendMessage,
-                    modifier = Modifier.fillMaxWidth().imePadding()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding()
                 )
             }
         }

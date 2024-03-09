@@ -24,7 +24,10 @@ fun App() {
         when (isLoggedIn) {
             true -> Navigator(HomeScreen) { CurrentScreen() }
             false -> Navigator(WelcomeScreen) { CurrentScreen() }
-            null -> Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            null -> Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
                 CircularProgressIndicator()
             }
         }
