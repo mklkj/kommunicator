@@ -17,7 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     FirebaseApp.configure()
     Application.initialize()
-    NotifierManager.shared.initialize(configuration: NotificationPlatformConfigurationIos.shared)
+    NotifierManager.shared.initialize(configuration: NotificationPlatformConfigurationIos(showPushNotification: true))
 
     return true
   }
