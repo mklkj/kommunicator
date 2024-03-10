@@ -95,23 +95,24 @@ fun Route.chatRoutes() {
         // todo: add verification whether a given user can write to that chat!!!
         messageService.saveMessage(entity)
 
+        val event = MessageBroadcast(
+            id = entity.id,
+            participantId = participantId,
+            createdAt = entity.timestamp,
+            content = entity.content,
+        )
         val connections = chatConnections.getConnections(chatId)
         connections
             .filterNot { it.userId == userId }
             .forEach {
                 println("Notify user: ${it.userId}")
-                val event = MessageBroadcast(
-                    id = entity.id,
-                    participantId = participantId,
-                    createdAt = entity.timestamp,
-                    content = entity.content,
-                )
                 it.session.sendSerialized<MessageEvent>(event)
             }
         notificationService.notifyParticipants(
             chatId = chatId,
             messageId = message.id,
             alreadyNotifiedUsers = connections.map { it.userId } + userId,
+            broadcast = event,
         )
 
         call.respond(message = HttpStatusCode.Created)
@@ -153,14 +154,14 @@ fun Route.chatWebsockets() {
                             )
                             messageService.saveMessage(entity)
 
+                            val event = MessageBroadcast(
+                                id = entity.id,
+                                participantId = participantId,
+                                content = entity.content,
+                                createdAt = entity.timestamp
+                            )
                             connections.forEach { connection ->
                                 println("Notify user: ${connection.userId}")
-                                val event = MessageBroadcast(
-                                    id = entity.id,
-                                    participantId = participantId,
-                                    content = entity.content,
-                                    createdAt = entity.timestamp
-                                )
                                 connection.session.sendSerialized<MessageEvent>(event)
                             }
                             // todo: add to some queue?
@@ -168,6 +169,7 @@ fun Route.chatWebsockets() {
                                 chatId = chatId,
                                 messageId = message.id,
                                 alreadyNotifiedUsers = connections.map { it.userId },
+                                broadcast = event,
                             )
                         }
 

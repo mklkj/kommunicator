@@ -3,13 +3,14 @@ package io.github.mklkj.kommunicator.data.service
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.google.firebase.messaging.ApnsConfig
-import com.google.firebase.messaging.Aps
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.MulticastMessage
 import com.google.firebase.messaging.Notification
+import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.repository.ChatRepository
 import io.github.mklkj.kommunicator.data.repository.MessageRepository
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -18,6 +19,7 @@ import org.koin.core.annotation.Singleton
 class NotificationService(
     private val chatRepository: ChatRepository,
     private val messageRepository: MessageRepository,
+    private val json: Json,
 ) {
 
     init {
@@ -31,7 +33,8 @@ class NotificationService(
     suspend fun notifyParticipants(
         chatId: UUID,
         messageId: UUID,
-        alreadyNotifiedUsers: List<UUID>
+        alreadyNotifiedUsers: List<UUID>,
+        broadcast: MessageBroadcast,
     ) {
         val chatParticipants = chatRepository.getChatParticipantsPushTokens(chatId)
 
@@ -50,15 +53,8 @@ class NotificationService(
                     .setBody(messageToNotify.content)
                     .build()
             )
-            .setApnsConfig(
-                ApnsConfig.builder()
-                    .setAps(
-                        Aps.builder()
-                            .build()
-                    )
-                    .build()
-            )
-            .putData("gcm.message_id", messageId.toString())
+            .putData("broadcast", json.encodeToString(broadcast))
+            .putData("chat_id", chatId.toString())
             .addAllTokens(registrationTokens)
             .build()
         val response = FirebaseMessaging.getInstance().sendEachForMulticast(message)

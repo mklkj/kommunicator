@@ -229,6 +229,7 @@ class ConversationClient(
         scope.launch {
             Logger.withTag(TAG).i("Marking chat as read")
             chatSession?.sendSerialized<MessageEvent>(
+                // todo: fix client-server synchronization issues
                 ChatReadPush(readAt = Clock.System.now())
             )
         }
