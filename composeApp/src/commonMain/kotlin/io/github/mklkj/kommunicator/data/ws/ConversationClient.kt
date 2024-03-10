@@ -36,6 +36,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ConversationClient"
@@ -104,8 +105,11 @@ class ConversationClient(
             connectionStatus.update { ConnectionStatus.Connecting }
             chatSession = runCatching { messagesRepository.getChatSession(chatId) }
                 .onFailure { error ->
+                    Logger.e("Error while connecting to websocket", error)
                     connectionStatus.update { ConnectionStatus.Error(error) }
-                    isConnectionShouldRetry.send(true)
+                    if (error !is CancellationException) {
+                        isConnectionShouldRetry.send(true)
+                    }
                 }
                 .onSuccess {
                     connectionStatus.update { ConnectionStatus.Connected }
@@ -120,8 +124,14 @@ class ConversationClient(
                     }
                 }
                 ?.catch { error ->
+                    Logger.e("Error while observing incoming messages from websocket", error)
                     chatSession = null
-                    isConnectionShouldRetry.send(true)
+
+                    // workaround for non-cancelling job when composition exit
+                    // probably related to https://github.com/Kotlin/kotlinx.coroutines/issues/2521
+                    if (error !is CancellationException) {
+                        isConnectionShouldRetry.send(true)
+                    }
                     connectionStatus.update { ConnectionStatus.Error(error) }
                 }
                 ?.collect()
