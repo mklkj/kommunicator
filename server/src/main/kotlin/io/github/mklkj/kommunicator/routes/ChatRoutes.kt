@@ -82,7 +82,6 @@ fun Route.chatRoutes() {
         val chatId = call.parameters.getOrFail("id").toUUID()
         val message = call.receive<MessageEvent>()
         val participantId = messageService.getChatParticipantId(chatId, userId)
-        val participants = chatService.getParticipants(chatId)
 
         if (message !is MessagePush) return@post
 
@@ -103,9 +102,7 @@ fun Route.chatRoutes() {
                 println("Notify user: ${it.userId}")
                 val event = MessageBroadcast(
                     id = entity.id,
-                    participantId = participants.single { participant ->
-                        it.userId == participant.userId
-                    }.id,
+                    participantId = participantId,
                     createdAt = entity.timestamp,
                     content = entity.content,
                 )
