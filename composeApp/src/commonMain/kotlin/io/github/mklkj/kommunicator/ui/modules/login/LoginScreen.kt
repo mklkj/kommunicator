@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,11 +34,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import io.github.mklkj.kommunicator.ui.modules.registration.RegistrationScreen
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
 import io.github.mklkj.kommunicator.ui.widgets.TextInput
 
-class LoginScreen : Screen {
+object LoginScreen : Screen {
 
     @Composable
     @OptIn(ExperimentalMaterial3Api::class)
@@ -51,11 +53,13 @@ class LoginScreen : Screen {
                 TopAppBar(
                     title = { Text("Sign in") },
                     navigationIcon = {
-                        IconButton(onClick = { navigator.pop() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                            )
+                        if (navigator.canPop) {
+                            IconButton(onClick = { navigator.pop() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                )
+                            }
                         }
                     },
                 )
@@ -64,6 +68,9 @@ class LoginScreen : Screen {
             LoginScreenContent(
                 state = state,
                 onLoginClick = viewModel::login,
+                onOpenRegistration = {
+                    navigator.push(RegistrationScreen)
+                },
                 modifier = Modifier.scaffoldPadding(it)
             )
         }
@@ -74,6 +81,7 @@ class LoginScreen : Screen {
     private fun LoginScreenContent(
         state: LoginState,
         onLoginClick: (username: String, password: String) -> Unit,
+        onOpenRegistration: () -> Unit,
         modifier: Modifier = Modifier,
     ) {
         val (first, second) = remember { FocusRequester.createRefs() }
@@ -107,6 +115,9 @@ class LoginScreen : Screen {
                 )
             }
             Spacer(Modifier.height(16.dp))
+            TextButton(onClick = onOpenRegistration) {
+                Text("Don't have an account? Register here")
+            }
             Spacer(Modifier.weight(1f))
             Button(
                 onClick = { onLoginClick(username.value, password.value) },

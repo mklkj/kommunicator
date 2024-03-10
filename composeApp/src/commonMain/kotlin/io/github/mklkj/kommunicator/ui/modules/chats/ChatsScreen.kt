@@ -53,7 +53,7 @@ import cafe.adriel.voyager.navigator.tab.TabOptions
 import io.github.mklkj.kommunicator.data.db.entity.LocalChat
 import io.github.mklkj.kommunicator.ui.modules.account.AccountScreen
 import io.github.mklkj.kommunicator.ui.modules.conversation.ConversationScreen
-import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
+import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
 import io.github.mklkj.kommunicator.ui.utils.LocalNavigatorParent
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import io.github.mklkj.kommunicator.ui.utils.scaffoldPadding
@@ -148,7 +148,7 @@ internal object ChatsScreen : Tab {
                     .fillMaxSize()
             ) {
                 when {
-                    !state.isLoggedIn -> navigator.replaceAll(WelcomeScreen)
+                    !state.isLoggedIn -> navigator.replaceAll(LoginScreen)
 
                     state.isLoading && state.chats.isEmpty() -> Box(
                         contentAlignment = Alignment.Center,

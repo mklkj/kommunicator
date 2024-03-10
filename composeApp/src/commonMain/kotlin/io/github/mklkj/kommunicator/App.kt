@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import io.github.mklkj.kommunicator.ui.modules.homescreen.HomeScreen
-import io.github.mklkj.kommunicator.ui.modules.welcome.WelcomeScreen
+import io.github.mklkj.kommunicator.ui.modules.login.LoginScreen
 import io.github.mklkj.kommunicator.ui.theme.KommunicatorTheme
 import io.github.mklkj.kommunicator.ui.utils.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
@@ -28,7 +28,7 @@ fun App() {
 
         when (isLoggedIn) {
             true -> Navigator(HomeScreen) { CurrentScreen() }
-            false -> Navigator(WelcomeScreen) { CurrentScreen() }
+            false -> Navigator(LoginScreen) { CurrentScreen() }
             null -> Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()

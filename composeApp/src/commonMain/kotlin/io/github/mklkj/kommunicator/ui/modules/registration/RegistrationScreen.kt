@@ -62,7 +62,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.periodUntil
 
-class RegistrationScreen : Screen {
+object RegistrationScreen : Screen {
 
     @Composable
     @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +72,7 @@ class RegistrationScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
 
         if (state.isRegistered) {
-            navigator.replace(LoginScreen())
+            navigator.popUntil { it is LoginScreen }
         } else Scaffold(
             topBar = {
                 TopAppBar(
