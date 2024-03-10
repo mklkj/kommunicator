@@ -23,7 +23,7 @@ class ConversationViewModel(
     fun loadData(chatId: UUID) {
         loadChatDetails(chatId)
         observeMessages(chatId)
-        refreshChat(chatId)
+        refreshChatMessages(chatId)
         initializeWebSocketSession(chatId)
     }
 
@@ -76,9 +76,12 @@ class ConversationViewModel(
         }
     }
 
-    private fun refreshChat(chatId: UUID) {
+    private fun refreshChatMessages(chatId: UUID) {
         launch("chat_refresh_$chatId", cancelExisting = false) {
-            runCatching { messagesRepository.refreshMessages(chatId) }
+            runCatching {
+                messagesRepository.refreshMessages(chatId)
+                messagesRepository.refreshChat(chatId)
+            }
                 .onFailure { error ->
                     proceedError(error)
                     mutableState.update {

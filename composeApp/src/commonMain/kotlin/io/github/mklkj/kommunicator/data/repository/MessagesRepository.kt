@@ -59,26 +59,29 @@ class MessagesRepository(
     }
 
     suspend fun getChat(chatId: UUID): Chats {
-        val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
-
         val chat = database.getChat(chatId)
         if (chat == null) {
-            val remoteChat = messagesService.getChat(chatId)
-            database.insertChats(userId, listOf(remoteChat))
+            refreshChat(chatId)
             return requireNotNull(database.getChat(chatId))
         }
         return chat
+    }
+
+    suspend fun refreshChat(chatId: UUID) {
+        val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
+        val remoteChat = messagesService.getChat(chatId)
+        database.insertChats(userId, listOf(remoteChat))
+    }
+
+    suspend fun refreshMessages(chatId: UUID) {
+        val messages = messagesService.getMessages(chatId)
+        database.insertMessages(chatId, messages)
     }
 
     suspend fun refreshChats() {
         val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
         val remoteChats = messagesService.getChats()
         database.insertChats(userId, remoteChats)
-    }
-
-    suspend fun refreshMessages(chatId: UUID) {
-        val messages = messagesService.getMessages(chatId)
-        database.insertMessages(chatId, messages)
     }
 
     fun observeMessages(chatId: UUID): Flow<List<LocalMessage>> {
