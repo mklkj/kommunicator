@@ -16,8 +16,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
     FirebaseApp.configure()
-    Application.initialize()
-    NotifierManager.shared.initialize(configuration: NotificationPlatformConfigurationIos(showPushNotification: true))
 
     return true
   }

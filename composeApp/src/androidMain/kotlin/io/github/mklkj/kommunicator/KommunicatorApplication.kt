@@ -8,6 +8,5 @@ class KommunicatorApplication : AndroidApplication() {
     override fun onCreate() {
         super.onCreate()
         initKoin(this)
-        Application.initialize()
     }
 }

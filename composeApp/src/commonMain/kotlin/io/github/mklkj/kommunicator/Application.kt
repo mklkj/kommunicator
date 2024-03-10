@@ -27,13 +27,13 @@ object Application {
 
     @OptIn(ExperimentalKermitApi::class, DelicateCoroutinesApi::class)
     fun initialize() {
-        ApplicationPlatform.initialize()
-        enableCrashlytics()
         Logger.setLogWriters(buildList {
             if (BuildKonfig.IS_DEBUG) {
                 add(platformLogWriter())
             } else add(CrashlyticsLogWriter())
         })
+        ApplicationPlatform.initialize()
+        enableCrashlytics()
 
         NotifierManager.addListener(object : NotifierManager.Listener, KoinComponent {
             val userRepository by inject<UserRepository>()
