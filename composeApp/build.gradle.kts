@@ -79,7 +79,7 @@ kotlin {
             implementation(libs.kotlinx.uuid.sqldelight)
             // workaround https://github.com/cashapp/sqldelight/issues/4357#issuecomment-1839905700
             //noinspection UseTomlInstead
-            implementation("co.touchlab:stately-common:2.0.5")
+            implementation("co.touchlab:stately-common:2.0.6")
 
             implementation(libs.kotlinx.coroutines)
             implementation(libs.ktorfit)
@@ -112,6 +112,13 @@ kotlin {
             }
         }
     }
+}
+
+// https://slack-chats.kotlinlang.org/t/16653950/has-anyone-tried-to-use-compose-multiplatform-1-6-0-with-kot
+compose {
+//    kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=1.9.23")
+//    kotlinCompilerPlugin.set(dependencies.compiler.forKotlin("1.9.22"))
+    kotlinCompilerPlugin.set(libs.versions.compose.compiler.get())
 }
 
 dependencies {
