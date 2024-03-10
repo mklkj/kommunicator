@@ -1,12 +1,12 @@
 package io.github.mklkj.kommunicator.data.ws
 
 import co.touchlab.kermit.Logger
+import io.github.mklkj.kommunicator.data.models.ChatReadPush
 import io.github.mklkj.kommunicator.data.models.MessageBroadcast
 import io.github.mklkj.kommunicator.data.models.MessageEvent
 import io.github.mklkj.kommunicator.data.models.MessagePush
 import io.github.mklkj.kommunicator.data.models.MessageRequest
 import io.github.mklkj.kommunicator.data.models.ParticipantReadBroadcast
-import io.github.mklkj.kommunicator.data.models.ChatReadPush
 import io.github.mklkj.kommunicator.data.models.TypingBroadcast
 import io.github.mklkj.kommunicator.data.models.TypingPush
 import io.github.mklkj.kommunicator.data.repository.MessagesRepository
@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -39,6 +40,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ConversationClient"
 private val TYPING_SAMPLE_DURATION = 3.seconds
+const val RECONNECTION_WAIT_SECONDS = 3
 
 @Factory
 class ConversationClient(
@@ -57,32 +59,72 @@ class ConversationClient(
     val typingParticipants = MutableStateFlow<Map<UUID, Instant>>(emptyMap())
     val connectionStatus = MutableStateFlow<ConnectionStatus>(ConnectionStatus.NotConnected)
 
+    private val isConnectionShouldRetry = Channel<Boolean>()
+    private var connectJob: Job? = null
+
+    init {
+        initializeTypingObserver()
+        initializeTypingStaleTimer()
+    }
+
     fun connect(chatId: UUID) {
         Logger.withTag(TAG).i("Connecting to websocket on $chatId chat")
         this.chatId = chatId
-        scope.launch(errorExceptionHandler) {
-            connectionStatus.update { ConnectionStatus.Connecting }
-            chatSession = runCatching { messagesRepository.getChatSession(chatId) }
-                .onFailure { error -> connectionStatus.update { ConnectionStatus.Error(error) } }
-                .getOrThrow()
+        initializeConnectionRetryingObserver(chatId)
+        connectAndObserveIncomingMessages(chatId)
+    }
 
-            initializeTypingObserver()
-            initializeTypingStaleTimer()
-            observeIncomingMessages()
+    private fun initializeConnectionRetryingObserver(chatId: UUID) {
+        scope.launch(errorExceptionHandler) {
+            isConnectionShouldRetry.consumeAsFlow()
+                .throttleFirst(1.seconds)
+                .onEach { shouldReconnect ->
+                    if (shouldReconnect) {
+                        val previousError = connectionStatus.value as? ConnectionStatus.Error
+                        var retryIn = previousError?.retryIn ?: RECONNECTION_WAIT_SECONDS
+                        while (retryIn > 0) {
+                            val updatedState = ConnectionStatus.Error(
+                                error = previousError?.error,
+                                retryIn = retryIn,
+                            )
+                            connectionStatus.update { updatedState }
+                            retryIn--
+                            delay(1.seconds)
+                        }
+                        connectAndObserveIncomingMessages(chatId)
+                    }
+                }
+                .collect()
         }
     }
 
-    private suspend fun observeIncomingMessages() {
-        try {
-            connectionStatus.update { ConnectionStatus.Connected }
-            for (frame in chatSession?.incoming ?: return) {
-                if (frame !is Frame.Text) continue
+    private fun connectAndObserveIncomingMessages(chatId: UUID) {
+        connectJob?.cancel()
+        connectJob = scope.launch(errorExceptionHandler) {
+            connectionStatus.update { ConnectionStatus.Connecting }
+            chatSession = runCatching { messagesRepository.getChatSession(chatId) }
+                .onFailure { error ->
+                    connectionStatus.update { ConnectionStatus.Error(error) }
+                    isConnectionShouldRetry.send(true)
+                }
+                .onSuccess {
+                    connectionStatus.update { ConnectionStatus.Connected }
+                    isConnectionShouldRetry.send(false)
+                }
+                .getOrThrow()
 
-                handleIncomingFrame(frame)
-            }
-        } catch (e: Throwable) {
-            connectionStatus.update { ConnectionStatus.Error(e) }
-            chatSession = null
+            chatSession?.incoming?.consumeAsFlow()
+                ?.onEach { frame ->
+                    if (frame is Frame.Text) {
+                        handleIncomingFrame(frame)
+                    }
+                }
+                ?.catch { error ->
+                    chatSession = null
+                    isConnectionShouldRetry.send(true)
+                    connectionStatus.update { ConnectionStatus.Error(error) }
+                }
+                ?.collect()
         }
     }
 
@@ -147,7 +189,7 @@ class ConversationClient(
     private fun initializeTypingObserver() {
         scope.launch(errorExceptionHandler) {
             typingChannel.consumeAsFlow()
-                .throttleFirst(TYPING_SAMPLE_DURATION.inWholeMilliseconds)
+                .throttleFirst(TYPING_SAMPLE_DURATION)
                 .onEach {
                     chatSession?.sendSerialized<MessageEvent>(TypingPush(it))
                 }

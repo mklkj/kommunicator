@@ -111,7 +111,7 @@ fun Route.chatRoutes() {
         notificationService.notifyParticipants(
             chatId = chatId,
             messageId = message.id,
-            alreadyNotifiedUsers = connections.map { it.userId },
+            alreadyNotifiedUsers = connections.map { it.userId } + userId,
         )
 
         call.respond(message = HttpStatusCode.Created)
