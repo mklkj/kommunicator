@@ -37,6 +37,7 @@ import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ConversationClient"
@@ -228,10 +229,18 @@ class ConversationClient(
     fun onChatRead() {
         scope.launch {
             Logger.withTag(TAG).i("Marking chat as read")
-            chatSession?.sendSerialized<MessageEvent>(
-                // todo: fix client-server synchronization issues
-                ChatReadPush(readAt = Clock.System.now())
-            )
+            val now = Clock.System.now()
+            val lastMessageTimestamp = messagesRepository
+                .getLastMessageTimestamp(chatId ?: return@launch)
+                ?.plus(1.milliseconds) // hack to fix timestamp comparison in sql query
+
+            val readTimestamp = when {
+                lastMessageTimestamp != null && lastMessageTimestamp > now -> lastMessageTimestamp
+                else -> now
+            }
+
+            Logger.i("Mark $chatId as read on $readTimestamp (now: $now, lastMessage: $lastMessageTimestamp)")
+            chatSession?.sendSerialized<MessageEvent>(ChatReadPush(readAt = readTimestamp))
         }
     }
 

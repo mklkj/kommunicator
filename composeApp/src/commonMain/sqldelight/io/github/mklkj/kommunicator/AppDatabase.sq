@@ -146,3 +146,6 @@ LEFT JOIN Messages ON Participants.chatId = Messages.chatId
         ORDER BY createdAt DESC
     )
 WHERE Messages.createdAt < Participants.readAt AND Participants.chatId = ?;
+
+selectLastMessageCreatedAt:
+SELECT Messages.createdAt FROM Messages WHERE chatId = ? ORDER BY Messages.createdAt DESC LIMIT 1;

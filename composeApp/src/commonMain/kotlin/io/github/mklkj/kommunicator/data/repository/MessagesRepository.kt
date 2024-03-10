@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 import org.koin.core.annotation.Singleton
 
@@ -85,6 +86,10 @@ class MessagesRepository(
             val userId = database.getCurrentUser()?.id ?: error("There is no current user!")
             emitAll(database.observeMessages(chatId, userId))
         }
+    }
+
+    suspend fun getLastMessageTimestamp(chatId: UUID): Instant? {
+        return database.getLastMessageTimestamp(chatId)
     }
 
     fun observeParticipants(chatId: UUID): Flow<List<Participants>> {

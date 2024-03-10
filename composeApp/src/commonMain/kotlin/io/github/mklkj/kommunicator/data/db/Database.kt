@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.uuid.UUID
 import kotlinx.uuid.sqldelight.UUIDStringAdapter
 import org.koin.core.annotation.Singleton
@@ -245,6 +246,10 @@ class Database(sqlDriver: SqlDriver) {
                     )
                 }
             }
+    }
+
+    suspend fun getLastMessageTimestamp(chatId: UUID): Instant? = withContext(Dispatchers.IO) {
+        dbQuery.selectLastMessageCreatedAt(chatId).executeAsOneOrNull()
     }
 
     suspend fun insertMessages(chatId: UUID, messages: List<Message>) {
