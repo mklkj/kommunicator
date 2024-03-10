@@ -82,6 +82,7 @@ class ConversationClient(
             }
         } catch (e: Throwable) {
             connectionStatus.update { ConnectionStatus.Error(e) }
+            chatSession = null
         }
     }
 
