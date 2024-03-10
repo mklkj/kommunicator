@@ -99,7 +99,7 @@ internal object ContactsScreen : Tab {
         }
 
         if (state.createdChat != null) {
-            navigator.push(ConversationScreen(state.createdChat!!))
+            navigator.push(ConversationScreen(state.createdChat?.toString()!!))
             viewModel.onConversationOpened()
         } else Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },

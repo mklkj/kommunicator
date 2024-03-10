@@ -59,15 +59,17 @@ import io.github.mklkj.kommunicator.ui.widgets.AppImage
 import io.github.mklkj.kommunicator.ui.widgets.DotsTyping
 import io.github.mklkj.kommunicator.utils.format
 import kotlinx.uuid.UUID
+import kotlinx.uuid.toUUID
 
-class ConversationScreen(private val chatId: UUID) : Screen {
+class ConversationScreen(private val chatId: String) : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getScreenModel<ConversationViewModel>()
         LaunchedEffect(viewModel) {
-            viewModel.loadData(chatId)
+            // workaround https://github.com/hfhbd/kotlinx-uuid/pull/282
+            viewModel.loadData(chatId.toUUID())
         }
         ConversationScreenContent(
             viewModel = viewModel,

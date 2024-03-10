@@ -197,7 +197,7 @@ internal object ChatsScreen : Tab {
                         items(state.chats, key = { it.id.toString() }) { chat ->
                             ChatItem(
                                 item = chat,
-                                onClick = { navigator.push(ConversationScreen(it.id)) },
+                                onClick = { navigator.push(ConversationScreen(it.id.toString())) },
                             )
                         }
                     }
