@@ -7,9 +7,10 @@ import io.github.mklkj.kommunicator.data.db.AppDatabase
 import io.github.mklkj.kommunicator.ui.utils.PlatformInfo
 import io.github.mklkj.kommunicator.utils.PlatformInfoAndroid
 import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.koin.ksp.generated.defaultModule
+import org.koin.ksp.generated.module
 
 private val platformModule = module {
     single<SqlDriver> { AndroidSqliteDriver(AppDatabase.Schema, get(), "kommunicator.db") }
@@ -19,6 +20,9 @@ private val platformModule = module {
 fun initKoin(context: Context) {
     startKoin {
         androidContext(context)
-        modules(commonModule, defaultModule, platformModule)
+        androidLogger()
+        commonModule()
+        modules(platformModule)
+        modules(AppModule.module)
     }
 }

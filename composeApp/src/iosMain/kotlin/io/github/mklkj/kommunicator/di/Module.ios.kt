@@ -6,8 +6,8 @@ import io.github.mklkj.kommunicator.data.db.AppDatabase
 import io.github.mklkj.kommunicator.ui.utils.PlatformInfo
 import io.github.mklkj.kommunicator.ui.utils.PlatformInfoIos
 import org.koin.core.context.startKoin
-import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.koin.ksp.generated.module
 
 private val platformModule = module {
     single<SqlDriver> { NativeSqliteDriver(AppDatabase.Schema, "kommunicator.db") }
@@ -17,8 +17,8 @@ private val platformModule = module {
 @Suppress("unused")
 fun initKoin() {
     startKoin {
-        modules(commonModule, koinDefaultModule, platformModule)
+        commonModule()
+        modules(platformModule)
+        modules(AppModule.module)
     }
 }
-
-expect val koinDefaultModule: Module

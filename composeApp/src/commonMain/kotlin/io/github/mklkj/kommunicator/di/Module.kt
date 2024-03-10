@@ -33,11 +33,14 @@ import io.ktor.serialization.WebsocketContentConverter
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.koin.core.KoinApplication
 import org.koin.dsl.module
 import kotlin.time.Duration.Companion.seconds
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
-val commonModule = module {
+fun KoinApplication.commonModule(): KoinApplication = modules(commonModule)
+
+private val commonModule = module {
     single {
         Json {
             ignoreUnknownKeys = true
