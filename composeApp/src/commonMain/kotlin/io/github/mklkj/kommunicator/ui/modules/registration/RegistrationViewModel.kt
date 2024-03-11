@@ -5,6 +5,7 @@ import io.github.mklkj.kommunicator.ui.base.BaseViewModel
 import io.github.mklkj.kommunicator.ui.utils.IS_DATE_OF_BIRTHDAY_REQUIRED
 import io.github.mklkj.kommunicator.ui.utils.IS_GENDER_REQUIRED
 import kotlinx.coroutines.flow.update
+import kotlinx.uuid.UUID
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -12,12 +13,14 @@ class RegistrationViewModel(
     private val userRepository: UserRepository,
 ) : BaseViewModel<RegistrationState>(RegistrationState()) {
 
+    private val id = UUID()
+
     fun signUp(credentials: RegistrationCredentials) {
         if (!isFieldsValid(credentials)) return
 
         mutableState.update { it.copy(isLoading = true) }
         launch("register_user") {
-            runCatching { userRepository.registerUser(credentials) }
+            runCatching { userRepository.registerUser(id, credentials) }
                 .onFailure { error ->
                     proceedError(error)
                     mutableState.update {

@@ -33,11 +33,11 @@ class UserRepository(
     private val platformInfo: PlatformInfo,
 ) {
 
-    suspend fun registerUser(credentials: RegistrationCredentials) {
+    suspend fun registerUser(id: UUID, credentials: RegistrationCredentials) {
         runCatching {
             userService.registerUser(
                 UserRequest(
-                    id = UUID(),
+                    id = id,
                     username = credentials.username.trim(),
                     password = credentials.password.trim(),
                     email = credentials.email.trim(),
