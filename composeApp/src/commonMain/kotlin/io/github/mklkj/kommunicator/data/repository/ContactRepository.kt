@@ -18,7 +18,7 @@ class ContactRepository(
 ) {
 
     suspend fun addContact(username: String) {
-        runCatching { contactService.addContact(ContactAddRequest(username)) }
+        runCatching { contactService.addContact(ContactAddRequest(username.trim())) }
             .onFailure {
                 if (it is ClientRequestException) {
                     when (it.response.status) {
