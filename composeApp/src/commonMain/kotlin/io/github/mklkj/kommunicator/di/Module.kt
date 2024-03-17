@@ -8,11 +8,13 @@ import io.github.mklkj.kommunicator.data.api.service.MessagesService
 import io.github.mklkj.kommunicator.data.api.service.UserService
 import io.github.mklkj.kommunicator.data.db.Database
 import io.github.mklkj.kommunicator.data.exceptions.UserTokenExpiredException
+import io.github.mklkj.kommunicator.data.exceptions.isNetworkException
 import io.github.mklkj.kommunicator.data.models.LoginRefreshRequest
 import io.github.mklkj.kommunicator.data.models.LoginResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -21,6 +23,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.plugin
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -48,8 +51,8 @@ private val commonModule = module {
         }
     }
     single<WebsocketContentConverter> { KotlinxWebsocketSerializationConverter(get<Json>()) }
-    single {
-        HttpClient {
+    single<HttpClient> {
+        val client = HttpClient {
             developmentMode = BuildKonfig.IS_DEBUG
             expectSuccess = true
             defaultRequest {
@@ -121,6 +124,19 @@ private val commonModule = module {
                 }
             }
         }
+
+        client.plugin(HttpSend).intercept { request ->
+            val originalCall = runCatching { execute(request) }
+                .onFailure {
+                    when {
+                        it.isNetworkException() -> error("Unable to connect to API via ${BuildKonfig.BASE_URL}")
+                        else -> throw it
+                    }
+                }
+            originalCall.getOrThrow()
+        }
+
+        client
     }
     single {
         Ktorfit.Builder()

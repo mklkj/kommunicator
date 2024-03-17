@@ -104,7 +104,7 @@ internal object ChatsScreen : Tab {
             if (state.error != null) {
                 snackbarJob = scope.launch {
                     val action = snackbarHostState.showSnackbar(
-                        message = state.error?.message.toString(),
+                        message = state.error?.message.toString().take(128),
                         actionLabel = "Retry",
                         duration = SnackbarDuration.Short
                     )
