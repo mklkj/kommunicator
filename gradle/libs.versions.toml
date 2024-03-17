@@ -3,6 +3,7 @@ commonsLogging = "1.3.0"
 desugar_jdk_libs = "2.0.4"
 exposed = "0.48.0"
 getlive-firebase = "1.11.1"
+firebase-bom = "32.7.4"
 firebaseAdmin = "9.2.0"
 flywayCore = "10.9.1"
 humanReadable = "1.2.0"
@@ -29,13 +30,17 @@ android-targetSdk = "34"
 androidx-lifecycle = "2.7.0"
 androidx-activityCompose = "1.8.2"
 compose-android = "1.6.3"
-compose-plugin = "1.6.0"
+compose-plugin = "1.6.1"
 compose-compiler = "1.5.10"
 junit = "4.13.2"
 postgresql = "42.7.2"
 springSecurityCrypto = "6.2.2"
 sqldelight = "2.0.1"
 voyager = "1.0.0"
+crashlytics = "2.9.9"
+crashlyticslink = "0.8.6"
+google-services = "4.4.1"
+buildkonfig = "0.15.1"
 
 [libraries]
 commons-logging = { module = "commons-logging:commons-logging", version.ref = "commonsLogging" }
@@ -46,6 +51,7 @@ exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "e
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebaseAdmin" }
 firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "getlive-firebase" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 flyway-core = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywayCore" }
 human-readable = { module = "nl.jacobras:human-readable", version.ref = "humanReadable" }
 java-jwt = { module = "com.auth0:java-jwt", version.ref = "javaJwt" }
@@ -116,8 +122,8 @@ cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotli
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
-buildkonfig = { id = "com.codingfeline.buildkonfig", version = "0.15.1" }
-gms = { id = "com.google.gms.google-services", version = "4.4.1" }
-crashlytics = { id = "com.google.firebase.crashlytics", version = "2.9.9" }
-crashlyticslink = { id = "co.touchlab.crashkios.crashlyticslink", version = "0.8.5" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+gms = { id = "com.google.gms.google-services", version.ref = "google-services" }
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
+crashlyticslink = { id = "co.touchlab.crashkios.crashlyticslink", version.ref = "crashlyticslink" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

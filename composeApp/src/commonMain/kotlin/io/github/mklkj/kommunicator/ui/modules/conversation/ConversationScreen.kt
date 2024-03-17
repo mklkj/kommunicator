@@ -68,8 +68,10 @@ class ConversationScreen(private val chatId: String) : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getScreenModel<ConversationViewModel>()
         LaunchedEffect(viewModel) {
-            // workaround https://github.com/hfhbd/kotlinx-uuid/pull/282
-            viewModel.loadData(chatId.toUUID())
+            viewModel.loadData(
+                // workaround https://github.com/hfhbd/kotlinx-uuid/pull/282
+                chatId = chatId.toUUID(),
+            )
         }
         ConversationScreenContent(
             viewModel = viewModel,

@@ -22,8 +22,8 @@ class ConversationViewModel(
 
     fun loadData(chatId: UUID) {
         loadChatDetails(chatId)
-        observeMessages(chatId)
         refreshChatMessages(chatId)
+        observeMessages(chatId)
         initializeWebSocketSession(chatId)
     }
 

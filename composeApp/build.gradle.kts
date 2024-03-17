@@ -48,7 +48,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.sqldelight.android)
-            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.1"))
+            implementation(project.dependencies.platform(libs.firebase.bom))
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -112,13 +112,6 @@ kotlin {
             }
         }
     }
-}
-
-// https://slack-chats.kotlinlang.org/t/16653950/has-anyone-tried-to-use-compose-multiplatform-1-6-0-with-kot
-compose {
-//    kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=1.9.23")
-//    kotlinCompilerPlugin.set(dependencies.compiler.forKotlin("1.9.22"))
-    kotlinCompilerPlugin.set(libs.versions.compose.compiler.get())
 }
 
 dependencies {
