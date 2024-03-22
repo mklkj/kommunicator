@@ -16,11 +16,18 @@ Podstawowe funkcjonalności komunikatora:
 - [x] wysyłanie i odbieranie wiadomości tekstowych
 - [x] statusy (odczytana wiadomość, pisanie)
 - [x] historia wiadomości dostępna offline
-- [x] powiadomienia push 
+- [x] powiadomienia push
 
 ## Uruchomienie projektu
 
 ### Serwer
+
+Do zbudowania serwera z działającą wysyłką powiadomień wymagane jest podanie w zmiennej
+GOOGLE_APPLICATION_CREDENTIALS w pliku .env ścieżki do pliku .json z danymi dostępowymi do Google
+Cloud, które można wygenerować tak, jak pisano na stronie:
+https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments.
+
+UWAGA: Żeby powiadomienia działały, aplikacje muszą być połączone z tym samym projektem Firebase.
 
 ```shell
 $ cp .env.example .env # skopiowanie domyślnych ustawień
