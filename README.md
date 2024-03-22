@@ -35,7 +35,7 @@ $ docker-compose up    # utworzenie obrazów z serwerem i bazą danych oraz ich 
 > [!NOTE]
 > Aplikacja domyślnie buduje się z adresem API ustawionym na http://192.168.227.5:8080/. Należy go
 > dostosować do adresu hosta z postawionym w poprzednim kroku serwerem w pliku
-> ./composeApp/build.gradle w bloku `buildkonfig.targetConfigs`.
+> ./composeApp/build.gradle w bloku `targetConfigs`.
 
 ## Android
 
@@ -52,7 +52,7 @@ Do zbudowania aplikacji z działającymi powiadomieniami potrzebny jest Provisio
 a więc i konto Apple ID z Apple Developer Program membership.
 
 W pliku Config.xcconfig ustawia się TEAM_ID używany przy budowaniu aplikacji. Można zostawić pusty
-(jak w Config.xcconfig.example) ale wtedy nie będą działać powiadomienia.
+(jak w Config.xcconfig.example), ale wtedy nie będą działać powiadomienia.
 
 ```shell
 $ cp iosApp/Configuration/Config.xcconfig.example iosApp/Configuration/Config.xcconfig
